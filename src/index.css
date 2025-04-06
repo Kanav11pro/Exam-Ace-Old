@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,19 +36,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -79,6 +73,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -97,5 +92,75 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .subject-card {
+    @apply relative rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg;
+  }
+  
+  .subject-card-maths {
+    @apply bg-gradient-to-br from-cyan-500 to-blue-600 text-white;
+  }
+  
+  .subject-card-physics {
+    @apply bg-gradient-to-br from-green-500 to-green-700 text-white;
+  }
+  
+  .subject-card-chemistry {
+    @apply bg-gradient-to-br from-orange-400 to-orange-600 text-white;
+  }
+  
+  .subject-card-dashboard {
+    @apply bg-gradient-to-br from-purple-500 to-purple-700 text-white;
+  }
+  
+  .progress-bar {
+    @apply h-2 mt-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden;
+  }
+  
+  .progress-bar-fill {
+    @apply h-full rounded-full;
+  }
+  
+  .progress-bar-fill-maths {
+    @apply bg-cyan-400;
+  }
+  
+  .progress-bar-fill-physics {
+    @apply bg-green-400;
+  }
+  
+  .progress-bar-fill-chemistry {
+    @apply bg-orange-300;
+  }
+  
+  .progress-bar-fill-dashboard {
+    @apply bg-purple-300;
+  }
+  
+  .chapter-card {
+    @apply rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 dark:border-gray-700;
+  }
+  
+  .category-button {
+    @apply py-2 px-4 rounded-md transition-all duration-200 font-medium text-sm;
+  }
+  
+  .category-button-learn {
+    @apply bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800;
+  }
+  
+  .category-button-practice {
+    @apply bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800;
+  }
+  
+  .category-button-tests {
+    @apply bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-300 dark:hover:bg-amber-800;
+  }
+  
+  .category-button-revise {
+    @apply bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:hover:bg-purple-800;
   }
 }
