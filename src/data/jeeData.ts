@@ -1,4 +1,3 @@
-
 import { SubtopicData } from "@/context/JEEDataContext";
 
 // Define the empty subtopic template
@@ -210,28 +209,174 @@ export const categoryDescriptions = {
 
 // Study tools icons and names
 export const studyTools = [
-  { id: 'pomodoro', name: 'Pomodoro Timer', icon: '⏱️', description: 'Focus with timed intervals' },
-  { id: 'flashcards', name: 'Flashcards', icon: '🃏', description: 'Quick revision cards' },
-  { id: 'notes', name: 'Smart Notes', icon: '📝', description: 'Organize your notes' },
-  { id: 'mindmap', name: 'Mind Mapping', icon: '🧠', description: 'Visualize concepts' },
-  { id: 'calendar', name: 'Study Calendar', icon: '📅', description: 'Plan your schedule' },
-  { id: 'goals', name: 'Goal Setting', icon: '🎯', description: 'Track your targets' },
-  { id: 'formula', name: 'Formula Bank', icon: '∑', description: 'Quick formula reference' },
-  { id: 'errorlog', name: 'Error Log', icon: '❌', description: 'Track and learn from mistakes' },
-  { id: 'mocktest', name: 'Mock Test', icon: '📝', description: 'Full-length practice exams' },
-  { id: 'focus', name: 'Focus Mode', icon: '🧘', description: 'Distraction-free studying' },
-  { id: 'analytics', name: 'Study Analytics', icon: '📊', description: 'Analyze your performance' },
-  { id: 'bookmark', name: 'Bookmarks', icon: '🔖', description: 'Save important topics' },
-  { id: 'dictionary', name: 'Quick Dictionary', icon: '📔', description: 'Look up definitions' },
-  { id: 'calculator', name: 'Scientific Calculator', icon: '🔢', description: 'Solve complex equations' },
-  { id: 'companion', name: 'AI Study Companion', icon: '🤖', description: 'Get smart assistance' },
-  { id: 'voice', name: 'Voice Notes', icon: '🎤', description: 'Record your thoughts' },
-  { id: 'whiteboard', name: 'Digital Whiteboard', icon: '🖊️', description: 'Visual explanations' },
-  { id: 'resources', name: 'Resource Library', icon: '📚', description: 'Curated study materials' },
-  { id: 'habit', name: 'Habit Tracker', icon: '📈', description: 'Build study habits' },
-  { id: 'motivation', name: 'Motivation Quotes', icon: '💪', description: 'Stay inspired daily' },
-  { id: 'community', name: 'Study Community', icon: '👥', description: 'Connect with peers' },
-  { id: 'revision', name: 'Spaced Revision', icon: '🔁', description: 'Optimal revision scheduling' }
+  {
+    id: 'pomodoro',
+    name: 'Pomodoro Timer',
+    description: 'Focus with timed study sessions',
+    icon: '⏱️',
+    category: 'productivity'
+  },
+  {
+    id: 'flashcards',
+    name: 'Flashcards',
+    description: 'Create and test yourself with flashcards',
+    icon: '🗂️',
+    category: 'revision'
+  },
+  {
+    id: 'studyTimer',
+    name: 'Study Timer',
+    description: 'Track how long you study each subject',
+    icon: '⏲️',
+    category: 'productivity'
+  },
+  {
+    id: 'noteTaker',
+    name: 'Note Taker',
+    description: 'Create and organize your notes',
+    icon: '📝',
+    category: 'organization'
+  },
+  {
+    id: 'focusMode',
+    name: 'Focus Mode',
+    description: 'Eliminate distractions for deep work',
+    icon: '🧠',
+    category: 'productivity'
+  },
+  {
+    id: 'goalTracker',
+    name: 'Goal Tracker',
+    description: 'Set academic goals and track progress',
+    icon: '🎯',
+    category: 'productivity'
+  },
+  {
+    id: 'calculator',
+    name: 'Scientific Calculator',
+    description: 'Perform complex mathematical operations',
+    icon: '🧮',
+    category: 'tools'
+  },
+  {
+    id: 'formulaSheet',
+    name: 'Formula Sheet',
+    description: 'Quick access to important formulas',
+    icon: '📊',
+    category: 'revision'
+  },
+  {
+    id: 'pyqBank',
+    name: 'PYQ Bank',
+    description: 'Practice with previous year questions',
+    icon: '📚',
+    category: 'practice'
+  },
+  {
+    id: 'conceptMap',
+    name: 'Concept Map',
+    description: 'Visualize connections between concepts',
+    icon: '🔄',
+    category: 'organization'
+  },
+  {
+    id: 'weeklyPlanner',
+    name: 'Weekly Planner',
+    description: 'Create and manage study schedules',
+    icon: '📅',
+    category: 'organization'
+  },
+  {
+    id: 'errorLog',
+    name: 'Error Log',
+    description: 'Track and learn from your mistakes',
+    icon: '❌',
+    category: 'practice'
+  },
+  {
+    id: 'mockTest',
+    name: 'Mock Tests',
+    description: 'Practice with timed mock exams',
+    icon: '📋',
+    category: 'practice'
+  },
+  {
+    id: 'revisionReminder',
+    name: 'Revision Reminder',
+    description: 'Schedule and get reminded to revise',
+    icon: '🔔',
+    category: 'revision'
+  },
+  {
+    id: 'mindfulness',
+    name: 'Mindfulness',
+    description: 'Short guided breaks to refresh your mind',
+    icon: '🧘',
+    category: 'wellbeing'
+  },
+  {
+    id: 'dailyQuiz',
+    name: 'Daily Quiz',
+    description: 'Start your day with a quick knowledge check',
+    icon: '❓',
+    category: 'practice'
+  },
+  {
+    id: 'studyMusic',
+    name: 'Study Music',
+    description: 'Background music to enhance concentration',
+    icon: '🎵',
+    category: 'wellbeing'
+  },
+  {
+    id: 'progressInsights',
+    name: 'Progress Insights',
+    description: 'Advanced analytics of your study habits',
+    icon: '📈',
+    category: 'productivity'
+  },
+  {
+    id: 'bookmarkManager',
+    name: 'Bookmark Manager',
+    description: 'Save and organize useful resources',
+    icon: '🔖',
+    category: 'organization'
+  },
+  {
+    id: 'eyeRestTimer',
+    name: 'Eye Rest Timer',
+    description: 'Remind yourself to take eye breaks',
+    icon: '👁️',
+    category: 'wellbeing'
+  },
+  {
+    id: 'vocabulary',
+    name: 'Vocabulary Builder',
+    description: 'Learn scientific terminology efficiently',
+    icon: '🔤',
+    category: 'tools'
+  },
+  {
+    id: 'achievementBadges',
+    name: 'Achievement Badges',
+    description: 'Earn badges for study milestones',
+    icon: '🏆',
+    category: 'motivation'
+  },
+  {
+    id: 'studyGroups',
+    name: 'Study Groups',
+    description: 'Find or create virtual study groups',
+    icon: '👥',
+    category: 'social'
+  },
+  {
+    id: 'questionGenerator',
+    name: 'Question Generator',
+    description: 'Generate practice questions by topic',
+    icon: '❔',
+    category: 'practice'
+  }
 ];
 
 // Study metrics to track

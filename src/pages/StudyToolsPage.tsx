@@ -1,25 +1,60 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Search, Filter, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { PomodoroTimer } from '@/components/study-tools/PomodoroTimer';
 import { Flashcards } from '@/components/study-tools/Flashcards';
+import { StudyTimer } from '@/components/study-tools/StudyTimer';
+import { NoteTaker } from '@/components/study-tools/NoteTaker';
+import { FocusMode } from '@/components/study-tools/FocusMode';
+import { GoalTracker } from '@/components/study-tools/GoalTracker';
 import { studyTools } from '@/data/jeeData';
 import { useStudyStats } from '@/context/StudyStatsContext';
+import { motion } from 'framer-motion';
 
 const StudyToolsPage = () => {
   const [activeToolId, setActiveToolId] = useState<string>('pomodoro');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [favoriteTools, setFavoriteTools] = useState<string[]>(() => {
+    const saved = localStorage.getItem('jeeFavoriteTools');
+    return saved ? JSON.parse(saved) : ['pomodoro', 'flashcards'];
+  });
+  
   const { studyStreak, getTotalStudyTime, getStudyTimeByDay } = useStudyStats();
+  
+  // Get study time for today
+  const weeklyData = getStudyTimeByDay(1);
+  const todayMinutes = Object.values(weeklyData)[0] || 0;
   
   const handleToolClick = (toolId: string) => {
     setActiveToolId(toolId);
   };
   
-  // Get study time for today
-  const weeklyData = getStudyTimeByDay(1);
-  const todayMinutes = Object.values(weeklyData)[0] || 0;
+  const toggleFavorite = (toolId: string) => {
+    const newFavorites = favoriteTools.includes(toolId)
+      ? favoriteTools.filter(id => id !== toolId)
+      : [...favoriteTools, toolId];
+    
+    setFavoriteTools(newFavorites);
+    localStorage.setItem('jeeFavoriteTools', JSON.stringify(newFavorites));
+  };
+  
+  // Filter tools based on search and category
+  const filteredTools = studyTools.filter(tool => {
+    const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         tool.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = activeCategory === 'all' || tool.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+  
+  // Get unique categories from tools
+  const categories = ['all', ...Array.from(new Set(studyTools.map(tool => tool.category)))];
   
   // Render the active tool component
   const renderActiveTool = () => {
@@ -28,14 +63,26 @@ const StudyToolsPage = () => {
         return <PomodoroTimer />;
       case 'flashcards':
         return <Flashcards />;
+      case 'studyTimer':
+        return <StudyTimer />;
+      case 'noteTaker':
+        return <NoteTaker />;
+      case 'focusMode':
+        return <FocusMode />;
+      case 'goalTracker':
+        return <GoalTracker />;
       default:
         return (
-          <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-center text-gray-500 dark:text-gray-400">
-              {activeToolId !== 'pomodoro' && activeToolId !== 'flashcards' ? 
-                "This tool is coming soon! Check back later." : 
-                "Select a tool to begin"}
+          <div className="flex flex-col items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
+            <div className="text-4xl mb-4">{studyTools.find(tool => tool.id === activeToolId)?.icon || '🛠️'}</div>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              {activeToolId !== 'pomodoro' && activeToolId !== 'flashcards' && 
+               activeToolId !== 'studyTimer' && activeToolId !== 'noteTaker' && 
+               activeToolId !== 'focusMode' && activeToolId !== 'goalTracker' 
+                ? "This tool is coming soon! Check back later." 
+                : "Select a tool to begin"}
             </p>
+            <Button variant="outline">Get notified when it's ready</Button>
           </div>
         );
     }
@@ -48,7 +95,14 @@ const StudyToolsPage = () => {
         Back to Home
       </Link>
       
-      <h1 className="text-3xl font-bold mb-6">Study Tools</h1>
+      <motion.h1 
+        className="text-3xl font-bold mb-6"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        Study Tools
+      </motion.h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
@@ -57,27 +111,116 @@ const StudyToolsPage = () => {
               <CardTitle>Available Tools</CardTitle>
               <CardDescription>Select a tool to enhance your study experience</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-2 scrollbar-none">
-                {studyTools.map((tool) => (
-                  <button
-                    key={tool.id}
-                    onClick={() => handleToolClick(tool.id)}
-                    className={`w-full text-left p-3 rounded-lg flex items-center space-x-3 transition-all ${
-                      activeToolId === tool.id 
-                        ? 'bg-primary text-primary-foreground shadow-md scale-[1.02] animate-scale-in' 
-                        : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+            <CardContent className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search tools..."
+                  className="pl-10"
+                />
+              </div>
+              
+              <div className="flex flex-wrap gap-2 pb-2">
+                {categories.map((category) => (
+                  <Badge 
+                    key={category}
+                    variant={activeCategory === category ? "default" : "outline"}
+                    className="cursor-pointer capitalize"
+                    onClick={() => setActiveCategory(category)}
                   >
-                    <span className="text-xl" role="img" aria-label={tool.name}>
-                      {tool.icon}
-                    </span>
-                    <div>
-                      <div className="font-medium">{tool.name}</div>
-                      <div className="text-xs opacity-90">{tool.description}</div>
-                    </div>
-                  </button>
+                    {category}
+                  </Badge>
                 ))}
+              </div>
+              
+              {favoriteTools.length > 0 && (
+                <div className="mb-3">
+                  <h3 className="text-sm font-medium mb-2 text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Favorites
+                  </h3>
+                  <div className="space-y-2">
+                    {studyTools
+                      .filter(tool => favoriteTools.includes(tool.id))
+                      .map((tool) => (
+                        <button
+                          key={`fav-${tool.id}`}
+                          onClick={() => handleToolClick(tool.id)}
+                          className={`w-full text-left p-3 rounded-lg flex items-center space-x-3 transition-all ${
+                            activeToolId === tool.id 
+                              ? 'bg-primary text-primary-foreground shadow-md scale-[1.02] animate-scale-in' 
+                              : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          <span className="text-xl" role="img" aria-label={tool.name}>
+                            {tool.icon}
+                          </span>
+                          <div className="flex-1">
+                            <div className="font-medium">{tool.name}</div>
+                            <div className="text-xs opacity-90">{tool.description}</div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(tool.id);
+                            }}
+                          >
+                            <span className="text-yellow-500">★</span>
+                          </Button>
+                        </button>
+                      ))
+                    }
+                  </div>
+                </div>
+              )}
+              
+              <div className="max-h-[60vh] overflow-y-auto pr-2 scrollbar-none">
+                <div className="space-y-2">
+                  {filteredTools
+                    .filter(tool => !favoriteTools.includes(tool.id))
+                    .map((tool) => (
+                      <button
+                        key={tool.id}
+                        onClick={() => handleToolClick(tool.id)}
+                        className={`w-full text-left p-3 rounded-lg flex items-center space-x-3 transition-all ${
+                          activeToolId === tool.id 
+                            ? 'bg-primary text-primary-foreground shadow-md scale-[1.02] animate-scale-in' 
+                            : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        <span className="text-xl" role="img" aria-label={tool.name}>
+                          {tool.icon}
+                        </span>
+                        <div className="flex-1">
+                          <div className="font-medium">{tool.name}</div>
+                          <div className="text-xs opacity-90">{tool.description}</div>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(tool.id);
+                          }}
+                        >
+                          <span className="text-gray-300 hover:text-yellow-500">☆</span>
+                        </Button>
+                      </button>
+                    ))
+                  }
+                  
+                  {filteredTools.length === 0 && (
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      No tools match your search
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -86,8 +229,9 @@ const StudyToolsPage = () => {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="animate-fade-in">
-                {studyTools.find(tool => tool.id === activeToolId)?.name || 'Select a Tool'}
+              <CardTitle className="animate-fade-in flex items-center gap-2">
+                <span className="text-2xl">{studyTools.find(tool => tool.id === activeToolId)?.icon}</span>
+                <span>{studyTools.find(tool => tool.id === activeToolId)?.name || 'Select a Tool'}</span>
               </CardTitle>
               <CardDescription className="animate-fade-in">
                 {studyTools.find(tool => tool.id === activeToolId)?.description || 'Choose a tool from the list to get started'}

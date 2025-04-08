@@ -1,55 +1,103 @@
 
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Clock, Target, Award, Calendar, TrendingUp, Zap, BarChart } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ProgressChart } from '@/components/ProgressChart';
-import { CategoryProgressChart } from '@/components/CategoryProgressChart';
-import { WeakChaptersList } from '@/components/WeakChaptersList';
-import { useJEEData } from '@/context/JEEDataContext';
 import { useStudyStats } from '@/context/StudyStatsContext';
+import { useJEEData } from '@/context/JEEDataContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WeakChaptersList } from '@/components/WeakChaptersList';
+import { Progress } from '@/components/ui/progress';
 import { 
-  BarChart as RechartBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  LineChart,
-  Line,
-  CartesianGrid,
-  Legend
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, 
+  PieChart, Pie, Cell, LineChart, Line, CartesianGrid,
+  Legend, Area, AreaChart
 } from 'recharts';
+import { ChevronLeft, Calendar, Clock, BookOpen, TrendingUp, Award } from 'lucide-react';
+import { 
+  ChartContainer, 
+  ChartLegend, 
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent
+} from '@/components/ui/chart';
 
 const DashboardPage = () => {
-  const { getWeakChapters } = useJEEData();
-  const { getTotalStudyTime, getStudyTimeByDay, studyStreak } = useStudyStats();
+  const { getProgress, getWeakChapters } = useJEEData();
+  const { studyStreak, studyTimes, pomodoroSessions, getTotalStudyTime, getStudyTimeByDay } = useStudyStats();
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
   
-  const weakChapters = getWeakChapters();
-  const totalStudyMinutes = getTotalStudyTime();
-  const mathsStudyMinutes = getTotalStudyTime('Maths');
-  const physicsStudyMinutes = getTotalStudyTime('Physics');
-  const chemistryStudyMinutes = getTotalStudyTime('Chemistry');
-  
-  // Get study time for last 7 days
-  const weeklyData = getStudyTimeByDay(7);
-  const weeklyStudyData = Object.entries(weeklyData).map(([date, minutes]) => ({
-    date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-    minutes
-  })).reverse();
-  
-  // Generate sample data for more visualizations
-  const subjectImportanceData = [
-    { name: 'Maths', value: 35 },
-    { name: 'Physics', value: 40 },
-    { name: 'Chemistry', value: 25 },
+  // Progress data for subjects
+  const subjectsProgress = [
+    { subject: 'Maths', progress: getProgress('Maths'), color: '#0891b2' },
+    { subject: 'Physics', progress: getProgress('Physics'), color: '#15803d' },
+    { subject: 'Chemistry', progress: getProgress('Chemistry'), color: '#f97316' }
   ];
   
-  const difficultyDistribution = [
-    { level: 'Easy', chapters: 12 },
-    { level: 'Medium', chapters: 24 },
-    { level: 'Hard', chapters: 14 },
+  // Weekly study data
+  const weeklyData = () => {
+    const days = timeRange === 'week' ? 7 : timeRange === 'month' ? 30 : 365;
+    const dailyData = getStudyTimeByDay(days);
+    
+    return Object.entries(dailyData).map(([date, minutes]) => ({
+      date: new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+      minutes: minutes
+    })).reverse();
+  };
+  
+  // Subject distribution data
+  const subjectDistribution = () => {
+    const subjects: Record<string, number> = {};
+    
+    studyTimes.forEach(time => {
+      if (!subjects[time.subject]) {
+        subjects[time.subject] = 0;
+      }
+      subjects[time.subject] += time.minutes;
+    });
+    
+    return Object.entries(subjects).map(([subject, minutes]) => ({
+      subject,
+      minutes,
+      percentage: Math.round((minutes / getTotalStudyTime()) * 100)
+    }));
+  };
+  
+  // Proficiency level data
+  const proficiencyData = () => {
+    const weakChapters = getWeakChapters();
+    const levels = {
+      'Weak': weakChapters.length,
+      'Medium': 15,
+      'Strong': 25
+    };
+    
+    return Object.entries(levels).map(([level, chapters]) => ({
+      level,
+      chapters
+    }));
+  };
+  
+  // Time of day study pattern
+  const timeOfDayData = [
+    { name: 'Morning (6-12)', hours: 12 },
+    { name: 'Afternoon (12-5)', hours: 8 },
+    { name: 'Evening (5-9)', hours: 15 },
+    { name: 'Night (9-12)', hours: 5 }
   ];
+  
+  // Streak history data
+  const streakHistoryData = [
+    { day: 'Mon', streak: 1 },
+    { day: 'Tue', streak: 2 },
+    { day: 'Wed', streak: 3 },
+    { day: 'Thu', streak: 4 },
+    { day: 'Fri', streak: 5 },
+    { day: 'Sat', streak: 6 },
+    { day: 'Sun', streak: studyStreak.current }
+  ];
+  
+  // COLORS for charts
+  const COLORS = ['#0891b2', '#15803d', '#f97316', '#8b5cf6', '#ec4899'];
   
   return (
     <div className="container max-w-6xl py-8">
@@ -58,305 +106,318 @@ const DashboardPage = () => {
         Back to Home
       </Link>
       
-      <h1 className="text-3xl font-bold mb-6">Study Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-2">Study Dashboard</h1>
+      <p className="text-gray-600 dark:text-gray-300 mb-6">Track your progress and optimize your JEE preparation</p>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-indigo-950 dark:to-purple-950 border-none shadow-md hover:shadow-lg transition-shadow animate-fade-in">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Clock className="h-4 w-4 mr-2 text-purple-500" />
-              Total Study Time
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{Math.round(totalStudyMinutes / 60 * 10) / 10}h</div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {totalStudyMinutes} minutes logged
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-blue-50 dark:bg-blue-900/20 animate-fade-in">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Study Streak</p>
+                <div className="flex items-end gap-1">
+                  <h3 className="text-2xl font-bold">{studyStreak.current}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-0.5">days</p>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Longest: {studyStreak.longest} days</p>
+              </div>
+              <Calendar className="h-8 w-8 text-blue-500" />
+            </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-emerald-950 dark:to-green-950 border-none shadow-md hover:shadow-lg transition-shadow animate-fade-in">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Target className="h-4 w-4 mr-2 text-green-500" />
-              Study Streak
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{studyStreak.current} days 🔥</div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Longest: {studyStreak.longest} days
-            </p>
+        <Card className="bg-green-50 dark:bg-green-900/20 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">Total Study Time</p>
+                <div className="flex items-end gap-1">
+                  <h3 className="text-2xl font-bold">{Math.round(getTotalStudyTime() / 60 * 10) / 10}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-0.5">hours</p>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{getTotalStudyTime()} minutes logged</p>
+              </div>
+              <Clock className="h-8 w-8 text-green-500" />
+            </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-yellow-950 dark:to-amber-950 border-none shadow-md hover:shadow-lg transition-shadow animate-fade-in">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Award className="h-4 w-4 mr-2 text-amber-500" />
-              Weak Areas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{weakChapters.length}</div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Chapters need improvement
-            </p>
+        <Card className="bg-amber-50 dark:bg-amber-900/20 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Pomodoro Sessions</p>
+                <div className="flex items-end gap-1">
+                  <h3 className="text-2xl font-bold">{pomodoroSessions.length}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-0.5">completed</p>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {pomodoroSessions.reduce((acc, session) => acc + session.totalMinutes, 0)} total minutes
+                </p>
+              </div>
+              <BookOpen className="h-8 w-8 text-amber-500" />
+            </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-cyan-950 dark:to-blue-950 border-none shadow-md hover:shadow-lg transition-shadow animate-fade-in">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-blue-500" />
-              Today's Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{weeklyStudyData[0]?.minutes || 0}m</div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Minutes today
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Overall Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProgressChart title="All Subjects" />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Maths Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProgressChart subject="Maths" title="Maths" />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Physics Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProgressChart subject="Physics" title="Physics" />
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Weekly Study Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyStudyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis label={{ value: 'Minutes', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip 
-                    formatter={(value) => [`${value} min`, 'Study Time']}
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: '0.5rem',
-                      border: 'none',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="minutes" fill="#8884d8" name="Study Time (minutes)" />
-                </BarChart>
-              </ResponsiveContainer>
+        <Card className="bg-purple-50 dark:bg-purple-900/20 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Overall Progress</p>
+                <div className="flex items-end gap-1">
+                  <h3 className="text-2xl font-bold">
+                    {Math.round((getProgress('Maths') + getProgress('Physics') + getProgress('Chemistry')) / 3)}%
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Average across subjects</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Study Time History</CardTitle>
+              <CardDescription>Daily study minutes over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-end mb-2">
+                <Tabs defaultValue="week" onValueChange={(value) => setTimeRange(value as any)}>
+                  <TabsList>
+                    <TabsTrigger value="week">Week</TabsTrigger>
+                    <TabsTrigger value="month">Month</TabsTrigger>
+                    <TabsTrigger value="year">Year</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              
+              <div className="h-64">
+                <ChartContainer
+                  config={{
+                    minutes: { label: 'Minutes' }
+                  }}
+                >
+                  <AreaChart data={weeklyData()}>
+                    <defs>
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 12 }} 
+                      tickFormatter={(value) => {
+                        if (timeRange === 'week') return value.split(',')[0];
+                        return value.split(' ').slice(0, 2).join(' ');
+                      }}
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <Tooltip 
+                      content={(props) => (
+                        <ChartTooltipContent {...props} />
+                      )}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="minutes" 
+                      stroke="#8884d8" 
+                      fillOpacity={1} 
+                      fill="url(#colorGradient)" 
+                    />
+                  </AreaChart>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Subject Progress</CardTitle>
+              <CardDescription>Completion percentage by subject</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {subjectsProgress.map((subject) => (
+                  <div key={subject.subject}>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">{subject.subject}</span>
+                      <span className="text-sm text-gray-500">{subject.progress}%</span>
+                    </div>
+                    <Progress value={subject.progress} className="h-2" indicatorClassName={`${
+                      subject.subject === 'Maths' ? 'bg-cyan-500' :
+                      subject.subject === 'Physics' ? 'bg-green-500' : 'bg-orange-500'
+                    }`} />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Subject Distribution</CardTitle>
+            <CardDescription>Time spent on each subject</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="progress">
-              <TabsList className="mb-4">
-                <TabsTrigger value="progress">Progress by Subject</TabsTrigger>
-                <TabsTrigger value="time">Study Time</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="progress" className="animate-fade-in">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <Card>
-                    <CardHeader className="p-3">
-                      <CardTitle className="text-sm">Maths</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 pt-0">
-                      <CategoryProgressChart subject="Maths" />
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader className="p-3">
-                      <CardTitle className="text-sm">Physics</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 pt-0">
-                      <CategoryProgressChart subject="Physics" />
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader className="p-3">
-                      <CardTitle className="text-sm">Chemistry</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 pt-0">
-                      <CategoryProgressChart subject="Chemistry" />
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="time" className="animate-fade-in">
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={[
-                        { subject: 'Maths', minutes: mathsStudyMinutes },
-                        { subject: 'Physics', minutes: physicsStudyMinutes },
-                        { subject: 'Chemistry', minutes: chemistryStudyMinutes },
-                      ]}
-                      layout="vertical"
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="subject" type="category" />
-                      <Tooltip formatter={(value) => [`${value} min`, 'Study Time']} />
-                      <Legend />
-                      <Bar 
-                        dataKey="minutes" 
-                        name="Study Time (minutes)" 
-                        fill="#8884d8" 
-                        radius={[0, 4, 4, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Advanced Insights</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="importance">
-              <TabsList className="mb-4">
-                <TabsTrigger value="importance">Subject Importance</TabsTrigger>
-                <TabsTrigger value="difficulty">Difficulty</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="importance" className="animate-fade-in">
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartBarChart data={subjectImportanceData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar 
-                        dataKey="value" 
-                        name="Weightage in JEE (%)" 
-                        fill="#82ca9d" 
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </RechartBarChart>
-                  </ResponsiveContainer>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="difficulty" className="animate-fade-in">
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={difficultyDistribution}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="level" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar 
-                        dataKey="chapters" 
-                        name="Number of Chapters" 
-                        fill="#ffc658" 
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Zap className="h-4 w-4 mr-2" />
-              Study Efficiency
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={[
-                    { day: 'Mon', efficiency: 65 },
-                    { day: 'Tue', efficiency: 59 },
-                    { day: 'Wed', efficiency: 80 },
-                    { day: 'Thu', efficiency: 81 },
-                    { day: 'Fri', efficiency: 56 },
-                    { day: 'Sat', efficiency: 55 },
-                    { day: 'Sun', efficiency: 40 },
-                  ]}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis label={{ value: 'Efficiency %', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="efficiency" 
-                    stroke="#8884d8" 
-                    name="Study Efficiency (%)"
-                    activeDot={{ r: 8 }}
-                    strokeWidth={2}
+            <div className="h-64">
+              <ChartContainer
+                config={{
+                  subject: { label: 'Subject' },
+                  minutes: { label: 'Minutes' }
+                }}
+              >
+                <PieChart>
+                  <Pie
+                    data={subjectDistribution()}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="minutes"
+                    nameKey="subject"
+                  >
+                    {subjectDistribution().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    content={(props) => (
+                      <ChartTooltipContent {...props} nameKey="subject" />
+                    )}
                   />
-                </LineChart>
-              </ResponsiveContainer>
+                  <Legend 
+                    content={(props) => <ChartLegendContent {...props} nameKey="subject" />}
+                    layout="vertical"
+                    verticalAlign="middle"
+                    align="right"
+                  />
+                </PieChart>
+              </ChartContainer>
             </div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader>
-            <CardTitle>Weak Areas</CardTitle>
+            <CardTitle>Proficiency Levels</CardTitle>
+            <CardDescription>Chapters by proficiency level</CardDescription>
           </CardHeader>
           <CardContent>
-            <WeakChaptersList />
+            <div className="h-64">
+              <ChartContainer
+                config={{
+                  chapters: { label: 'Chapters' }
+                }}
+              >
+                <BarChart data={proficiencyData()}>
+                  <XAxis dataKey="level" />
+                  <YAxis />
+                  <Tooltip 
+                    content={(props) => (
+                      <ChartTooltipContent {...props} />
+                    )}
+                  />
+                  <Bar dataKey="chapters" fill="#8884d8">
+                    {proficiencyData().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={
+                        entry.level === 'Weak' ? '#ef4444' :
+                        entry.level === 'Medium' ? '#f59e0b' : '#10b981'
+                      } />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Time of Day Pattern</CardTitle>
+            <CardDescription>When you study the most</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ChartContainer
+                config={{
+                  hours: { label: 'Hours' }
+                }}
+              >
+                <BarChart data={timeOfDayData} layout="vertical">
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" width={100} />
+                  <Tooltip 
+                    content={(props) => (
+                      <ChartTooltipContent {...props} />
+                    )}
+                  />
+                  <Bar dataKey="hours" fill="#8884d8" />
+                </BarChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Streak History</CardTitle>
+            <CardDescription>Your study streak over the week</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ChartContainer
+                config={{
+                  streak: { label: 'Days' }
+                }}
+              >
+                <LineChart data={streakHistoryData}>
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip 
+                    content={(props) => (
+                      <ChartTooltipContent {...props} />
+                    )}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="streak" 
+                    stroke="#8b5cf6" 
+                    strokeWidth={2} 
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle>Weak Areas Focus</CardTitle>
+              <CardDescription>Chapters that need more attention</CardDescription>
+            </div>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <WeakChaptersList limit={5} />
           </CardContent>
         </Card>
       </div>
