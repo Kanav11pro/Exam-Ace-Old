@@ -67,16 +67,16 @@ export const chapterIcons: Record<string, string> = {
   'Ray Optics': '🔍',
   'Wave Optics': '🌊',
   'Dual Nature of Matter and Radiation': '🔆',
-  'Atomic Structure': '⚛️',
+  'Atomic Structure in Physics': '⚛️', // Changed to avoid duplicate
   'Nuclear Physics': '☢️',
   'Semiconductor Physics': '💻',
   
   // Chemistry icons
   'Some Basic Concepts in Chemistry': '🧪',
   'States of Matter': '💨',
-  'Atomic Structure': '⚛️',
+  'Atomic Structure in Chemistry': '⚛️', // Changed to avoid duplicate
   'Chemical Bonding': '🔗',
-  'Thermodynamics': '🔥',
+  'Thermodynamics in Chemistry': '🔥', // Changed to avoid duplicate
   'Chemical Equilibrium': '⚖️',
   'Redox Reactions': '🔄',
   'Chemical Kinetics': '⏱️',
@@ -139,7 +139,7 @@ export const jeeSubjectData = {
     'Ray Optics': { ...emptySubtopic },
     'Wave Optics': { ...emptySubtopic },
     'Dual Nature of Matter and Radiation': { ...emptySubtopic },
-    'Atomic Structure': { ...emptySubtopic },
+    'Atomic Structure in Physics': { ...emptySubtopic }, // Changed to avoid duplicate
     'Nuclear Physics': { ...emptySubtopic },
     'Semiconductor Physics': { ...emptySubtopic },
   },
@@ -147,9 +147,9 @@ export const jeeSubjectData = {
   Chemistry: {
     'Some Basic Concepts in Chemistry': { ...emptySubtopic },
     'States of Matter': { ...emptySubtopic },
-    'Atomic Structure': { ...emptySubtopic },
+    'Atomic Structure in Chemistry': { ...emptySubtopic }, // Changed to avoid duplicate
     'Chemical Bonding': { ...emptySubtopic },
-    'Thermodynamics': { ...emptySubtopic },
+    'Thermodynamics in Chemistry': { ...emptySubtopic }, // Changed to avoid duplicate
     'Chemical Equilibrium': { ...emptySubtopic },
     'Redox Reactions': { ...emptySubtopic },
     'Chemical Kinetics': { ...emptySubtopic },
@@ -207,3 +207,43 @@ export const categoryDescriptions = {
   tests: 'How many tests are complete?',
   revise: 'Revision sessions done'
 };
+
+// Study tools icons and names
+export const studyTools = [
+  { id: 'pomodoro', name: 'Pomodoro Timer', icon: '⏱️', description: 'Focus with timed intervals' },
+  { id: 'flashcards', name: 'Flashcards', icon: '🃏', description: 'Quick revision cards' },
+  { id: 'notes', name: 'Smart Notes', icon: '📝', description: 'Organize your notes' },
+  { id: 'mindmap', name: 'Mind Mapping', icon: '🧠', description: 'Visualize concepts' },
+  { id: 'calendar', name: 'Study Calendar', icon: '📅', description: 'Plan your schedule' },
+  { id: 'goals', name: 'Goal Setting', icon: '🎯', description: 'Track your targets' },
+  { id: 'formula', name: 'Formula Bank', icon: '∑', description: 'Quick formula reference' },
+  { id: 'errorlog', name: 'Error Log', icon: '❌', description: 'Track and learn from mistakes' },
+  { id: 'mocktest', name: 'Mock Test', icon: '📝', description: 'Full-length practice exams' },
+  { id: 'focus', name: 'Focus Mode', icon: '🧘', description: 'Distraction-free studying' },
+  { id: 'analytics', name: 'Study Analytics', icon: '📊', description: 'Analyze your performance' },
+  { id: 'bookmark', name: 'Bookmarks', icon: '🔖', description: 'Save important topics' },
+  { id: 'dictionary', name: 'Quick Dictionary', icon: '📔', description: 'Look up definitions' },
+  { id: 'calculator', name: 'Scientific Calculator', icon: '🔢', description: 'Solve complex equations' },
+  { id: 'companion', name: 'AI Study Companion', icon: '🤖', description: 'Get smart assistance' },
+  { id: 'voice', name: 'Voice Notes', icon: '🎤', description: 'Record your thoughts' },
+  { id: 'whiteboard', name: 'Digital Whiteboard', icon: '🖊️', description: 'Visual explanations' },
+  { id: 'resources', name: 'Resource Library', icon: '📚', description: 'Curated study materials' },
+  { id: 'habit', name: 'Habit Tracker', icon: '📈', description: 'Build study habits' },
+  { id: 'motivation', name: 'Motivation Quotes', icon: '💪', description: 'Stay inspired daily' },
+  { id: 'community', name: 'Study Community', icon: '👥', description: 'Connect with peers' },
+  { id: 'revision', name: 'Spaced Revision', icon: '🔁', description: 'Optimal revision scheduling' }
+];
+
+// Study metrics to track
+export const studyMetrics = [
+  { id: 'studyTime', name: 'Study Hours', icon: '⏰', category: 'time' },
+  { id: 'topicsCovered', name: 'Topics Covered', icon: '📋', category: 'progress' },
+  { id: 'questionsAttempted', name: 'Questions Attempted', icon: '❓', category: 'practice' },
+  { id: 'accuracyRate', name: 'Accuracy Rate', icon: '🎯', category: 'performance' },
+  { id: 'revisionCycles', name: 'Revision Cycles', icon: '🔄', category: 'revision' },
+  { id: 'testScores', name: 'Test Scores', icon: '📊', category: 'performance' },
+  { id: 'streakDays', name: 'Study Streak', icon: '🔥', category: 'consistency' },
+  { id: 'focusRating', name: 'Focus Rating', icon: '🧠', category: 'quality' },
+  { id: 'errorRate', name: 'Error Rate', icon: '❌', category: 'performance' },
+  { id: 'solveSpeed', name: 'Solving Speed', icon: '⚡', category: 'efficiency' }
+];
