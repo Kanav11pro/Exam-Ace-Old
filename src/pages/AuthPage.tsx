@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +11,18 @@ import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff, LogIn, UserPlus, Book } from 'lucide-react';
 
 const AuthPage = () => {
+  // Login state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Register state
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  
   const navigate = useNavigate();
   const { login, loginAttempts } = useAuth();
   const { toast } = useToast();
@@ -45,6 +54,56 @@ const AuthPage = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsRegistering(true);
+
+    try {
+      // Use a dummy email format for username-based auth
+      const email = registerEmail || `${registerUsername}@example.com`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: registerPassword,
+        options: {
+          data: {
+            username: registerUsername,
+          },
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Registration successful",
+          description: "Your account has been created. You can now log in.",
+        });
+        
+        // Clear register form and switch to login tab
+        setRegisterUsername('');
+        setRegisterEmail('');
+        setRegisterPassword('');
+        
+        // Switch to login tab
+        const loginTab = document.querySelector('[data-state="inactive"][data-value="login"]') as HTMLElement;
+        if (loginTab) loginTab.click();
+      }
+    } catch (error) {
+      toast({
+        title: "Registration error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRegistering(false);
     }
   };
 
@@ -137,40 +196,66 @@ const AuthPage = () => {
                 </form>
               </TabsContent>
               <TabsContent value="register">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="register-username" className="text-sm font-medium">
-                      Username
-                    </label>
-                    <Input
-                      id="register-username"
-                      placeholder="Choose a username"
-                    />
+                <form onSubmit={handleRegister}>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="register-username" className="text-sm font-medium">
+                        Username
+                      </label>
+                      <Input
+                        id="register-username"
+                        placeholder="Choose a username"
+                        value={registerUsername}
+                        onChange={(e) => setRegisterUsername(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="register-email" className="text-sm font-medium">
+                        Email (Optional)
+                      </label>
+                      <Input
+                        id="register-email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="register-password" className="text-sm font-medium">
+                        Password
+                      </label>
+                      <Input
+                        id="register-password"
+                        type="password"
+                        placeholder="Choose a password"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <Button 
+                      type="submit"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                      disabled={isRegistering}
+                    >
+                      {isRegistering ? (
+                        <span className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Creating Account...
+                        </span>
+                      ) : (
+                        <span className="flex items-center">
+                          <UserPlus className="mr-2 h-4 w-4" /> Create Account
+                        </span>
+                      )}
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <label htmlFor="register-email" className="text-sm font-medium">
-                      Email
-                    </label>
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="register-password" className="text-sm font-medium">
-                      Password
-                    </label>
-                    <Input
-                      id="register-password"
-                      type="password"
-                      placeholder="Choose a password"
-                    />
-                  </div>
-                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                    <UserPlus className="mr-2 h-4 w-4" /> Create Account
-                  </Button>
-                </div>
+                </form>
               </TabsContent>
             </Tabs>
           </CardContent>

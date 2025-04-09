@@ -55,49 +55,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    const loadUser = async () => {
+    const setupAuth = async () => {
       setIsLoading(true);
-      try {
-        const { data: { user: supaUser } } = await supabase.auth.getUser();
-
-        if (supaUser) {
-          setUser(supaUser);
+      
+      // Set up auth state change listener first
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log("Auth state changed:", event, session);
+          setUser(session?.user || null);
           
-          // Fetch the user profile
-          const profileData = await fetchProfile(supaUser.id);
+          if (session?.user) {
+            const profileData = await fetchProfile(session.user.id);
+            setProfile(profileData);
+          } else {
+            setProfile(null);
+          }
+        }
+      );
+      
+      // Then check for existing session
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          setUser(session.user);
+          const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
         } else {
           setUser(null);
           setProfile(null);
         }
       } catch (error) {
-        console.error("Unexpected error:", error);
+        console.error("Error getting session:", error);
         setUser(null);
         setProfile(null);
       } finally {
         setIsLoading(false);
       }
+      
+      return () => {
+        subscription.unsubscribe();
+      };
     };
 
-    loadUser();
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user || null);
-        
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
-        } else {
-          setProfile(null);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    setupAuth();
   }, []);
 
   const login = async (username: string, passwordAttempt: string): Promise<boolean> => {
@@ -108,8 +109,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     setIsLoading(true);
     try {
+      // Try login with email format, in case it's an email address
+      const isEmail = username.includes('@');
+      const email = isEmail ? username : `${username}@example.com`;
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: username + "@example.com", // Dummy email
+        email,
         password: passwordAttempt,
       });
 
