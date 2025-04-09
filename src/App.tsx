@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { JEEDataProvider } from "@/context/JEEDataContext";
@@ -39,32 +39,30 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/" element={<Index />}>
-                    <Route index element={<HomePage />} />
-                    <Route path="subject/:subject" element={<SubjectPage />} />
-                    <Route path="subject/:subject/:chapter" element={<ChapterPage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="prepometer" element={<Navigate to="/subject/Maths" replace />} />
-                    
-                    {/* Study Tools Routes */}
-                    <Route path="tools" element={<StudyToolsPage />} />
-                    <Route path="tools/pomodoro-timer" element={<PomodoroTimer />} />
-                    <Route path="tools/flashcards" element={<Flashcards />} />
-                    <Route path="tools/study-timer" element={<StudyTimer />} />
-                    <Route path="tools/note-taker" element={<NoteTaker />} />
-                    <Route path="tools/focus-mode" element={<FocusMode />} />
-                    <Route path="tools/goal-tracker" element={<GoalTracker />} />
-                    <Route path="tools/formula-sheet" element={<FormulaSheet />} />
-                    
-                    {/* Resources */}
-                    <Route path="resources" element={<LearningResourcesPage />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
+              <Routes>
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/" element={<Index />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="subject/:subject" element={<SubjectPage />} />
+                  <Route path="subject/:subject/:chapter" element={<ChapterPage />} />
+                  <Route path="dashboard" element={<DashboardPage />} />
+                  <Route path="prepometer" element={<Navigate to="/subject/Maths" replace />} />
+                  
+                  {/* Study Tools Routes */}
+                  <Route path="tools" element={<StudyToolsPage />} />
+                  <Route path="tools/pomodoro-timer" element={<PomodoroTimer />} />
+                  <Route path="tools/flashcards" element={<Flashcards />} />
+                  <Route path="tools/study-timer" element={<StudyTimer />} />
+                  <Route path="tools/note-taker" element={<NoteTaker />} />
+                  <Route path="tools/focus-mode" element={<FocusMode />} />
+                  <Route path="tools/goal-tracker" element={<GoalTracker />} />
+                  <Route path="tools/formula-sheet" element={<FormulaSheet />} />
+                  
+                  {/* Resources */}
+                  <Route path="resources" element={<LearningResourcesPage />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </TooltipProvider>
           </StudyStatsProvider>
         </JEEDataProvider>
