@@ -86,14 +86,14 @@ export function CategorySection({ subject, chapter, category, fields, isOpen }: 
             <div className="space-y-2 pt-2">
               <Label htmlFor={`${chapter}-tag`}>Tag this chapter:</Label>
               <Select
-                value={chapterData.tag}
+                value={chapterData.tag || "none"}
                 onValueChange={handleTagChange}
               >
                 <SelectTrigger id={`${chapter}-tag`}>
                   <SelectValue placeholder="Select tag" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="Weak">Weak 😔</SelectItem>
                   <SelectItem value="Medium">Medium 😐</SelectItem>
                   <SelectItem value="Strong">Strong 💪</SelectItem>
@@ -108,7 +108,7 @@ export function CategorySection({ subject, chapter, category, fields, isOpen }: 
               <Textarea
                 id={`${chapter}-remarks`}
                 placeholder="Add your notes or remarks about this chapter..."
-                value={chapterData.remarks}
+                value={chapterData.remarks || ""}
                 onChange={handleRemarksChange}
                 className="min-h-24"
               />
