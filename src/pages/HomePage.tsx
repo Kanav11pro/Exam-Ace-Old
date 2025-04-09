@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -61,7 +60,7 @@ const HomePage = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div className="mb-4 md:mb-0">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Welcome back, {user?.username || 'Student'}!
+                Welcome back, {user?.email?.split('@')[0] || 'Student'}!
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">
                 Let's continue your JEE preparation journey.

@@ -6,7 +6,7 @@ import { LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -20,7 +20,7 @@ export function Header() {
           {user && (
             <>
               <p className="text-sm mr-4">
-                Welcome, <span className="font-medium">{user.username}</span>
+                Welcome, <span className="font-medium">{profile?.username || user.email?.split('@')[0]}</span>
               </p>
               <Button 
                 variant="ghost" 
