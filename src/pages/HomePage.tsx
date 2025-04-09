@@ -7,53 +7,74 @@ import { SubjectCard } from '@/components/SubjectCard';
 import { useStudyStats } from '@/context/StudyStatsContext';
 import { useJEEData } from '@/context/JEEDataContext';
 import { ProgressBar } from '@/components/ProgressBar';
-import { 
-  BookOpen, Flame, Clock, Target, 
-  Calculator, BookCheck, BrainCircuit, LineChart,
-  BellRing, Zap, Calendar, BookMarked, BarChart4
-} from 'lucide-react';
+import { BookOpen, Flame, Clock, Target, Calculator, BookCheck, BrainCircuit, LineChart, BellRing, Zap, Calendar, BookMarked, BarChart4 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
 const HomePage = () => {
-  const { user } = useAuth();
-  const { studyStreak, getTotalStudyTime, getStudyTimeByDay } = useStudyStats();
-  const { getTotalProgress, getWeakChapters } = useJEEData();
-  
+  const {
+    user
+  } = useAuth();
+  const {
+    studyStreak,
+    getTotalStudyTime,
+    getStudyTimeByDay
+  } = useStudyStats();
+  const {
+    getTotalProgress,
+    getWeakChapters
+  } = useJEEData();
   const totalProgress = getTotalProgress();
   const weakChapters = getWeakChapters();
-  
+
   // Get today's study time
   const today = new Date().toISOString().split('T')[0];
   const todayStudyTime = Object.values(getStudyTimeByDay(1))[0] || 0;
-  
   const getStudyGoalStatus = (minutes: number) => {
     const dailyGoal = 120; // 2 hours
-    const percentage = Math.min(100, Math.round((minutes / dailyGoal) * 100));
+    const percentage = Math.min(100, Math.round(minutes / dailyGoal * 100));
     return {
       percentage,
       achieved: percentage >= 100
     };
   };
-  
   const todayGoalStatus = getStudyGoalStatus(todayStudyTime);
-  
+
   // Mock upcoming events
-  const upcomingEvents = [
-    { title: "Chemistry Test", date: "Apr 12", subject: "Chemistry", urgent: true },
-    { title: "Trigonometry Revision", date: "Apr 15", subject: "Maths", urgent: false },
-    { title: "Mock JEE", date: "Apr 20", subject: "All Subjects", urgent: true }
-  ];
-  
+  const upcomingEvents = [{
+    title: "Chemistry Test",
+    date: "Apr 12",
+    subject: "Chemistry",
+    urgent: true
+  }, {
+    title: "Trigonometry Revision",
+    date: "Apr 15",
+    subject: "Maths",
+    urgent: false
+  }, {
+    title: "Mock JEE",
+    date: "Apr 20",
+    subject: "All Subjects",
+    urgent: true
+  }];
+
   // Quick access tools
-  const quickTools = [
-    { name: "Pomodoro Timer", icon: <Clock className="h-5 w-5" />, path: "/tools" },
-    { name: "Formula Sheet", icon: <Calculator className="h-5 w-5" />, path: "/tools" },
-    { name: "Flashcards", icon: <BookCheck className="h-5 w-5" />, path: "/tools" },
-    { name: "Focus Mode", icon: <BrainCircuit className="h-5 w-5" />, path: "/tools" }
-  ];
-  
-  return (
-    <div className="container max-w-6xl py-6 animate-fade-in">
+  const quickTools = [{
+    name: "Pomodoro Timer",
+    icon: <Clock className="h-5 w-5" />,
+    path: "/tools"
+  }, {
+    name: "Formula Sheet",
+    icon: <Calculator className="h-5 w-5" />,
+    path: "/tools"
+  }, {
+    name: "Flashcards",
+    icon: <BookCheck className="h-5 w-5" />,
+    path: "/tools"
+  }, {
+    name: "Focus Mode",
+    icon: <BrainCircuit className="h-5 w-5" />,
+    path: "/tools"
+  }];
+  return <div className="container max-w-6xl py-6 animate-fade-in">
       {/* Welcome Section */}
       <div className="mb-8">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl p-6 shadow-sm">
@@ -125,16 +146,10 @@ const HomePage = () => {
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-2xl font-bold">{todayGoalStatus.percentage}%</p>
-                {todayGoalStatus.achieved && (
-                  <Badge className="bg-green-500 text-white text-xs">Achieved!</Badge>
-                )}
+                {todayGoalStatus.achieved && <Badge className="bg-green-500 text-white text-xs">Achieved!</Badge>}
               </div>
               <div className="mt-2">
-                <ProgressBar 
-                  progress={todayGoalStatus.percentage} 
-                  variant="dashboard" 
-                  animated={true}
-                />
+                <ProgressBar progress={todayGoalStatus.percentage} variant="dashboard" animated={true} />
               </div>
             </div>
           </CardContent>
@@ -149,11 +164,7 @@ const HomePage = () => {
               </div>
               <p className="text-2xl font-bold mt-1">{Math.round(totalProgress)}%</p>
               <div className="mt-2">
-                <ProgressBar 
-                  progress={totalProgress} 
-                  variant="dashboard" 
-                  animated={true}
-                />
+                <ProgressBar progress={totalProgress} variant="dashboard" animated={true} />
               </div>
             </div>
           </CardContent>
@@ -176,8 +187,7 @@ const HomePage = () => {
             Quick Access Tools
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {quickTools.map((tool) => (
-              <Link key={tool.name} to={tool.path}>
+            {quickTools.map(tool => <Link key={tool.name} to={tool.path}>
                 <Card className="hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer h-24">
                   <CardContent className="flex flex-col items-center justify-center h-full text-center p-3">
                     <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full mb-2">
@@ -186,8 +196,7 @@ const HomePage = () => {
                     <p className="text-sm font-medium">{tool.name}</p>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              </Link>)}
           </div>
         </div>
         
@@ -201,38 +210,24 @@ const HomePage = () => {
             </h2>
             <Card>
               <CardContent className="px-3 py-4">
-                {weakChapters.length > 0 ? (
-                  <ul className="space-y-2">
-                    {weakChapters.slice(0, 3).map((item, index) => (
-                      <li key={index} className="border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                        <Link 
-                          to={`/subject/${item.subject}/${item.chapter}`}
-                          className="flex items-center justify-between hover:text-blue-600 transition-colors"
-                        >
+                {weakChapters.length > 0 ? <ul className="space-y-2">
+                    {weakChapters.slice(0, 3).map((item, index) => <li key={index} className="border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
+                        <Link to={`/subject/${item.subject}/${item.chapter}`} className="flex items-center justify-between hover:text-blue-600 transition-colors">
                           <span className="font-medium text-sm">{item.chapter}</span>
-                          <Badge 
-                            variant="outline" 
-                            className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800"
-                          >
+                          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
                             Weak
                           </Badge>
                         </Link>
                         <p className="text-xs text-gray-500">{item.subject}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-center text-gray-500 dark:text-gray-400 py-2">
+                      </li>)}
+                  </ul> : <p className="text-center text-gray-500 dark:text-gray-400 py-2">
                     No weak chapters found
-                  </p>
-                )}
-                {weakChapters.length > 3 && (
-                  <div className="text-center mt-3">
+                  </p>}
+                {weakChapters.length > 3 && <div className="text-center mt-3">
                     <Button variant="link" size="sm" asChild>
                       <Link to="/dashboard">View all {weakChapters.length} weak chapters</Link>
                     </Button>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
           </div>
@@ -246,22 +241,18 @@ const HomePage = () => {
             <Card>
               <CardContent className="px-3 py-4">
                 <ul className="space-y-2">
-                  {upcomingEvents.map((event, index) => (
-                    <li key={index} className="border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
+                  {upcomingEvents.map((event, index) => <li key={index} className="border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">{event.title}</span>
-                            {event.urgent && (
-                              <Badge className="bg-red-500">Urgent</Badge>
-                            )}
+                            {event.urgent && <Badge className="bg-red-500">Urgent</Badge>}
                           </div>
                           <p className="text-xs text-gray-500">{event.subject}</p>
                         </div>
                         <Badge variant="outline">{event.date}</Badge>
                       </div>
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
                 <div className="text-center mt-3">
                   <Button variant="link" size="sm" asChild>
@@ -313,23 +304,15 @@ const HomePage = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/tools">
-                  <BookCheck className="mr-2 h-4 w-4" />
-                  Practice Flashcards
-                </Link>
+                
               </Button>
               <Button asChild variant="secondary">
-                <Link to="/prepometer">
-                  <BarChart4 className="mr-2 h-4 w-4" />
-                  Track Progress
-                </Link>
+                
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default HomePage;
