@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,7 +42,6 @@ export function GoalTracker() {
   
   const { toast } = useToast();
   
-  // Load goals from localStorage on component mount
   useEffect(() => {
     const savedGoals = localStorage.getItem('jeeGoals');
     if (savedGoals) {
@@ -56,12 +54,10 @@ export function GoalTracker() {
     }
   }, []);
   
-  // Save goals to localStorage when they change
   useEffect(() => {
     localStorage.setItem('jeeGoals', JSON.stringify(goals));
   }, [goals]);
   
-  // Add milestone to current form
   const addMilestone = () => {
     if (!newMilestone.trim()) return;
     
@@ -75,12 +71,10 @@ export function GoalTracker() {
     setNewMilestone("");
   };
   
-  // Remove milestone from current form
   const removeMilestone = (id: string) => {
     setMilestones(milestones.filter(m => m.id !== id));
   };
   
-  // Save or update goal
   const saveGoal = () => {
     if (!title.trim()) {
       toast({
@@ -92,7 +86,6 @@ export function GoalTracker() {
     }
     
     if (editingGoal) {
-      // Update existing goal
       setGoals(goals.map(goal => 
         goal.id === editingGoal.id ? {
           ...goal,
@@ -109,7 +102,6 @@ export function GoalTracker() {
         description: "Your goal has been updated successfully"
       });
     } else {
-      // Create new goal
       const newGoal: Goal = {
         id: Date.now().toString(),
         title,
@@ -130,11 +122,9 @@ export function GoalTracker() {
       });
     }
     
-    // Reset form
     resetForm();
   };
   
-  // Reset form
   const resetForm = () => {
     setTitle("");
     setDescription("");
@@ -146,7 +136,6 @@ export function GoalTracker() {
     setShowForm(false);
   };
   
-  // Edit goal
   const editGoal = (goal: Goal) => {
     setTitle(goal.title);
     setDescription(goal.description);
@@ -157,7 +146,6 @@ export function GoalTracker() {
     setShowForm(true);
   };
   
-  // Delete goal
   const deleteGoal = (id: string) => {
     setGoals(goals.filter(goal => goal.id !== id));
     
@@ -167,7 +155,6 @@ export function GoalTracker() {
     });
   };
   
-  // Toggle milestone completion
   const toggleMilestone = (goalId: string, milestoneId: string) => {
     setGoals(goals.map(goal => {
       if (goal.id === goalId) {
@@ -175,7 +162,6 @@ export function GoalTracker() {
           milestone.id === milestoneId ? { ...milestone, completed: !milestone.completed } : milestone
         );
         
-        // Calculate new progress
         const completedCount = updatedMilestones.filter(m => m.completed).length;
         const newProgress = updatedMilestones.length > 0 
           ? Math.round((completedCount / updatedMilestones.length) * 100) 
@@ -193,7 +179,6 @@ export function GoalTracker() {
     }));
   };
   
-  // Toggle goal completion
   const toggleGoalCompletion = (goal: Goal) => {
     setGoals(goals.map(g => {
       if (g.id === goal.id) {
@@ -216,7 +201,6 @@ export function GoalTracker() {
     });
   };
   
-  // Filter and sort goals
   const filteredSortedGoals = [...goals]
     .filter(goal => {
       if (filter === 'all') return true;
@@ -230,7 +214,6 @@ export function GoalTracker() {
       } else if (sortBy === 'progress') {
         return b.progress - a.progress;
       } else {
-        // recent
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
     });
@@ -303,7 +286,7 @@ export function GoalTracker() {
                       <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       <SelectItem value="Maths">Mathematics</SelectItem>
                       <SelectItem value="Physics">Physics</SelectItem>
                       <SelectItem value="Chemistry">Chemistry</SelectItem>
