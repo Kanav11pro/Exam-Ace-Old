@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +22,6 @@ const AuthPage = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   
   const navigate = useNavigate();
-  const { login, loginAttempts } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,20 +29,14 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(username, password);
-      if (success) {
+      // Simulating successful login since auth is disabled
+      setTimeout(() => {
         toast({
           title: "Login successful",
           description: "Welcome to JEE Prepometer!",
         });
         navigate('/');
-      } else {
-        toast({
-          title: "Login failed",
-          description: `Invalid username or password. ${3 - loginAttempts} attempts remaining.`,
-          variant: "destructive",
-        });
-      }
+      }, 1000);
     } catch (error) {
       toast({
         title: "Login error",
@@ -63,56 +54,22 @@ const AuthPage = () => {
     setIsRegistering(true);
 
     try {
-      // Validate inputs
-      if (!registerUsername.trim()) {
-        throw new Error("Username is required");
-      }
-      
-      if (!registerPassword.trim() || registerPassword.length < 6) {
-        throw new Error("Password must be at least 6 characters");
-      }
-
-      // Create a valid email if not provided
-      const email = registerEmail.trim() || `${registerUsername.trim()}@example.com`;
-      
-      console.log("Attempting registration with:", { email, password: registerPassword, username: registerUsername });
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: registerPassword,
-        options: {
-          data: {
-            username: registerUsername,
-          },
-        },
-      });
-
-      if (error) {
-        console.error("Registration error:", error);
+      // Simulating successful registration since auth is disabled
+      setTimeout(() => {
         toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive",
+          title: "Registration successful",
+          description: "Your account has been created. You can now log in.",
         });
-        return;
-      }
-
-      console.log("Registration response:", data);
-      
-      toast({
-        title: "Registration successful",
-        description: "Your account has been created. You can now log in.",
-      });
-      
-      // Clear register form and switch to login tab
-      setRegisterUsername('');
-      setRegisterEmail('');
-      setRegisterPassword('');
-      
-      // Switch to login tab
-      const loginTab = document.querySelector('[data-state="inactive"][data-value="login"]') as HTMLElement;
-      if (loginTab) loginTab.click();
-      
+        
+        // Clear register form and switch to login tab
+        setRegisterUsername('');
+        setRegisterEmail('');
+        setRegisterPassword('');
+        
+        // Switch to login tab
+        const loginTab = document.querySelector('[data-state="inactive"][data-value="login"]') as HTMLElement;
+        if (loginTab) loginTab.click();
+      }, 1000);
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({
@@ -194,7 +151,7 @@ const AuthPage = () => {
                     <Button
                       type="submit"
                       className="w-full bg-blue-600 hover:bg-blue-700"
-                      disabled={isLoading || loginAttempts >= 3}
+                      disabled={isLoading}
                     >
                       {isLoading ? (
                         <span className="flex items-center">
@@ -278,24 +235,17 @@ const AuthPage = () => {
             </Tabs>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t"></span>
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-card px-2 text-muted-foreground">or</span>
-              </div>
-            </div>
-            <Button variant="outline" className="w-full">
-              <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
-              Continue with Google
+            <p className="text-center text-sm text-gray-500">
+              Demo Mode: Authentication is currently disabled. Click any button to navigate to the study dashboard.
+            </p>
+            <Button variant="outline" className="w-full" onClick={() => navigate('/')}>
+              Go to Dashboard
             </Button>
           </CardFooter>
         </Card>
 
         <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>Demo accounts: kanhabro, ombro123, Kanav123</p>
-          <p className="mt-1">Password for all accounts: password123</p>
+          <p>Note: Authentication has been disabled. You can access all features without logging in.</p>
         </div>
       </div>
     </div>
