@@ -52,6 +52,7 @@ const AuthPage = () => {
         description: "An unexpected error occurred.",
         variant: "destructive",
       });
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -62,8 +63,19 @@ const AuthPage = () => {
     setIsRegistering(true);
 
     try {
-      // Use a dummy email format for username-based auth
-      const email = registerEmail || `${registerUsername}@example.com`;
+      // Validate inputs
+      if (!registerUsername.trim()) {
+        throw new Error("Username is required");
+      }
+      
+      if (!registerPassword.trim() || registerPassword.length < 6) {
+        throw new Error("Password must be at least 6 characters");
+      }
+
+      // Create a valid email if not provided
+      const email = registerEmail.trim() || `${registerUsername.trim()}@example.com`;
+      
+      console.log("Attempting registration with:", { email, password: registerPassword, username: registerUsername });
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -76,30 +88,36 @@ const AuthPage = () => {
       });
 
       if (error) {
+        console.error("Registration error:", error);
         toast({
           title: "Registration failed",
           description: error.message,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Registration successful",
-          description: "Your account has been created. You can now log in.",
-        });
-        
-        // Clear register form and switch to login tab
-        setRegisterUsername('');
-        setRegisterEmail('');
-        setRegisterPassword('');
-        
-        // Switch to login tab
-        const loginTab = document.querySelector('[data-state="inactive"][data-value="login"]') as HTMLElement;
-        if (loginTab) loginTab.click();
+        return;
       }
-    } catch (error) {
+
+      console.log("Registration response:", data);
+      
+      toast({
+        title: "Registration successful",
+        description: "Your account has been created. You can now log in.",
+      });
+      
+      // Clear register form and switch to login tab
+      setRegisterUsername('');
+      setRegisterEmail('');
+      setRegisterPassword('');
+      
+      // Switch to login tab
+      const loginTab = document.querySelector('[data-state="inactive"][data-value="login"]') as HTMLElement;
+      if (loginTab) loginTab.click();
+      
+    } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         title: "Registration error",
-        description: "An unexpected error occurred.",
+        description: error.message || "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {

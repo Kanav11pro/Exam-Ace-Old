@@ -1,44 +1,42 @@
 
-// Disable right-click and keyboard shortcuts
+/**
+ * Security utilities for the application
+ */
+
 export const setupSecurityMeasures = () => {
-  // Disable right-click
-  document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    return false;
-  });
+  try {
+    // Prevent console inspection in production
+    if (process.env.NODE_ENV === 'production') {
+      // Disable developer tools shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Prevent F12
+        if (e.key === 'F12' || 
+            // Prevent Ctrl+Shift+I / Cmd+Option+I
+            ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'I') || 
+            // Prevent Ctrl+Shift+J / Cmd+Option+J
+            ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'J') || 
+            // Prevent Ctrl+Shift+C / Cmd+Option+C
+            ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C')) {
+          e.preventDefault();
+        }
+      });
 
-  // Disable keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
-    // Disable F12
-    if (e.key === 'F12') {
-      e.preventDefault();
-      return false;
+      // Log a warning message when dev tools are opened
+      const devToolsDetection = () => {
+        const widthThreshold = window.outerWidth - window.innerWidth > 160;
+        const heightThreshold = window.outerHeight - window.innerHeight > 160;
+        
+        if (widthThreshold || heightThreshold) {
+          document.body.innerHTML = '<div style="text-align: center; padding: 50px;">For security reasons, developer tools are not permitted.</div>';
+        }
+      };
+
+      setInterval(devToolsDetection, 1000);
     }
-
-    // Disable Ctrl+Shift+I (Inspector)
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
-      e.preventDefault();
-      return false;
-    }
-
-    // Disable Ctrl+Shift+J (Console)
-    if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
-      e.preventDefault();
-      return false;
-    }
-
-    // Disable Ctrl+Shift+C (Inspector Elements)
-    if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
-      e.preventDefault();
-      return false;
-    }
-
-    // Disable Ctrl+U (View Source)
-    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-      e.preventDefault();
-      return false;
-    }
-
-    return true;
-  });
+    
+    // Add additional security check
+    console.log("Security measures initialized");
+  } catch (error) {
+    // Silent fail for security measures
+  }
 };

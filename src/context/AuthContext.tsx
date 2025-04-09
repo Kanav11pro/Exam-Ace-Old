@@ -2,14 +2,14 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 // Define a type for the profile data that matches our database
 type Profile = {
   id: string;
   username: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 interface AuthContextType {
@@ -32,10 +32,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loginAttempts, setLoginAttempts] = useState(0);
+  const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("Fetching profile for user:", userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -47,6 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return null;
       }
       
+      console.log("Profile data:", data);
       return data as Profile;
     } catch (error) {
       console.error("Unexpected error fetching profile:", error);
@@ -62,6 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           console.log("Auth state changed:", event, session);
+          setSession(session);
           setUser(session?.user || null);
           
           if (session?.user) {
@@ -75,13 +79,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Then check for existing session
       try {
+        console.log("Checking for existing session");
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
+          console.log("Found existing session:", session.user);
+          setSession(session);
           setUser(session.user);
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
         } else {
+          console.log("No existing session found");
           setUser(null);
           setProfile(null);
         }
@@ -113,6 +121,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const isEmail = username.includes('@');
       const email = isEmail ? username : `${username}@example.com`;
       
+      console.log("Attempting login with:", { email, password: passwordAttempt });
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password: passwordAttempt,
@@ -125,7 +135,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (data?.user) {
+        console.log("Login successful:", data.user);
         setUser(data.user);
+        setSession(data.session);
         
         // Fetch the user profile
         const profileData = await fetchProfile(data.user.id);
@@ -134,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoginAttempts(0);
         return true;
       } else {
+        console.log("Login failed: No user data returned");
         setLoginAttempts(prevAttempts => prevAttempts + 1);
         return false;
       }
@@ -151,6 +164,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await supabase.auth.signOut();
       setUser(null);
       setProfile(null);
+      setSession(null);
       navigate('/auth');
     } catch (error) {
       console.error("Logout error:", error);
