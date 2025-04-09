@@ -13,24 +13,17 @@ import {
   Legend, Area, AreaChart
 } from 'recharts';
 import { ChevronLeft, Calendar, Clock, BookOpen, TrendingUp, Award } from 'lucide-react';
-import { 
-  ChartContainer, 
-  ChartLegend, 
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent
-} from '@/components/ui/chart';
 
 const DashboardPage = () => {
-  const { getProgress, getWeakChapters } = useJEEData();
+  const { getSubjectProgress, getTotalProgress, getWeakChapters } = useJEEData();
   const { studyStreak, studyTimes, pomodoroSessions, getTotalStudyTime, getStudyTimeByDay } = useStudyStats();
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
   
   // Progress data for subjects
   const subjectsProgress = [
-    { subject: 'Maths', progress: getProgress('Maths'), color: '#0891b2' },
-    { subject: 'Physics', progress: getProgress('Physics'), color: '#15803d' },
-    { subject: 'Chemistry', progress: getProgress('Chemistry'), color: '#f97316' }
+    { subject: 'Maths', progress: getSubjectProgress('Maths'), color: '#0891b2' },
+    { subject: 'Physics', progress: getSubjectProgress('Physics'), color: '#15803d' },
+    { subject: 'Chemistry', progress: getSubjectProgress('Chemistry'), color: '#f97316' }
   ];
   
   // Weekly study data
@@ -167,7 +160,7 @@ const DashboardPage = () => {
                 <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Overall Progress</p>
                 <div className="flex items-end gap-1">
                   <h3 className="text-2xl font-bold">
-                    {Math.round((getProgress('Maths') + getProgress('Physics') + getProgress('Chemistry')) / 3)}%
+                    {Math.round((getSubjectProgress('Maths') + getSubjectProgress('Physics') + getSubjectProgress('Chemistry')) / 3)}%
                   </h3>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Average across subjects</p>
@@ -197,11 +190,7 @@ const DashboardPage = () => {
               </div>
               
               <div className="h-64">
-                <ChartContainer
-                  config={{
-                    minutes: { label: 'Minutes' }
-                  }}
-                >
+                <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={weeklyData()}>
                     <defs>
                       <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
@@ -219,11 +208,7 @@ const DashboardPage = () => {
                     />
                     <YAxis tick={{ fontSize: 12 }} />
                     <CartesianGrid strokeDasharray="3 3" />
-                    <Tooltip 
-                      content={(props) => (
-                        <ChartTooltipContent {...props} />
-                      )}
-                    />
+                    <Tooltip />
                     <Area 
                       type="monotone" 
                       dataKey="minutes" 
@@ -232,7 +217,7 @@ const DashboardPage = () => {
                       fill="url(#colorGradient)" 
                     />
                   </AreaChart>
-                </ChartContainer>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
@@ -252,10 +237,13 @@ const DashboardPage = () => {
                       <span className="text-sm font-medium">{subject.subject}</span>
                       <span className="text-sm text-gray-500">{subject.progress}%</span>
                     </div>
-                    <Progress value={subject.progress} className="h-2" indicatorClassName={`${
-                      subject.subject === 'Maths' ? 'bg-cyan-500' :
-                      subject.subject === 'Physics' ? 'bg-green-500' : 'bg-orange-500'
-                    }`} />
+                    <Progress 
+                      value={subject.progress} 
+                      className={`h-2 ${
+                        subject.subject === 'Maths' ? 'bg-slate-200 dark:bg-slate-800' :
+                        subject.subject === 'Physics' ? 'bg-slate-200 dark:bg-slate-800' : 'bg-slate-200 dark:bg-slate-800'
+                      }`}
+                    />
                   </div>
                 ))}
               </div>
@@ -272,19 +260,13 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ChartContainer
-                config={{
-                  subject: { label: 'Subject' },
-                  minutes: { label: 'Minutes' }
-                }}
-              >
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={subjectDistribution()}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="minutes"
@@ -294,19 +276,10 @@ const DashboardPage = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    content={(props) => (
-                      <ChartTooltipContent {...props} nameKey="subject" />
-                    )}
-                  />
-                  <Legend 
-                    content={(props) => <ChartLegendContent {...props} nameKey="subject" />}
-                    layout="vertical"
-                    verticalAlign="middle"
-                    align="right"
-                  />
+                  <Tooltip />
+                  <Legend />
                 </PieChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -318,19 +291,11 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ChartContainer
-                config={{
-                  chapters: { label: 'Chapters' }
-                }}
-              >
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={proficiencyData()}>
                   <XAxis dataKey="level" />
                   <YAxis />
-                  <Tooltip 
-                    content={(props) => (
-                      <ChartTooltipContent {...props} />
-                    )}
-                  />
+                  <Tooltip />
                   <Bar dataKey="chapters" fill="#8884d8">
                     {proficiencyData().map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={
@@ -340,7 +305,7 @@ const DashboardPage = () => {
                     ))}
                   </Bar>
                 </BarChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -354,22 +319,14 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ChartContainer
-                config={{
-                  hours: { label: 'Hours' }
-                }}
-              >
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={timeOfDayData} layout="vertical">
                   <XAxis type="number" />
                   <YAxis dataKey="name" type="category" width={100} />
-                  <Tooltip 
-                    content={(props) => (
-                      <ChartTooltipContent {...props} />
-                    )}
-                  />
+                  <Tooltip />
                   <Bar dataKey="hours" fill="#8884d8" />
                 </BarChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -381,19 +338,11 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ChartContainer
-                config={{
-                  streak: { label: 'Days' }
-                }}
-              >
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={streakHistoryData}>
                   <XAxis dataKey="day" />
                   <YAxis />
-                  <Tooltip 
-                    content={(props) => (
-                      <ChartTooltipContent {...props} />
-                    )}
-                  />
+                  <Tooltip />
                   <Line 
                     type="monotone" 
                     dataKey="streak" 
@@ -403,7 +352,7 @@ const DashboardPage = () => {
                     activeDot={{ r: 6 }}
                   />
                 </LineChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -417,7 +366,7 @@ const DashboardPage = () => {
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <WeakChaptersList limit={5} />
+            <WeakChaptersList />
           </CardContent>
         </Card>
       </div>
