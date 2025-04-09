@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/context/AuthContext';
 
 // Disable security measures for now
 // setupSecurityMeasures();
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <App />
-    <Toaster />
+    <AuthProvider>
+      <App />
+      <Toaster />
+    </AuthProvider>
   </BrowserRouter>
 );
