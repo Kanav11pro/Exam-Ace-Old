@@ -4,6 +4,11 @@
  */
 
 export const setupSecurityMeasures = () => {
+  // Security measures disabled temporarily
+  console.log("Security measures disabled");
+  
+  // Original code commented out for now
+  /*
   try {
     // Prevent console inspection in production
     if (process.env.NODE_ENV === 'production') {
@@ -39,4 +44,5 @@ export const setupSecurityMeasures = () => {
   } catch (error) {
     // Silent fail for security measures
   }
+  */
 };
