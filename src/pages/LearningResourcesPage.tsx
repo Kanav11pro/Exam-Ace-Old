@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Search, BookOpen, FileText, Video, Link as LinkIcon, 
   Download, Play, Lightbulb, CheckCircle, ExternalLink, 
-  Filter, ChevronDown, Bookmark, Copy
+  Filter, ChevronDown, Bookmark, Copy, Clock
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -18,7 +17,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Resource interface
 interface Resource {
   id: string;
   title: string;
@@ -39,9 +37,8 @@ export function LearningResourcesPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const { toast } = useToast();
   
-  // Resource data
   const resources: Resource[] = [
-    // Mathematics Resources
+    // Resource data
     {
       id: 'math-complex-numbers-1',
       title: 'Complex Numbers Fundamentals',
@@ -103,7 +100,6 @@ export function LearningResourcesPage() {
       tags: ['interactive', 'visual learning']
     },
     
-    // Physics Resources
     {
       id: 'physics-mechanics-1',
       title: 'Mechanics: Forces and Motion',
@@ -165,7 +161,6 @@ export function LearningResourcesPage() {
       tags: ['practice', 'previous year']
     },
     
-    // Chemistry Resources
     {
       id: 'chemistry-periodic-1',
       title: 'Periodic Table Trends',
@@ -228,7 +223,6 @@ export function LearningResourcesPage() {
     },
   ];
 
-  // Filter resources based on search and filters
   const filteredResources = resources.filter(resource => {
     const matchesSearch = 
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -242,14 +236,12 @@ export function LearningResourcesPage() {
     return matchesSearch && matchesSubject && matchesType && matchesDifficulty;
   });
 
-  // Group resources by subject
   const resourcesBySubject: Record<string, Resource[]> = {
     'Maths': filteredResources.filter(r => r.subject === 'Maths'),
     'Physics': filteredResources.filter(r => r.subject === 'Physics'),
     'Chemistry': filteredResources.filter(r => r.subject === 'Chemistry')
   };
 
-  // Group resources by chapter within subject
   const resourcesByChapter: Record<string, Record<string, Resource[]>> = {
     'Maths': {},
     'Physics': {},
@@ -265,16 +257,13 @@ export function LearningResourcesPage() {
     }
   }
 
-  // Handle bookmark resource
   const handleBookmark = (resourceId: string) => {
-    // Implementation would save to local storage or context
     toast({
       title: "Resource bookmarked",
       description: "You can access your bookmarked resources in your profile",
     });
   };
 
-  // Handle copy link
   const handleCopyLink = (url: string) => {
     navigator.clipboard.writeText(url);
     toast({
@@ -283,7 +272,6 @@ export function LearningResourcesPage() {
     });
   };
 
-  // Get resource type icon
   const getResourceTypeIcon = (type: string) => {
     switch (type) {
       case 'video':
@@ -301,7 +289,6 @@ export function LearningResourcesPage() {
     }
   };
 
-  // Get resource type color
   const getResourceTypeColor = (type: string) => {
     switch (type) {
       case 'video':
@@ -319,7 +306,6 @@ export function LearningResourcesPage() {
     }
   };
 
-  // Get difficulty color
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'beginner':
@@ -354,7 +340,6 @@ export function LearningResourcesPage() {
         </div>
       </div>
       
-      {/* Search and Filters */}
       <Card className="mb-8">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -411,7 +396,6 @@ export function LearningResourcesPage() {
         </CardContent>
       </Card>
       
-      {/* Resource Listings */}
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="all">All Resources</TabsTrigger>
@@ -428,7 +412,6 @@ export function LearningResourcesPage() {
             </div>
           ) : (
             <div className="space-y-8">
-              {/* For each subject */}
               {(['Maths', 'Physics', 'Chemistry'] as const).map(subject => {
                 if (resourcesBySubject[subject].length === 0) return null;
                 
@@ -457,7 +440,6 @@ export function LearningResourcesPage() {
                       {subject}
                     </h2>
                     
-                    {/* Accordion for chapters */}
                     <Accordion type="multiple" defaultValue={Object.keys(resourcesByChapter[subject])}>
                       {Object.entries(resourcesByChapter[subject]).map(([chapter, chapterResources]) => (
                         <AccordionItem key={chapter} value={chapter}>
