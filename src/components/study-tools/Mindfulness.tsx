@@ -526,172 +526,171 @@ export function Mindfulness() {
                   <TabsTrigger value="presets">Meditation Presets</TabsTrigger>
                   <TabsTrigger value="history">Session History</TabsTrigger>
                 </TabsList>
-              </Tabs>
-            </CardHeader>
-            <CardContent>
-              <TabsContent value="presets" className="mt-0">
-                <div className="space-y-4">
-                  {showCustomForm ? (
-                    <div className="bg-accent/20 p-4 rounded-lg animate-fade-in">
-                      <h3 className="font-medium mb-4">Create Custom Meditation</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="session-name">Session Name</Label>
-                          <Input
-                            id="session-name"
-                            value={customSessionName}
-                            onChange={(e) => setCustomSessionName(e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="session-duration">Duration (minutes)</Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Slider
-                              id="session-duration"
-                              min={1}
-                              max={30}
-                              step={1}
-                              value={[customDuration]}
-                              onValueChange={(value) => setCustomDuration(value[0])}
-                              className="flex-1"
-                            />
-                            <span className="font-medium w-10 text-right">{customDuration}</span>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="session-type">Session Type</Label>
-                          <select
-                            id="session-type"
-                            value={customType}
-                            onChange={(e) => setCustomType(e.target.value as any)}
-                            className="w-full mt-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded px-3 py-2"
-                          >
-                            <option value="focus">Focus</option>
-                            <option value="calm">Calm</option>
-                            <option value="breathe">Breathing</option>
-                            <option value="gratitude">Gratitude</option>
-                            <option value="custom">Custom</option>
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="session-notes">Notes (Optional)</Label>
-                          <Input
-                            id="session-notes"
-                            value={customNotes}
-                            onChange={(e) => setCustomNotes(e.target.value)}
-                            placeholder="What would you like to focus on in this session?"
-                            className="mt-1"
-                          />
-                        </div>
-                        
-                        <div className="flex gap-2 pt-2">
-                          <Button variant="outline" onClick={() => setShowCustomForm(false)}>
-                            Cancel
-                          </Button>
-                          <Button onClick={startCustomSession}>
-                            Create Session
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-medium">Select a meditation session</h3>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => setShowCustomForm(true)}
-                        >
-                          Create Custom
-                        </Button>
-                      </div>
-                      
-                      {meditationPresets.map(preset => (
-                        <Card 
-                          key={preset.id} 
-                          className={`cursor-pointer hover:bg-accent/50 transition-colors ${
-                            selectedPreset?.id === preset.id ? 'border-primary' : ''
-                          }`}
-                          onClick={() => selectPreset(preset)}
-                        >
-                          <CardContent className="p-4 flex items-center justify-between">
-                            <div className="flex items-center">
-                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                                {preset.icon}
-                              </div>
-                              <div>
-                                <h4 className="font-medium">{preset.name}</h4>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {preset.description}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Badge variant="outline" className={getSessionTypeColor(preset.type)}>
-                                {preset.duration} min
-                              </Badge>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </>
-                  )}
-                </div>
-              </TabsContent>
               
-              <TabsContent value="history" className="mt-0">
-                {pastSessions.length > 0 ? (
-                  <div className="space-y-3">
-                    {pastSessions.slice(0, 10).map(session => (
-                      <div 
-                        key={session.id} 
-                        className="p-3 border rounded-lg"
-                      >
-                        <div className="flex justify-between items-start">
+                <TabsContent value="presets" className="mt-4">
+                  <div className="space-y-4">
+                    {showCustomForm ? (
+                      <div className="bg-accent/20 p-4 rounded-lg animate-fade-in">
+                        <h3 className="font-medium mb-4">Create Custom Meditation</h3>
+                        <div className="space-y-4">
                           <div>
-                            <h4 className="font-medium">{session.name}</h4>
-                            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              <Clock className="h-3 w-3 mr-1" />
-                              <span>{formatDate(session.date)}</span>
-                              <span className="mx-1">•</span>
-                              <span>{session.duration} min</span>
+                            <Label htmlFor="session-name">Session Name</Label>
+                            <Input
+                              id="session-name"
+                              value={customSessionName}
+                              onChange={(e) => setCustomSessionName(e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="session-duration">Duration (minutes)</Label>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Slider
+                                id="session-duration"
+                                min={1}
+                                max={30}
+                                step={1}
+                                value={[customDuration]}
+                                onValueChange={(value) => setCustomDuration(value[0])}
+                                className="flex-1"
+                              />
+                              <span className="font-medium w-10 text-right">{customDuration}</span>
                             </div>
                           </div>
-                          <Badge className={getSessionTypeColor(session.type)}>
-                            {session.type}
-                          </Badge>
+                          
+                          <div>
+                            <Label htmlFor="session-type">Session Type</Label>
+                            <select
+                              id="session-type"
+                              value={customType}
+                              onChange={(e) => setCustomType(e.target.value as any)}
+                              className="w-full mt-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded px-3 py-2"
+                            >
+                              <option value="focus">Focus</option>
+                              <option value="calm">Calm</option>
+                              <option value="breathe">Breathing</option>
+                              <option value="gratitude">Gratitude</option>
+                              <option value="custom">Custom</option>
+                            </select>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="session-notes">Notes (Optional)</Label>
+                            <Input
+                              id="session-notes"
+                              value={customNotes}
+                              onChange={(e) => setCustomNotes(e.target.value)}
+                              placeholder="What would you like to focus on in this session?"
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div className="flex gap-2 pt-2">
+                            <Button variant="outline" onClick={() => setShowCustomForm(false)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={startCustomSession}>
+                              Create Session
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="font-medium">Select a meditation session</h3>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setShowCustomForm(true)}
+                          >
+                            Create Custom
+                          </Button>
                         </div>
                         
-                        {session.notes && (
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 italic">
-                            "{session.notes}"
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                    
-                    {pastSessions.length > 10 && (
-                      <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        +{pastSessions.length - 10} more sessions
-                      </div>
+                        {meditationPresets.map(preset => (
+                          <Card 
+                            key={preset.id} 
+                            className={`cursor-pointer hover:bg-accent/50 transition-colors ${
+                              selectedPreset?.id === preset.id ? 'border-primary' : ''
+                            }`}
+                            onClick={() => selectPreset(preset)}
+                          >
+                            <CardContent className="p-4 flex items-center justify-between">
+                              <div className="flex items-center">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                  {preset.icon}
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">{preset.name}</h4>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {preset.description}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center">
+                                <Badge variant="outline" className={getSessionTypeColor(preset.type)}>
+                                  {preset.duration} min
+                                </Badge>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </>
                     )}
                   </div>
-                ) : (
-                  <div className="text-center py-6">
-                    <History className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                    <h3 className="text-sm font-medium mb-1">No sessions yet</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Your completed meditation sessions will appear here
-                    </p>
-                  </div>
-                )}
-              </TabsContent>
-            </CardContent>
+                </TabsContent>
+                
+                <TabsContent value="history" className="mt-4">
+                  {pastSessions.length > 0 ? (
+                    <div className="space-y-3">
+                      {pastSessions.slice(0, 10).map(session => (
+                        <div 
+                          key={session.id} 
+                          className="p-3 border rounded-lg"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-medium">{session.name}</h4>
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <Clock className="h-3 w-3 mr-1" />
+                                <span>{formatDate(session.date)}</span>
+                                <span className="mx-1">•</span>
+                                <span>{session.duration} min</span>
+                              </div>
+                            </div>
+                            <Badge className={getSessionTypeColor(session.type)}>
+                              {session.type}
+                            </Badge>
+                          </div>
+                          
+                          {session.notes && (
+                            <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 italic">
+                              "{session.notes}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                      
+                      {pastSessions.length > 10 && (
+                        <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                          +{pastSessions.length - 10} more sessions
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <History className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                      <h3 className="text-sm font-medium mb-1">No sessions yet</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Your completed meditation sessions will appear here
+                      </p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </CardHeader>
           </Card>
         </div>
         
@@ -925,3 +924,4 @@ export function Mindfulness() {
     </div>
   );
 }
+
