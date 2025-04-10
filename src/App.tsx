@@ -25,6 +25,16 @@ import { NoteTaker } from "./components/study-tools/NoteTaker";
 import { FocusMode } from "./components/study-tools/FocusMode";
 import { GoalTracker } from "./components/study-tools/GoalTracker";
 import { FormulaSheet } from "./components/study-tools/FormulaSheet";
+import { BacklogManagement } from "./components/study-tools/BacklogManagement";
+import { WeeklyPlanner } from "./components/study-tools/WeeklyPlanner";
+import { ErrorLog } from "./components/study-tools/ErrorLog";
+import { RevisionReminder } from "./components/study-tools/RevisionReminder";
+import { DailyQuiz } from "./components/study-tools/DailyQuiz";
+import { BookmarkManager } from "./components/study-tools/BookmarkManager";
+import { EyeRestTimer } from "./components/study-tools/EyeRestTimer";
+import { StudyMusic } from "./components/study-tools/StudyMusic";
+import { MockTests } from "./components/study-tools/MockTests";
+import { Mindfulness } from "./components/study-tools/Mindfulness";
 import { LearningResourcesPage } from "./pages/LearningResourcesPage";
 
 const queryClient = new QueryClient();
@@ -55,6 +65,16 @@ const App = () => (
                 <Route path="tools/focus-mode" element={<FocusMode />} />
                 <Route path="tools/goal-tracker" element={<GoalTracker />} />
                 <Route path="tools/formula-sheet" element={<FormulaSheet />} />
+                <Route path="tools/backlog-management" element={<BacklogManagement />} />
+                <Route path="tools/weekly-planner" element={<WeeklyPlanner />} />
+                <Route path="tools/error-log" element={<ErrorLog />} />
+                <Route path="tools/revision-reminder" element={<RevisionReminder />} />
+                <Route path="tools/daily-quiz" element={<DailyQuiz />} />
+                <Route path="tools/bookmark-manager" element={<BookmarkManager />} />
+                <Route path="tools/eye-rest-timer" element={<EyeRestTimer />} />
+                <Route path="tools/study-music" element={<StudyMusic />} />
+                <Route path="tools/mock-tests" element={<MockTests />} />
+                <Route path="tools/mindfulness" element={<Mindfulness />} />
                 
                 {/* Resources */}
                 <Route path="resources" element={<LearningResourcesPage />} />

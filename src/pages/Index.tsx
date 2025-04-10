@@ -11,6 +11,11 @@ const Index = () => {
       <main className="flex-1">
         <Outlet />
       </main>
+      <footer className="py-4 px-4 md:px-6 border-t">
+        <div className="container mx-auto text-center text-sm text-gray-500 dark:text-gray-400">
+          <p>© {new Date().getFullYear()} JEE Prepometer. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 };
