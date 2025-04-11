@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
@@ -35,7 +35,7 @@ import { QuestionGenerator } from '@/components/study-tools/QuestionGenerator';
 
 function App() {
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/" element={<Index />}>
           <Route index element={<HomePage />} />
@@ -70,7 +70,7 @@ function App() {
         </Route>
       </Routes>
       <Toaster />
-    </Router>
+    </>
   );
 }
 
