@@ -1,28 +1,16 @@
-
 import { ThemeToggle } from './ThemeToggle';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
 import { Menu, X, ChevronDown, ChevronUp, Library, Clock, Brain, Calendar, FileCog, BookOpen } from 'lucide-react';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-
 export function Header() {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-  
-  const mobileMenu = (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+  const mobileMenu = <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-6 w-6" />
@@ -99,12 +87,9 @@ export function Header() {
           </Link>
         </nav>
       </SheetContent>
-    </Sheet>
-  );
-
-  return (
-    <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between">
+    </Sheet>;
+  return <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center justify-between bg-violet-400">
         <div className="flex items-center gap-2">
           <Link to="/" className="font-bold text-xl flex items-center">
             <span className="mr-2">📊</span>
@@ -130,10 +115,7 @@ export function Header() {
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
-                      <a
-                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        href="/subject/Maths"
-                      >
+                      <a className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md" href="/subject/Maths">
                         <Library className="h-6 w-6 mb-2" />
                         <div className="mb-2 mt-4 text-lg font-medium">
                           All Subjects
@@ -178,10 +160,7 @@ export function Header() {
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
-                      <a
-                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        href="/tools"
-                      >
+                      <a className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md" href="/tools">
                         <Brain className="h-6 w-6 mb-2" />
                         <div className="mb-2 mt-4 text-lg font-medium">
                           All Study Tools
@@ -251,6 +230,5 @@ export function Header() {
           {isMobile && mobileMenu}
         </div>
       </div>
-    </header>
-  );
+    </header>;
 }
