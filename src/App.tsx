@@ -31,7 +31,7 @@ import { DailyQuiz } from '@/components/study-tools/DailyQuiz';
 import { RevisionReminder } from '@/components/study-tools/RevisionReminder';
 import { ErrorLog } from '@/components/study-tools/ErrorLog';
 import { MockTests } from '@/components/study-tools/MockTests';
-import { QuestionGenerator } from '@/components/study-tools/QuestionGenerator';
+import QuestionGenerator from '@/components/study-tools/QuestionGenerator';
 
 function App() {
   return (
