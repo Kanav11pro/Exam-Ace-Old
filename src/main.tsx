@@ -5,6 +5,8 @@ import App from './App.tsx';
 import './index.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { StudyStatsProvider } from '@/context/StudyStatsContext';
 
 // Disable security measures for now
 // setupSecurityMeasures();
@@ -12,8 +14,12 @@ import { AuthProvider } from '@/context/AuthContext';
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <AuthProvider>
-      <App />
-      <Toaster />
+      <ThemeProvider>
+        <StudyStatsProvider>
+          <App />
+          <Toaster />
+        </StudyStatsProvider>
+      </ThemeProvider>
     </AuthProvider>
   </BrowserRouter>
 );
