@@ -1,423 +1,194 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
+import React from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  Search, Clock, BookMinus, Brain, Target, Calculator, 
-  Calendar, BookMarked, Music2, Bookmark, Eye, Trophy, 
-  FileQuestion, BookCheck, Sparkles, BellRing, PenLine, 
-  BookOpen, Star, Filter, BrainCircuit, ClipboardCheck
+import {
+  Clock,
+  BookOpen,
+  List,
+  Calendar,
+  PenLine,
+  MusicIcon,
+  Timer,
+  BookMarked,
+  TimerOff,
+  FileQuestion,
+  Calculator,
+  Eye,
+  BrainCircuit,
+  ListTodo,
+  Bell,
+  HelpCircle,
+  LayoutDashboard
 } from 'lucide-react';
 
-// Study tool interface
-interface StudyTool {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
-  category: 'time' | 'content' | 'practice' | 'wellness' | 'organization';
-  favorite?: boolean;
-}
+const tools = [
+  {
+    title: 'Pomodoro Timer',
+    description: 'Focus with timed study sessions',
+    icon: <Clock className="h-6 w-6" />,
+    route: 'pomodoro-timer',
+    color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+  },
+  {
+    title: 'Flashcards',
+    description: 'Test your knowledge with flashcards',
+    icon: <BookOpen className="h-6 w-6" />,
+    route: 'flashcards',
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+  },
+  {
+    title: 'Formula Sheet',
+    description: 'Quick reference for JEE formulas',
+    icon: <Calculator className="h-6 w-6" />,
+    route: 'formula-sheet',
+    color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
+  },
+  {
+    title: 'Study Timer',
+    description: 'Track your study hours',
+    icon: <Timer className="h-6 w-6" />,
+    route: 'study-timer',
+    color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+  },
+  {
+    title: 'Weekly Planner',
+    description: 'Organize your study schedule',
+    icon: <Calendar className="h-6 w-6" />,
+    route: 'weekly-planner',
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+  },
+  {
+    title: 'Note Taker',
+    description: 'Take and organize your notes',
+    icon: <PenLine className="h-6 w-6" />,
+    route: 'note-taker',
+    color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+  },
+  {
+    title: 'Study Music',
+    description: 'Focus-enhancing background music',
+    icon: <MusicIcon className="h-6 w-6" />,
+    route: 'study-music',
+    color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400'
+  },
+  {
+    title: 'Bookmark Manager',
+    description: 'Save and organize useful resources',
+    icon: <BookMarked className="h-6 w-6" />,
+    route: 'bookmark-manager',
+    color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+  },
+  {
+    title: 'Focus Mode',
+    description: 'Distraction-free study environment',
+    icon: <LayoutDashboard className="h-6 w-6" />,
+    route: 'focus-mode',
+    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+  },
+  {
+    title: 'Eye Rest Timer',
+    description: 'Reminders to rest your eyes',
+    icon: <Eye className="h-6 w-6" />,
+    route: 'eye-rest-timer',
+    color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
+  },
+  {
+    title: 'Mindfulness',
+    description: 'Reduce study stress with mindfulness',
+    icon: <BrainCircuit className="h-6 w-6" />,
+    route: 'mindfulness',
+    color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+  },
+  {
+    title: 'Backlog Management',
+    description: 'Track and manage pending tasks',
+    icon: <ListTodo className="h-6 w-6" />,
+    route: 'backlog-management',
+    color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+  },
+  {
+    title: 'Daily Quiz',
+    description: 'Test your knowledge daily',
+    icon: <HelpCircle className="h-6 w-6" />,
+    route: 'daily-quiz',
+    color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+  },
+  {
+    title: 'Revision Reminder',
+    description: 'Spaced repetition for effective learning',
+    icon: <Bell className="h-6 w-6" />,
+    route: 'revision-reminder',
+    color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+  },
+  {
+    title: 'Error Log',
+    description: 'Track and learn from your mistakes',
+    icon: <List className="h-6 w-6" />,
+    route: 'error-log',
+    color: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-400'
+  },
+  {
+    title: 'Mock Tests',
+    description: 'Practice with full-length exams',
+    icon: <FileQuestion className="h-6 w-6" />,
+    route: 'mock-tests',
+    color: 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400'
+  },
+  {
+    title: 'Question Generator',
+    description: 'Generate practice questions',
+    icon: <HelpCircle className="h-6 w-6" />,
+    route: 'question-generator',
+    color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400'
+  }
+];
 
-const StudyToolsPage = () => {
+export default function StudyToolsPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [tools, setTools] = useState<StudyTool[]>([]);
   
-  // Define study tools
-  const studyTools: StudyTool[] = [
-    {
-      id: 'pomodoro-timer',
-      name: 'Pomodoro Timer',
-      description: 'Focus with time-boxed intervals and breaks',
-      icon: <Clock className="h-6 w-6 text-red-500" />,
-      category: 'time',
-    },
-    {
-      id: 'flashcards',
-      name: 'Flashcards',
-      description: 'Create and practice with digital flashcards',
-      icon: <BookCheck className="h-6 w-6 text-emerald-500" />,
-      category: 'practice',
-    },
-    {
-      id: 'study-timer',
-      name: 'Study Timer',
-      description: 'Track your study sessions and statistics',
-      icon: <Clock className="h-6 w-6 text-blue-500" />,
-      category: 'time',
-    },
-    {
-      id: 'note-taker',
-      name: 'Note Taker',
-      description: 'Take organized notes while studying',
-      icon: <PenLine className="h-6 w-6 text-violet-500" />,
-      category: 'content',
-    },
-    {
-      id: 'focus-mode',
-      name: 'Focus Mode',
-      description: 'Eliminate distractions and stay focused',
-      icon: <BrainCircuit className="h-6 w-6 text-indigo-500" />,
-      category: 'wellness',
-    },
-    {
-      id: 'goal-tracker',
-      name: 'Goal Tracker',
-      description: 'Set and track your study goals',
-      icon: <Target className="h-6 w-6 text-orange-500" />,
-      category: 'organization',
-    },
-    {
-      id: 'formula-sheet',
-      name: 'Formula Sheet',
-      description: 'Quick access to essential formulas',
-      icon: <Calculator className="h-6 w-6 text-rose-500" />,
-      category: 'content',
-    },
-    {
-      id: 'weekly-planner',
-      name: 'Weekly Planner',
-      description: 'Plan your study schedule for the week',
-      icon: <Calendar className="h-6 w-6 text-cyan-500" />,
-      category: 'organization',
-    },
-    {
-      id: 'error-log',
-      name: 'Error Log',
-      description: 'Track and review your mistakes',
-      icon: <ClipboardCheck className="h-6 w-6 text-red-500" />,
-      category: 'practice',
-    },
-    {
-      id: 'revision-reminder',
-      name: 'Revision Reminder',
-      description: 'Spaced repetition based on forgetting curve',
-      icon: <BellRing className="h-6 w-6 text-purple-500" />,
-      category: 'organization',
-    },
-    {
-      id: 'mindfulness',
-      name: 'Mindfulness',
-      description: 'Guided meditation for better focus',
-      icon: <Sparkles className="h-6 w-6 text-amber-500" />,
-      category: 'wellness',
-    },
-    {
-      id: 'daily-quiz',
-      name: 'Daily Quiz',
-      description: 'Test your knowledge with quick quizzes',
-      icon: <BookMinus className="h-6 w-6 text-green-500" />,
-      category: 'practice',
-    },
-    {
-      id: 'study-music',
-      name: 'Study Music',
-      description: 'Concentration music & binaural beats',
-      icon: <Music2 className="h-6 w-6 text-blue-500" />,
-      category: 'wellness',
-    },
-    {
-      id: 'bookmark-manager',
-      name: 'Bookmark Manager',
-      description: 'Save important topics and questions',
-      icon: <Bookmark className="h-6 w-6 text-yellow-500" />,
-      category: 'organization',
-    },
-    {
-      id: 'eye-rest-timer',
-      name: 'Eye Rest Timer',
-      description: '20-20-20 rule timer for eye strain relief',
-      icon: <Eye className="h-6 w-6 text-teal-500" />,
-      category: 'wellness',
-    },
-    {
-      id: 'achievements',
-      name: 'Achievements & Badges',
-      description: 'Earn badges for your study accomplishments',
-      icon: <Trophy className="h-6 w-6 text-amber-500" />,
-      category: 'wellness',
-    },
-    {
-      id: 'question-generator',
-      name: 'Question Generator',
-      description: 'Generate practice questions by topic',
-      icon: <FileQuestion className="h-6 w-6 text-indigo-500" />,
-      category: 'practice',
-    },
-    {
-      id: 'mock-tests',
-      name: 'Mock Tests',
-      description: 'Full JEE simulation with timer',
-      icon: <Brain className="h-6 w-6 text-blue-500" />,
-      category: 'practice',
-    },
-    {
-      id: 'learning-resources',
-      name: 'Learning Resources',
-      description: 'Curated resources for each chapter',
-      icon: <BookOpen className="h-6 w-6 text-green-500" />,
-      category: 'content',
-    },
-  ];
-
-  // Load favorites from localStorage
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('favoriteStudyTools');
-    if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites) as string[];
-      const toolsWithFavorites = studyTools.map(tool => ({
-        ...tool,
-        favorite: favoriteIds.includes(tool.id)
-      }));
-      setTools(toolsWithFavorites);
-    } else {
-      setTools(studyTools);
-    }
-  }, []);
-
-  // Save favorites to localStorage
-  const saveFavorites = (updatedTools: StudyTool[]) => {
-    const favoriteIds = updatedTools
-      .filter(tool => tool.favorite)
-      .map(tool => tool.id);
-    localStorage.setItem('favoriteStudyTools', JSON.stringify(favoriteIds));
-  };
-
-  // Toggle favorite status
-  const toggleFavorite = (id: string) => {
-    const updatedTools = tools.map(tool => 
-      tool.id === id ? { ...tool, favorite: !tool.favorite } : tool
-    );
-    setTools(updatedTools);
-    saveFavorites(updatedTools);
-  };
-
-  // Filter tools based on search term and category
-  const filteredTools = tools.filter(tool => {
-    const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         tool.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || tool.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  // Get favorites
-  const favoriteTools = tools.filter(tool => tool.favorite);
-
-  // Navigate to the selected tool
-  const navigateToTool = (id: string) => {
-    // Implement navigation to specific tool components
-    navigate(`/tools/${id}`);
-  };
-
-  // Category labels
-  const categoryLabels: Record<string, string> = {
-    'all': 'All Tools',
-    'time': 'Time Management',
-    'content': 'Content & Notes',
-    'practice': 'Practice & Revision',
-    'wellness': 'Wellness & Focus',
-    'organization': 'Organization'
-  };
-
-  // Category styles
-  const getCategoryStyle = (category: string) => {
-    const styles: Record<string, string> = {
-      'time': 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300',
-      'content': 'bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-300',
-      'practice': 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300',
-      'wellness': 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300',
-      'organization': 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/20 dark:border-cyan-800 dark:text-cyan-300'
-    };
-    return styles[category] || '';
-  };
-
+  // Check if we're on the main study tools page or a specific tool
+  const isMainPage = window.location.pathname === '/study-tools';
+  
+  if (!isMainPage) {
+    // If we're in a specific tool, render that tool via the Outlet
+    return <Outlet />;
+  }
+  
   return (
-    <div className="container max-w-6xl py-8 animate-fade-in">
+    <div className="container py-8 max-w-6xl animate-fade-in">
       <h1 className="text-3xl font-bold mb-2">Study Tools</h1>
-      <p className="text-gray-600 dark:text-gray-300 mb-6">Enhance your JEE preparation with these specialized tools</p>
+      <p className="text-gray-600 dark:text-gray-300 mb-8">
+        Boost your JEE preparation with these specialized study tools
+      </p>
       
-      {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center mb-6">
-        <div className="relative w-full sm:w-auto flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search tools..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-500" />
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm"
-          >
-            {Object.entries(categoryLabels).map(([key, value]) => (
-              <option key={key} value={key}>{value}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-      
-      {/* Tools Tabs */}
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="all">All Tools</TabsTrigger>
-          <TabsTrigger value="favorites">Favorites</TabsTrigger>
-          <TabsTrigger value="recent">Recently Used</TabsTrigger>
-        </TabsList>
-        
-        {/* All Tools Tab */}
-        <TabsContent value="all" className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTools.map((tool) => (
-              <Card 
-                key={tool.id}
-                className="overflow-hidden hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-800"
-                onClick={() => navigateToTool(tool.id)}
-              >
-                <CardContent className="p-0">
-                  <div className="flex items-start p-4">
-                    <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                      {tool.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold">{tool.name}</h3>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(tool.id);
-                          }}
-                        >
-                          <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                      <div className="mt-2">
-                        <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
-                          {categoryLabels[tool.category]}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          {filteredTools.length === 0 && (
-            <div className="text-center py-12">
-              <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No tools found</h3>
-              <p className="text-gray-500">Try changing your search or filter criteria</p>
-            </div>
-          )}
-        </TabsContent>
-        
-        {/* Favorites Tab */}
-        <TabsContent value="favorites">
-          {favoriteTools.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {favoriteTools.map((tool) => (
-                <Card 
-                  key={tool.id}
-                  className="overflow-hidden hover:shadow-md transition-all cursor-pointer"
-                  onClick={() => navigateToTool(tool.id)}
-                >
-                  <CardContent className="p-0">
-                    <div className="flex items-start p-4">
-                      <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                        {tool.icon}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold">{tool.name}</h3>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFavorite(tool.id);
-                            }}
-                          >
-                            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                          </Button>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                        <div className="mt-2">
-                          <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
-                            {categoryLabels[tool.category]}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
-              <p className="text-gray-500">Star your favorite tools to see them here</p>
-            </div>
-          )}
-        </TabsContent>
-        
-        {/* Recently Used Tab */}
-        <TabsContent value="recent">
-          <div className="text-center py-12">
-            <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No recent tools</h3>
-            <p className="text-gray-500">Your recently used tools will appear here</p>
-          </div>
-        </TabsContent>
-      </Tabs>
-      
-      {/* Featured Categories */}
-      <div className="mt-12">
-        <h2 className="text-xl font-bold mb-4">Tool Categories</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.entries(categoryLabels).filter(([key]) => key !== 'all').map(([key, label]) => (
-            <Card 
-              key={key}
-              className="hover:shadow-md transition-all cursor-pointer overflow-hidden"
-              onClick={() => setSelectedCategory(key)}
-            >
-              <CardContent className="p-0">
-                <div className={`bg-gradient-to-r ${
-                  key === 'time' ? 'from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20' :
-                  key === 'content' ? 'from-violet-100 to-violet-50 dark:from-violet-900/30 dark:to-violet-800/20' :
-                  key === 'practice' ? 'from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20' :
-                  key === 'wellness' ? 'from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20' :
-                  'from-cyan-100 to-cyan-50 dark:from-cyan-900/30 dark:to-cyan-800/20'
-                } p-4`}>
-                  <h3 className="font-semibold">{label}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {tools.filter(tool => tool.category === key).length} tools
-                  </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {tools.map((tool, index) => (
+          <Card key={index} className="overflow-hidden hover:shadow-md transition-all">
+            <CardHeader className="pb-2">
+              <div className="flex items-start gap-4">
+                <div className={`p-2 rounded-md ${tool.color}`}>
+                  {tool.icon}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <div>
+                  <CardTitle>{tool.title}</CardTitle>
+                  <CardDescription>{tool.description}</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={() => navigate(tool.route)}
+              >
+                Open Tool
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
-};
-
-export default StudyToolsPage;
+}
