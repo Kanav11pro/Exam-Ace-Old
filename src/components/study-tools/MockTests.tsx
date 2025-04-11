@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { format, parseISO } from 'date-fns';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -814,4 +815,661 @@ export function MockTests() {
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label className="text-right">Mathematics</Label>
                         <div className="col-span-3">
-                          <div className="flex items-center justify-between
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm text-gray-500">{customTest.mathsQuestions} questions</span>
+                          </div>
+                          <Slider 
+                            value={[customTest.mathsQuestions]} 
+                            min={0} 
+                            max={30} 
+                            step={1}
+                            onValueChange={(value) => setCustomTest({...customTest, mathsQuestions: value[0]})}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Physics</Label>
+                        <div className="col-span-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm text-gray-500">{customTest.physicsQuestions} questions</span>
+                          </div>
+                          <Slider 
+                            value={[customTest.physicsQuestions]} 
+                            min={0} 
+                            max={30} 
+                            step={1}
+                            onValueChange={(value) => setCustomTest({...customTest, physicsQuestions: value[0]})}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label className="text-right">Chemistry</Label>
+                        <div className="col-span-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm text-gray-500">{customTest.chemistryQuestions} questions</span>
+                          </div>
+                          <Slider 
+                            value={[customTest.chemistryQuestions]} 
+                            min={0} 
+                            max={30} 
+                            step={1}
+                            onValueChange={(value) => setCustomTest({...customTest, chemistryQuestions: value[0]})}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsCreateCustomTestOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={createCustomTest}>
+                        Create Test
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {availableTests.filter(test => test.isActive).map(test => (
+                  <Card key={test.id} className="overflow-hidden hover:shadow-md transition-all">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between">
+                        <CardTitle>{test.title}</CardTitle>
+                        <Badge className={getLevelBadgeColor(test.level)}>
+                          {test.level.charAt(0).toUpperCase() + test.level.slice(1)}
+                        </Badge>
+                      </div>
+                      <CardDescription>{test.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+                          <p className="font-medium flex items-center justify-center gap-1">
+                            <Clock className="h-3 w-3" /> {test.duration} min
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Questions</p>
+                          <p className="font-medium flex items-center justify-center gap-1">
+                            <FileQuestion className="h-3 w-3" /> {test.totalQuestions}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
+                          <p className="font-medium">{test.isCustom ? 'Custom' : 'Standard'}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-2 mb-2">
+                        {test.questions.maths > 0 && (
+                          <Badge variant="outline" className={getSubjectBadgeColor('maths')}>
+                            Maths: {test.questions.maths}
+                          </Badge>
+                        )}
+                        {test.questions.physics > 0 && (
+                          <Badge variant="outline" className={getSubjectBadgeColor('physics')}>
+                            Physics: {test.questions.physics}
+                          </Badge>
+                        )}
+                        {test.questions.chemistry > 0 && (
+                          <Badge variant="outline" className={getSubjectBadgeColor('chemistry')}>
+                            Chemistry: {test.questions.chemistry}
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Dialog open={selectedTest?.id === test.id && isTestStartDialogOpen} onOpenChange={isOpen => {
+                        setIsTestStartDialogOpen(isOpen);
+                        if (!isOpen) setSelectedTest(null);
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            className="w-full"
+                            onClick={() => setSelectedTest(test)}
+                          >
+                            Start Test
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Start {test.title}?</DialogTitle>
+                            <DialogDescription>
+                              You are about to start a {test.duration} minute test with {test.totalQuestions} questions.
+                              Make sure you have enough time to complete it.
+                            </DialogDescription>
+                          </DialogHeader>
+                          
+                          <div className="space-y-4 py-4">
+                            <div className="flex items-center space-x-2">
+                              <div className="grid flex-1 gap-2">
+                                <Label htmlFor="nta-interface" className="font-medium">
+                                  Use NTA interface
+                                </Label>
+                                <p className="text-sm text-muted-foreground">
+                                  Switch to an interface similar to the actual JEE exam platform
+                                </p>
+                              </div>
+                              <Switch
+                                id="nta-interface"
+                                checked={isNtaInterface}
+                                onCheckedChange={setIsNtaInterface}
+                              />
+                            </div>
+                          </div>
+                          
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => {
+                              setIsTestStartDialogOpen(false);
+                              setSelectedTest(null);
+                            }}>
+                              Cancel
+                            </Button>
+                            <Button onClick={startTest}>
+                              Start Now
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </CardFooter>
+                  </Card>
+                ))}
+                
+                {availableTests.filter(test => !test.isActive).length > 0 && (
+                  <div className="lg:col-span-2 mt-6">
+                    <h3 className="text-lg font-medium mb-2">Coming Soon</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {availableTests.filter(test => !test.isActive).map(test => (
+                        <Card key={test.id} className="overflow-hidden opacity-75">
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between">
+                              <CardTitle>{test.title}</CardTitle>
+                              <Badge className={getLevelBadgeColor(test.level)}>
+                                {test.level.charAt(0).toUpperCase() + test.level.slice(1)}
+                              </Badge>
+                            </div>
+                            <CardDescription>{test.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="pb-2">
+                            <div className="grid grid-cols-3 gap-2 mb-4">
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+                                <p className="font-medium flex items-center justify-center gap-1">
+                                  <Clock className="h-3 w-3" /> {test.duration} min
+                                </p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Questions</p>
+                                <p className="font-medium flex items-center justify-center gap-1">
+                                  <FileQuestion className="h-3 w-3" /> {test.totalQuestions}
+                                </p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
+                                <p className="font-medium">{test.isCustom ? 'Custom' : 'Standard'}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-3 gap-2 mb-2">
+                              {test.questions.maths > 0 && (
+                                <Badge variant="outline" className={getSubjectBadgeColor('maths')}>
+                                  Maths: {test.questions.maths}
+                                </Badge>
+                              )}
+                              {test.questions.physics > 0 && (
+                                <Badge variant="outline" className={getSubjectBadgeColor('physics')}>
+                                  Physics: {test.questions.physics}
+                                </Badge>
+                              )}
+                              {test.questions.chemistry > 0 && (
+                                <Badge variant="outline" className={getSubjectBadgeColor('chemistry')}>
+                                  Chemistry: {test.questions.chemistry}
+                                </Badge>
+                              )}
+                            </div>
+                          </CardContent>
+                          <CardFooter>
+                            <Button className="w-full" disabled>
+                              Coming Soon
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="history" className="mt-4">
+              <h2 className="text-xl font-semibold mb-4">Test History</h2>
+              
+              {previousAttempts.length === 0 ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-8">
+                    <FileCheck className="h-12 w-12 text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-center">No Test Attempts Yet</h3>
+                    <p className="text-gray-500 text-center mt-1 mb-4">
+                      Take a test to view your history and track your progress
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setActiveTab('available')}
+                      className="mt-2"
+                    >
+                      Browse Available Tests
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {previousAttempts
+                    .sort((a, b) => new Date(b.dateStarted).getTime() - new Date(a.dateStarted).getTime())
+                    .map(attempt => {
+                      const test = availableTests.find(t => t.id === attempt.testId);
+                      return (
+                        <Card key={attempt.id} className="overflow-hidden">
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between">
+                              <CardTitle>{test?.title || 'Unknown Test'}</CardTitle>
+                              <Badge className="ml-2" variant={attempt.score.total > (test?.totalQuestions || 0) / 2 ? "default" : "outline"}>
+                                {attempt.score.total} / {test?.totalQuestions || 0} points
+                              </Badge>
+                            </div>
+                            <CardDescription>
+                              Taken on {format(parseISO(attempt.dateStarted), 'PPP')} at {format(parseISO(attempt.dateStarted), 'p')}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-4 gap-2 mb-4">
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+                                <p className="font-medium">{attempt.totalTime} min</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Maths</p>
+                                <p className="font-medium">{attempt.score.maths} / {test?.questions.maths || 0}</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Physics</p>
+                                <p className="font-medium">{attempt.score.physics} / {test?.questions.physics || 0}</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Chemistry</p>
+                                <p className="font-medium">{attempt.score.chemistry} / {test?.questions.chemistry || 0}</p>
+                              </div>
+                            </div>
+                            
+                            <Progress 
+                              value={(attempt.score.total / (test?.totalQuestions || 1)) * 100}
+                              className="h-2"
+                            />
+                          </CardContent>
+                          <CardFooter>
+                            <Button variant="outline" className="w-full" disabled>
+                              View Details
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      );
+                    })}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      ) : (
+        // Test is active - show test interface
+        activeTest && (
+          <div>
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-bold">{activeTest.test.title}</h2>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Question {activeTest.currentQuestionIndex + 1} of {activeTest.questions.length}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className={`flex items-center gap-2 ${activeTest.timeLeft < 300 ? 'text-red-500 dark:text-red-400 animate-pulse' : ''}`}>
+                  <Clock className="h-5 w-5" />
+                  <span className="text-lg font-medium">{formatTime(activeTest.timeLeft)}</span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2"
+                    onClick={() => setIsNtaInterface(!isNtaInterface)}
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    {isNtaInterface ? "Standard View" : "NTA Interface"}
+                  </Button>
+                  
+                  <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive">
+                        End Test
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Submit Test?</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to end and submit your test?
+                          You won't be able to change your answers after submission.
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <div className="py-4">
+                        <div className="mb-4">
+                          <p className="mb-2 font-medium">Test Progress:</p>
+                          <Progress value={calculateProgress()} className="h-2 mb-1" />
+                          <p className="text-sm text-gray-500">
+                            {activeTest.answers.filter(a => a !== null).length} of {activeTest.questions.length} questions answered
+                          </p>
+                        </div>
+                        
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md">
+                          <p className="text-amber-800 dark:text-amber-300 text-sm flex items-start gap-2">
+                            <span className="mt-0.5"><Clock className="h-4 w-4" /></span>
+                            <span>You still have {formatTime(activeTest.timeLeft)} remaining. Make sure to review your answers before submitting.</span>
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsSubmitDialogOpen(false)}>
+                          Continue Test
+                        </Button>
+                        <Button variant="destructive" onClick={submitTest}>
+                          Submit Now
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            </div>
+            
+            {isNtaInterface ? (
+              // NTA interface mode
+              <div className="flex gap-4">
+                <div className="w-1/4 bg-gray-100 dark:bg-gray-800 rounded-md p-4">
+                  <h3 className="text-lg font-semibold mb-3">Question Palette</h3>
+                  <div className="grid grid-cols-5 gap-2">
+                    {activeTest.answers.map((answer, index) => (
+                      <Button 
+                        key={index}
+                        variant={index === activeTest.currentQuestionIndex ? "default" : 
+                                answer !== null ? "outline" : "ghost"}
+                        onClick={() => jumpToQuestion(index)}
+                        className={`h-10 w-10 p-0 ${answer !== null ? "border-green-500 dark:border-green-400 text-green-700 dark:text-green-300" : ""}`}
+                      >
+                        {index + 1}
+                      </Button>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h4 className="font-medium mb-2">Legend:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 bg-primary rounded flex items-center justify-center text-white">
+                          <span className="text-xs">1</span>
+                        </div>
+                        <span>Current Question</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 border border-green-500 rounded flex items-center justify-center text-green-700 dark:text-green-300">
+                          <span className="text-xs">2</span>
+                        </div>
+                        <span>Answered</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 border border-gray-300 dark:border-gray-600 rounded flex items-center justify-center text-gray-500">
+                          <span className="text-xs">3</span>
+                        </div>
+                        <span>Not Visited</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="w-3/4 bg-white dark:bg-gray-900 border rounded-md p-6">
+                  <div className="mb-4 flex justify-between items-center">
+                    <Badge className={getSubjectBadgeColor(activeTest.questions[activeTest.currentQuestionIndex].subject)}>
+                      {activeTest.questions[activeTest.currentQuestionIndex].subject.charAt(0).toUpperCase() + 
+                      activeTest.questions[activeTest.currentQuestionIndex].subject.slice(1)}
+                    </Badge>
+                    <Badge variant="outline" className={`${getLevelBadgeColor(activeTest.questions[activeTest.currentQuestionIndex].difficulty)}`}>
+                      {activeTest.questions[activeTest.currentQuestionIndex].difficulty.charAt(0).toUpperCase() + 
+                      activeTest.questions[activeTest.currentQuestionIndex].difficulty.slice(1)}
+                    </Badge>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Question {activeTest.currentQuestionIndex + 1}:
+                    </h3>
+                    <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
+                      {activeTest.questions[activeTest.currentQuestionIndex].text}
+                    </p>
+                  </div>
+                  
+                  <RadioGroup 
+                    value={activeTest.answers[activeTest.currentQuestionIndex]?.toString() || ""}
+                    onValueChange={updateAnswer}
+                    className="space-y-3"
+                  >
+                    {activeTest.questions[activeTest.currentQuestionIndex].options.map((option, i) => (
+                      <div key={i} className="flex items-start space-x-2 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <RadioGroupItem value={i.toString()} id={`option-${i}`} />
+                        <Label
+                          htmlFor={`option-${i}`}
+                          className="font-normal leading-relaxed flex-1 cursor-pointer"
+                        >
+                          {option}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                  
+                  <div className="mt-6 flex justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={goToPreviousQuestion}
+                      disabled={activeTest.currentQuestionIndex === 0}
+                      className="flex items-center gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    
+                    {activeTest.currentQuestionIndex < activeTest.questions.length - 1 ? (
+                      <Button
+                        onClick={goToNextQuestion}
+                        className="flex items-center gap-2"
+                      >
+                        Next
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => setIsSubmitDialogOpen(true)}
+                        variant="default"
+                      >
+                        Submit Test
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Standard interface
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between">
+                    <Badge className={getSubjectBadgeColor(activeTest.questions[activeTest.currentQuestionIndex].subject)}>
+                      {activeTest.questions[activeTest.currentQuestionIndex].subject.charAt(0).toUpperCase() + 
+                      activeTest.questions[activeTest.currentQuestionIndex].subject.slice(1)}
+                    </Badge>
+                    <Badge variant="outline" className={`${getLevelBadgeColor(activeTest.questions[activeTest.currentQuestionIndex].difficulty)}`}>
+                      {activeTest.questions[activeTest.currentQuestionIndex].difficulty.charAt(0).toUpperCase() + 
+                      activeTest.questions[activeTest.currentQuestionIndex].difficulty.slice(1)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                
+                <CardContent>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Question {activeTest.currentQuestionIndex + 1}:
+                  </h3>
+                  <p className="text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
+                    {activeTest.questions[activeTest.currentQuestionIndex].text}
+                  </p>
+                  
+                  <RadioGroup 
+                    value={activeTest.answers[activeTest.currentQuestionIndex]?.toString() || ""}
+                    onValueChange={updateAnswer}
+                    className="space-y-3"
+                  >
+                    {activeTest.questions[activeTest.currentQuestionIndex].options.map((option, i) => (
+                      <div key={i} className="flex items-start space-x-2 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <RadioGroupItem value={i.toString()} id={`option-${i}`} />
+                        <Label
+                          htmlFor={`option-${i}`}
+                          className="font-normal leading-relaxed flex-1 cursor-pointer"
+                        >
+                          {option}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </CardContent>
+                
+                <CardFooter className="flex justify-between pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={goToPreviousQuestion}
+                    disabled={activeTest.currentQuestionIndex === 0}
+                    className="flex items-center gap-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex-1 mx-4">
+                    <Progress value={calculateProgress()} className="h-2" />
+                    <div className="flex justify-between mt-1 text-xs text-gray-500">
+                      <span>{activeTest.answers.filter(a => a !== null).length} answered</span>
+                      <span>{activeTest.questions.length} questions</span>
+                    </div>
+                  </div>
+                  
+                  {activeTest.currentQuestionIndex < activeTest.questions.length - 1 ? (
+                    <Button
+                      onClick={goToNextQuestion}
+                      className="flex items-center gap-2"
+                    >
+                      Next
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setIsSubmitDialogOpen(true)}
+                      variant="default"
+                    >
+                      Submit Test
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            )}
+          </div>
+        )
+      )}
+      
+      {/* Test Results Dialog */}
+      <Dialog open={isResultsDialogOpen} onOpenChange={setIsResultsDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-yellow-500" />
+              Test Completed!
+            </DialogTitle>
+            <DialogDescription>
+              You've completed {testResult?.testTitle}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {testResult && (
+            <div className="space-y-6 py-4">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-6 rounded-lg text-center">
+                <h3 className="text-2xl font-bold mb-2">
+                  {testResult.score.total} / {testResult.answers.length}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {Math.round((testResult.score.total / testResult.answers.length) * 100)}% Score
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Completed in {testResult.totalTime} minutes
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="pb-2 pt-4">
+                    <CardTitle className="text-center text-purple-600 dark:text-purple-400">
+                      Mathematics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center pb-4">
+                    <p className="text-2xl font-bold">{testResult.score.maths}</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2 pt-4">
+                    <CardTitle className="text-center text-blue-600 dark:text-blue-400">
+                      Physics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center pb-4">
+                    <p className="text-2xl font-bold">{testResult.score.physics}</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2 pt-4">
+                    <CardTitle className="text-center text-green-600 dark:text-green-400">
+                      Chemistry
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center pb-4">
+                    <p className="text-2xl font-bold">{testResult.score.chemistry}</p>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button
+                  onClick={returnToTests}
+                  className="flex items-center gap-2"
+                >
+                  <BarChart className="h-4 w-4" />
+                  Return to Test Dashboard
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
