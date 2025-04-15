@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee';
 import { ProgressBar } from './ProgressBar';
 import { chapterIcons } from '@/data/jeeData';
+
 interface ChapterCardProps {
   subject: string;
   chapter: string;
 }
+
 export function ChapterCard({
   subject,
   chapter

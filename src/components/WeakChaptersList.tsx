@@ -1,5 +1,5 @@
 
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee'; // Updated import path
 import { Link } from 'react-router-dom';
 import { chapterIcons } from '@/data/jeeData';
 

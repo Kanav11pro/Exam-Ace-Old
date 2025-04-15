@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { SubtopicData, useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,7 +22,6 @@ export function CategorySection({ subject, chapter, category, fields, isOpen }: 
   const chapterData = studyData[subject]?.[chapter] || {} as SubtopicData;
   const progress = getCategoryProgress(subject, chapter, category);
 
-  // Determine the progress color based on the subject
   const progressVariant = 
     subject === 'Maths' ? 'maths' :
     subject === 'Physics' ? 'physics' :

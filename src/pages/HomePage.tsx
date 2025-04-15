@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SubjectCard } from '@/components/SubjectCard';
 import { useStudyStats } from '@/context/StudyStatsContext';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee';
 import { ProgressBar } from '@/components/ProgressBar';
 import { BookOpen, Flame, Clock, Target, Calculator, BookCheck, BrainCircuit, LineChart, BellRing, Zap, Calendar, BookMarked, BarChart4 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+
 const HomePage = () => {
   const {
     user
@@ -18,14 +19,15 @@ const HomePage = () => {
     getTotalStudyTime,
     getStudyTimeByDay
   } = useStudyStats();
+  
   const {
     getTotalProgress,
     getWeakChapters
   } = useJEEData();
+  
   const totalProgress = getTotalProgress();
   const weakChapters = getWeakChapters();
 
-  // Get today's study time
   const today = new Date().toISOString().split('T')[0];
   const todayStudyTime = Object.values(getStudyTimeByDay(1))[0] || 0;
   const getStudyGoalStatus = (minutes: number) => {
@@ -38,7 +40,6 @@ const HomePage = () => {
   };
   const todayGoalStatus = getStudyGoalStatus(todayStudyTime);
 
-  // Mock upcoming events
   const upcomingEvents = [{
     title: "Chemistry Test",
     date: "Apr 12",
@@ -56,26 +57,25 @@ const HomePage = () => {
     urgent: true
   }];
 
-  // Quick access tools
   const quickTools = [{
     name: "Pomodoro Timer",
     icon: <Clock className="h-5 w-5" />,
-    path: "/tools"
+    path: "/tools/pomodoro-timer"
   }, {
     name: "Formula Sheet",
     icon: <Calculator className="h-5 w-5" />,
-    path: "/tools"
+    path: "/tools/formula-sheet"
   }, {
     name: "Flashcards",
     icon: <BookCheck className="h-5 w-5" />,
-    path: "/tools"
+    path: "/tools/flashcards"
   }, {
     name: "Focus Mode",
     icon: <BrainCircuit className="h-5 w-5" />,
-    path: "/tools"
+    path: "/tools/focus-mode"
   }];
+
   return <div className="container max-w-6xl py-6 animate-fade-in">
-      {/* Welcome Section */}
       <div className="mb-8">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl p-6 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -105,7 +105,6 @@ const HomePage = () => {
         </div>
       </div>
       
-      {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card className="overflow-hidden">
           <CardContent className="p-0">
@@ -171,9 +170,7 @@ const HomePage = () => {
         </Card>
       </div>
       
-      {/* Main Content Columns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Left Column - Subject Cards */}
         <div className="md:col-span-2 space-y-6">
           <h2 className="text-xl font-bold mb-3">Your Subjects</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -200,9 +197,7 @@ const HomePage = () => {
           </div>
         </div>
         
-        {/* Right Column - Data & Events */}
         <div className="space-y-6">
-          {/* Need Attention */}
           <div>
             <h2 className="text-xl font-bold flex items-center mb-3">
               <Zap className="h-5 w-5 mr-2 text-yellow-500" />
@@ -232,7 +227,6 @@ const HomePage = () => {
             </Card>
           </div>
           
-          {/* Upcoming Events */}
           <div>
             <h2 className="text-xl font-bold flex items-center mb-3">
               <Calendar className="h-5 w-5 mr-2 text-indigo-500" />
@@ -263,7 +257,6 @@ const HomePage = () => {
             </Card>
           </div>
           
-          {/* Notifications */}
           <div>
             <h2 className="text-xl font-bold flex items-center mb-3">
               <BellRing className="h-5 w-5 mr-2 text-rose-500" />
@@ -291,7 +284,6 @@ const HomePage = () => {
         </div>
       </div>
       
-      {/* Quick Actions */}
       <div className="mt-6">
         <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 border-0 animate-fade-in">
           <CardContent className="p-6">
@@ -315,4 +307,5 @@ const HomePage = () => {
       </div>
     </div>;
 };
+
 export default HomePage;

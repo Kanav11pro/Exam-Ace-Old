@@ -1,6 +1,6 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee'; // Updated import path
 
 interface ProgressChartProps {
   subject?: string;

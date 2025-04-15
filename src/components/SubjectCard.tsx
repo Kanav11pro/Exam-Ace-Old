@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee'; // Updated import path
 import { ProgressBar } from './ProgressBar';
 import { subjectIcons } from '@/data/jeeData';
 
