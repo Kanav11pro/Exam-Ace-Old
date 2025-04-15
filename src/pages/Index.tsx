@@ -8,7 +8,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
       {location.pathname !== '/auth' && <Header />}
-      <main className="flex-1">
+      <main className="flex-1 pb-6">
         <Outlet />
       </main>
       <footer className="py-4 px-4 md:px-6 border-t">

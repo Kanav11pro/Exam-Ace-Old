@@ -3,9 +3,15 @@ import { useJEEData } from '@/context/jee';
 import { Link } from 'react-router-dom';
 import { chapterIcons } from '@/data/jeeData';
 
+interface WeakChapter {
+  subject: string;
+  chapter: string;
+  progress: number;
+}
+
 export function WeakChaptersList() {
   const { getWeakChapters } = useJEEData();
-  const weakChapters = getWeakChapters();
+  const weakChapters = getWeakChapters() as WeakChapter[];
 
   if (weakChapters.length === 0) {
     return (
