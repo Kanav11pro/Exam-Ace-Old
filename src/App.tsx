@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { JEEDataProvider } from "@/context/JEEDataContext";
+import { JEEDataProvider } from "@/context/jee"; // Updated import path
 import { StudyStatsProvider } from "@/context/StudyStatsContext";
 
 import Index from "./pages/Index";
