@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { useJEEData } from '@/context/jee';
 import { ProgressBar } from './ProgressBar';
@@ -13,9 +14,9 @@ export function ChapterCard({
   chapter
 }: ChapterCardProps) {
   const {
-    getChapterProgress
+    getProgressByChapter
   } = useJEEData();
-  const progress = getChapterProgress(subject, chapter);
+  const progress = getProgressByChapter(subject, chapter);
 
   // Determine the progress color based on the subject
   const progressVariant = subject === 'Maths' ? 'maths' : subject === 'Physics' ? 'physics' : 'chemistry';

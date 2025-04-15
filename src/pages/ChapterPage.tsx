@@ -4,13 +4,13 @@ import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ProgressBar';
 import { CategorySection } from '@/components/CategorySection';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee';
 import { chapterIcons, categoryGroups } from '@/data/jeeData';
 import { useToast } from '@/components/ui/use-toast';
 
 const ChapterPage = () => {
   const { subject, chapter } = useParams<{ subject: string; chapter: string }>();
-  const { getChapterProgress, resetChapter, markChapterComplete } = useJEEData();
+  const { getProgressByChapter, resetChapter, updateChapterData } = useJEEData();
   const { toast } = useToast();
   
   if (!subject || !chapter) {
@@ -26,7 +26,7 @@ const ChapterPage = () => {
     );
   }
   
-  const progress = getChapterProgress(subject, chapter);
+  const progress = getProgressByChapter(subject, chapter);
   
   // Determine the progress color based on the subject
   const progressVariant = 
@@ -35,7 +35,7 @@ const ChapterPage = () => {
     'chemistry';
   
   const handleResetChapter = () => {
-    resetChapter(subject, chapter);
+    resetChapter();
     toast({
       title: "Chapter reset",
       description: "All progress for this chapter has been reset.",
@@ -43,7 +43,17 @@ const ChapterPage = () => {
   };
   
   const handleMarkComplete = () => {
-    markChapterComplete(subject, chapter);
+    // Mark all fields as complete
+    const fields = [
+      'notes', 'shortNotes', 'modules', 'ncert', 
+      'pyqMains', 'pyqAdv', 'testMains', 'testAdv',
+      'revisedMains', 'revisedAdv'
+    ];
+    
+    fields.forEach(field => {
+      updateChapterData(subject, chapter, field, true);
+    });
+    
     toast({
       title: "Chapter completed",
       description: "All tasks for this chapter have been marked as complete.",

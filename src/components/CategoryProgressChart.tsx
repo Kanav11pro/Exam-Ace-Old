@@ -1,6 +1,6 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useJEEData } from '@/context/jee'; // Updated import path
+import { useJEEData } from '@/context/jee';
 import { categoryLabels } from '@/data/jeeData';
 
 interface CategoryProgressChartProps {
@@ -8,9 +8,9 @@ interface CategoryProgressChartProps {
 }
 
 export function CategoryProgressChart({ subject }: CategoryProgressChartProps) {
-  const { studyData, getCategoryProgress } = useJEEData();
+  const { jeeData, getProgressByCategory } = useJEEData();
   
-  const chapters = Object.keys(studyData[subject] || {});
+  const chapters = Object.keys(jeeData.subjects[subject] || {});
   
   // Calculate average progress for each category
   const categoryProgress = {
@@ -23,7 +23,7 @@ export function CategoryProgressChart({ subject }: CategoryProgressChartProps) {
   if (chapters.length > 0) {
     for (const category of ['learn', 'practice', 'tests', 'revise'] as const) {
       const totalProgress = chapters.reduce(
-        (sum, chapter) => sum + getCategoryProgress(subject, chapter, category),
+        (sum, chapter) => sum + getProgressByCategory(subject, chapter, category),
         0
       );
       categoryProgress[category] = Math.round(totalProgress / chapters.length);

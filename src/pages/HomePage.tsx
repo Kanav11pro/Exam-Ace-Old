@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -207,7 +208,7 @@ const HomePage = () => {
               <CardContent className="px-3 py-4">
                 {weakChapters.length > 0 ? <ul className="space-y-2">
                     {weakChapters.slice(0, 3).map((item, index) => <li key={index} className="border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                        <Link to={`/subject/${item.subject}/${item.chapter}`} className="flex items-center justify-between hover:text-blue-600 transition-colors">
+                        <Link to={`/subject/${item.subject}/${encodeURIComponent(item.chapter)}`} className="flex items-center justify-between hover:text-blue-600 transition-colors">
                           <span className="font-medium text-sm">{item.chapter}</span>
                           <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
                             Weak

@@ -1,5 +1,7 @@
+
 import { useState } from 'react';
 import { useJEEData } from '@/context/jee';
+import { SubtopicData } from '@/context/jee/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,11 +18,11 @@ interface CategorySectionProps {
 }
 
 export function CategorySection({ subject, chapter, category, fields, isOpen }: CategorySectionProps) {
-  const { studyData, updateChapterData, getCategoryProgress } = useJEEData();
+  const { jeeData, updateChapterData, getProgressByCategory } = useJEEData();
   const [isExpanded, setIsExpanded] = useState(isOpen);
   
-  const chapterData = studyData[subject]?.[chapter] || {} as SubtopicData;
-  const progress = getCategoryProgress(subject, chapter, category);
+  const chapterData = jeeData.subjects[subject]?.[chapter] || {} as SubtopicData;
+  const progress = getProgressByCategory(subject, chapter, category);
 
   const progressVariant = 
     subject === 'Maths' ? 'maths' :
@@ -28,15 +30,15 @@ export function CategorySection({ subject, chapter, category, fields, isOpen }: 
     'chemistry';
 
   const handleCheckboxChange = (field: string, checked: boolean) => {
-    updateChapterData(subject, chapter, { [field]: checked });
+    updateChapterData(subject, chapter, field, checked);
   };
 
   const handleTagChange = (value: string) => {
-    updateChapterData(subject, chapter, { tag: value as '' | 'Weak' | 'Medium' | 'Strong' });
+    updateChapterData(subject, chapter, 'tag', value);
   };
 
   const handleRemarksChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateChapterData(subject, chapter, { remarks: e.target.value });
+    updateChapterData(subject, chapter, 'remarks', e.target.value);
   };
 
   return (

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Clock, BarChart3, CheckCircle, Save } from 'lucide-react';
 import { ChapterCard } from '@/components/ChapterCard';
 import { ProgressBar } from '@/components/ProgressBar';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee';
 import { subjectIcons } from '@/data/jeeData';
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { useToast } from '@/components/ui/use-toast';
 
 const SubjectPage = () => {
   const { subject } = useParams<{ subject: string }>();
-  const { studyData, getSubjectProgress } = useJEEData();
+  const { jeeData, getProgressBySubject } = useJEEData();
   const { addStudyTime } = useStudyStats();
   const { toast } = useToast();
   
@@ -40,7 +40,7 @@ const SubjectPage = () => {
     };
   }, [isTimerActive, activeChapter]);
   
-  if (!subject || !studyData[subject]) {
+  if (!subject || !jeeData.subjects[subject]) {
     return (
       <div className="container py-8 text-center">
         <h1 className="text-2xl font-bold">Subject not found</h1>
@@ -53,8 +53,8 @@ const SubjectPage = () => {
     );
   }
   
-  const chapters = Object.keys(studyData[subject]);
-  const progress = getSubjectProgress(subject);
+  const chapters = Object.keys(jeeData.subjects[subject]);
+  const progress = getProgressBySubject(subject);
   
   // Determine the progress color based on the subject
   const progressVariant = 

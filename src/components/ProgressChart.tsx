@@ -1,6 +1,6 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { useJEEData } from '@/context/jee'; // Updated import path
+import { useJEEData } from '@/context/jee';
 
 interface ProgressChartProps {
   subject?: string;
@@ -8,9 +8,9 @@ interface ProgressChartProps {
 }
 
 export function ProgressChart({ subject, title }: ProgressChartProps) {
-  const { getSubjectProgress, getTotalProgress } = useJEEData();
+  const { getProgressBySubject, getTotalProgress } = useJEEData();
   
-  const progress = subject ? getSubjectProgress(subject) : getTotalProgress();
+  const progress = subject ? getProgressBySubject(subject) : getTotalProgress();
   const remaining = 100 - progress;
   
   const data = [

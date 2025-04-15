@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { useJEEData } from '@/context/jee'; // Updated import path
+import { useJEEData } from '@/context/jee';
 import { ProgressBar } from './ProgressBar';
 import { subjectIcons } from '@/data/jeeData';
 
@@ -10,12 +10,12 @@ interface SubjectCardProps {
 }
 
 export function SubjectCard({ subject, variant }: SubjectCardProps) {
-  const { getSubjectProgress, getTotalProgress } = useJEEData();
+  const { getProgressBySubject, getTotalProgress } = useJEEData();
   
   // Calculate the progress percentage based on subject or total
   const progress = subject === 'Dashboard' 
     ? getTotalProgress() 
-    : getSubjectProgress(subject);
+    : getProgressBySubject(subject);
 
   return (
     <Link
