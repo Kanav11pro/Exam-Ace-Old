@@ -22,11 +22,16 @@ export function ProgressBar({
   
   return (
     <div className="space-y-1">
-      <div className={cn("progress-bar", className)}>
+      <div className={cn("h-2 mt-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden", className)}>
         <motion.div 
           className={cn(
-            "progress-bar-fill",
-            `progress-bar-fill-${variant}`
+            "h-full rounded-full",
+            {
+              "bg-cyan-400": variant === 'maths',
+              "bg-green-400": variant === 'physics',
+              "bg-orange-300": variant === 'chemistry',
+              "bg-purple-300": variant === 'dashboard'
+            }
           )}
           initial={animated ? { width: 0 } : { width: `${clampedProgress}%` }}
           animate={{ width: `${clampedProgress}%` }}
