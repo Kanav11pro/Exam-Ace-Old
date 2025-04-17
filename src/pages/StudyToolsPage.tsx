@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -5,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Clock, BookMinus, Brain, Target, Calculator, Calendar, BookMarked, Music2, Bookmark, Eye, Trophy, FileQuestion, BookCheck, Sparkles, BellRing, PenLine, BookOpen, Star, Filter, BrainCircuit, ClipboardCheck } from 'lucide-react';
+import { Search, Clock, BookMinus, Brain, Target, Calculator, Calendar, BookMarked, Music2, Bookmark, Eye, Trophy, FileQuestion, BookCheck, Sparkles, BellRing, PenLine, BookOpen, Star, Filter, BrainCircuit, ClipboardCheck, ArrowLeft, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Study tool interface
 interface StudyTool {
@@ -16,6 +18,7 @@ interface StudyTool {
   category: 'time' | 'content' | 'practice' | 'wellness' | 'organization';
   favorite?: boolean;
 }
+
 const StudyToolsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -208,8 +211,41 @@ const StudyToolsPage = () => {
     };
     return styles[category] || '';
   };
-  return <div className="container max-w-6xl py-8 animate-fade-in">
-      <h1 className="text-3xl font-bold mb-2">Study Tools</h1>
+  
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+  
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+  
+  return (
+    <motion.div 
+      className="container max-w-6xl py-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex items-center mb-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-2"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-3xl font-bold">Study Tools</h1>
+      </div>
       <p className="text-gray-600 dark:text-gray-300 mb-6">Enhance your JEE preparation with these specialized tools</p>
       
       {/* Search and Filter */}
@@ -236,63 +272,40 @@ const StudyToolsPage = () => {
         
         {/* All Tools Tab */}
         <TabsContent value="all" className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTools.map(tool => <Card key={tool.id} className="overflow-hidden hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-800" onClick={() => navigateToTool(tool.id)}>
-                <CardContent className="p-0">
-                  <div className="flex items-start p-4 bg-lime-300">
-                    <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                      {tool.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold">{tool.name}</h3>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={e => {
-                      e.stopPropagation();
-                      toggleFavorite(tool.id);
-                    }}>
-                          <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                      <div className="mt-2">
-                        <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
-                          {categoryLabels[tool.category]}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>)}
-          </div>
-          
-          {filteredTools.length === 0 && <div className="text-center py-12">
-              <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No tools found</h3>
-              <p className="text-gray-500">Try changing your search or filter criteria</p>
-            </div>}
-        </TabsContent>
-        
-        {/* Favorites Tab */}
-        <TabsContent value="favorites">
-          {favoriteTools.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {favoriteTools.map(tool => <Card key={tool.id} className="overflow-hidden hover:shadow-md transition-all cursor-pointer" onClick={() => navigateToTool(tool.id)}>
-                  <CardContent className="p-0">
-                    <div className="flex items-start p-4">
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={container}
+            initial="hidden"
+            animate="show"
+          >
+            {filteredTools.map(tool => (
+              <motion.div key={tool.id} variants={item}>
+                <Card 
+                  className="overflow-hidden hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-800 h-full"
+                  onClick={() => navigateToTool(tool.id)}
+                >
+                  <CardContent className="p-0 h-full">
+                    <div className="flex items-start p-4 h-full">
                       <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
                         {tool.icon}
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 flex flex-col h-full">
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold">{tool.name}</h3>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={e => {
-                      e.stopPropagation();
-                      toggleFavorite(tool.id);
-                    }}>
-                            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 hover:scale-110 transition-transform" 
+                            onClick={e => {
+                              e.stopPropagation();
+                              toggleFavorite(tool.id);
+                            }}
+                          >
+                            <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
                           </Button>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                        <div className="mt-2">
+                        <div className="mt-auto pt-2">
                           <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
                             {categoryLabels[tool.category]}
                           </Badge>
@@ -300,40 +313,141 @@ const StudyToolsPage = () => {
                       </div>
                     </div>
                   </CardContent>
-                </Card>)}
-            </div> : <div className="text-center py-12">
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+          
+          {filteredTools.length === 0 && (
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No tools found</h3>
+              <p className="text-gray-500">Try changing your search or filter criteria</p>
+            </motion.div>
+          )}
+        </TabsContent>
+        
+        {/* Favorites Tab */}
+        <TabsContent value="favorites">
+          {favoriteTools.length > 0 ? (
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              variants={container}
+              initial="hidden"
+              animate="show"
+            >
+              {favoriteTools.map(tool => (
+                <motion.div key={tool.id} variants={item}>
+                  <Card 
+                    className="overflow-hidden hover:shadow-md transition-all cursor-pointer h-full" 
+                    onClick={() => navigateToTool(tool.id)}
+                  >
+                    <CardContent className="p-0 h-full">
+                      <div className="flex items-start p-4 h-full">
+                        <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
+                          {tool.icon}
+                        </div>
+                        <div className="flex-1 flex flex-col h-full">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{tool.name}</h3>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 hover:scale-110 transition-transform" 
+                              onClick={e => {
+                                e.stopPropagation();
+                                toggleFavorite(tool.id);
+                              }}
+                            >
+                              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                            </Button>
+                          </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
+                          <div className="mt-auto pt-2">
+                            <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
+                              {categoryLabels[tool.category]}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
               <p className="text-gray-500">Star your favorite tools to see them here</p>
-            </div>}
+            </motion.div>
+          )}
         </TabsContent>
         
         {/* Recently Used Tab */}
         <TabsContent value="recent">
-          <div className="text-center py-12">
-            <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4 animate-pulse-slow" />
             <h3 className="text-lg font-medium mb-2">No recent tools</h3>
             <p className="text-gray-500">Your recently used tools will appear here</p>
-          </div>
+          </motion.div>
         </TabsContent>
       </Tabs>
       
       {/* Featured Categories */}
-      <div className="mt-12">
+      <motion.div 
+        className="mt-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
         <h2 className="text-xl font-bold mb-4">Tool Categories</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.entries(categoryLabels).filter(([key]) => key !== 'all').map(([key, label]) => <Card key={key} className="hover:shadow-md transition-all cursor-pointer overflow-hidden" onClick={() => setSelectedCategory(key)}>
-              <CardContent className="p-0">
-                <div className={`bg-gradient-to-r ${key === 'time' ? 'from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20' : key === 'content' ? 'from-violet-100 to-violet-50 dark:from-violet-900/30 dark:to-violet-800/20' : key === 'practice' ? 'from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20' : key === 'wellness' ? 'from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20' : 'from-cyan-100 to-cyan-50 dark:from-cyan-900/30 dark:to-cyan-800/20'} p-4`}>
-                  <h3 className="font-semibold">{label}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {tools.filter(tool => tool.category === key).length} tools
-                  </p>
-                </div>
-              </CardContent>
-            </Card>)}
+          {Object.entries(categoryLabels).filter(([key]) => key !== 'all').map(([key, label], index) => (
+            <motion.div 
+              key={key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 * index }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <Card 
+                className="hover:shadow-md transition-all cursor-pointer overflow-hidden h-full" 
+                onClick={() => setSelectedCategory(key)}
+              >
+                <CardContent className="p-0 h-full">
+                  <div className={`bg-gradient-to-r ${key === 'time' ? 'from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20' : key === 'content' ? 'from-violet-100 to-violet-50 dark:from-violet-900/30 dark:to-violet-800/20' : key === 'practice' ? 'from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20' : key === 'wellness' ? 'from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20' : 'from-cyan-100 to-cyan-50 dark:from-cyan-900/30 dark:to-cyan-800/20'} p-6 h-full`}>
+                    <h3 className="font-semibold text-lg">{label}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {tools.filter(tool => tool.category === key).length} tools
+                    </p>
+                    <div className="mt-4 flex justify-end">
+                      <ArrowRight className="h-5 w-5 text-gray-400" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
-      </div>
-    </div>;
+      </motion.div>
+    </motion.div>
+  );
 };
+
 export default StudyToolsPage;

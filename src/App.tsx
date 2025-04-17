@@ -35,6 +35,7 @@ import { EyeRestTimer } from "./components/study-tools/EyeRestTimer";
 import { StudyMusic } from "./components/study-tools/StudyMusic";
 import { MockTests } from "./components/study-tools/MockTests";
 import { Mindfulness } from "./components/study-tools/Mindfulness";
+import { QuestionGenerator } from "./components/study-tools/QuestionGenerator";
 import { LearningResourcesPage } from "./pages/LearningResourcesPage";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const App = () => (
                 <Route path="tools/study-music" element={<StudyMusic />} />
                 <Route path="tools/mock-tests" element={<MockTests />} />
                 <Route path="tools/mindfulness" element={<Mindfulness />} />
+                <Route path="tools/question-generator" element={<QuestionGenerator />} />
                 
                 {/* Resources */}
                 <Route path="resources" element={<LearningResourcesPage />} />

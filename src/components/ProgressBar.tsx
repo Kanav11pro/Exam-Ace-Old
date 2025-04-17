@@ -1,5 +1,6 @@
 
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface ProgressBarProps {
   progress: number;
@@ -22,20 +23,25 @@ export function ProgressBar({
   return (
     <div className="space-y-1">
       <div className={cn("progress-bar", className)}>
-        <div 
+        <motion.div 
           className={cn(
             "progress-bar-fill",
-            `progress-bar-fill-${variant}`,
-            animated && "animate-progress-fill"
+            `progress-bar-fill-${variant}`
           )}
-          style={{ 
-            "--progress-width": `${clampedProgress}%`,
-            width: `${clampedProgress}%` 
-          } as React.CSSProperties}
+          initial={animated ? { width: 0 } : { width: `${clampedProgress}%` }}
+          animate={{ width: `${clampedProgress}%` }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         />
       </div>
       {showPercentage && (
-        <p className="text-xs text-right font-medium">{Math.round(clampedProgress)}%</p>
+        <motion.p 
+          className="text-xs text-right font-medium"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          {Math.round(clampedProgress)}%
+        </motion.p>
       )}
     </div>
   );

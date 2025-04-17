@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Edit, Save, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Edit, Save, X, BookmarkPlus, Filter, BookmarkCheck } from 'lucide-react';
 
 // FlashCard type
 type FlashCard = {
@@ -16,6 +16,7 @@ type FlashCard = {
   answer: string;
   lastReviewed: string | null;
   confidence: 'low' | 'medium' | 'high' | null;
+  bookmarked?: boolean;
 };
 
 // Default cards for demo
@@ -53,6 +54,7 @@ export function Flashcards() {
   const [activeSubject, setActiveSubject] = useState<string>('all');
   const [isEditing, setIsEditing] = useState(false);
   const [filteredCards, setFilteredCards] = useState<FlashCard[]>([]);
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
   
   // New card form
   const [newCard, setNewCard] = useState<Omit<FlashCard, 'id' | 'lastReviewed' | 'confidence'>>({
@@ -88,16 +90,22 @@ export function Flashcards() {
     }
   }, [cards]);
   
-  // Filter cards by subject
+  // Filter cards by subject and bookmarks
   useEffect(() => {
     let filtered = [...cards];
+    
     if (activeSubject !== 'all') {
       filtered = filtered.filter(card => card.subject === activeSubject);
     }
+    
+    if (showBookmarkedOnly) {
+      filtered = filtered.filter(card => card.bookmarked);
+    }
+    
     setFilteredCards(filtered);
     setCurrentIndex(0);
     setShowAnswer(false);
-  }, [activeSubject, cards]);
+  }, [activeSubject, cards, showBookmarkedOnly]);
   
   const goToNextCard = () => {
     if (filteredCards.length === 0) return;
@@ -264,23 +272,57 @@ export function Flashcards() {
     });
   };
   
+  const toggleBookmark = () => {
+    if (filteredCards.length === 0) return;
+    
+    const updatedCards = [...cards];
+    const cardIndex = cards.findIndex(card => card.id === filteredCards[currentIndex].id);
+    
+    if (cardIndex !== -1) {
+      updatedCards[cardIndex] = {
+        ...updatedCards[cardIndex],
+        bookmarked: !updatedCards[cardIndex].bookmarked
+      };
+      setCards(updatedCards);
+      
+      toast({
+        title: updatedCards[cardIndex].bookmarked ? "Bookmarked" : "Bookmark removed",
+        description: updatedCards[cardIndex].bookmarked ? 
+          "Card added to your bookmarks" : 
+          "Card removed from your bookmarks",
+      });
+    }
+  };
+  
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <Select
-          value={activeSubject}
-          onValueChange={setActiveSubject}
-        >
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="Filter by subject" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Subjects</SelectItem>
-            <SelectItem value="Maths">Maths</SelectItem>
-            <SelectItem value="Physics">Physics</SelectItem>
-            <SelectItem value="Chemistry">Chemistry</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2 items-center w-full sm:w-auto">
+          <Select
+            value={activeSubject}
+            onValueChange={setActiveSubject}
+          >
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Filter by subject" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Subjects</SelectItem>
+              <SelectItem value="Maths">Maths</SelectItem>
+              <SelectItem value="Physics">Physics</SelectItem>
+              <SelectItem value="Chemistry">Chemistry</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
+            className={showBookmarkedOnly ? "bg-yellow-50 text-yellow-600 border-yellow-200" : ""}
+            title={showBookmarkedOnly ? "Show all cards" : "Show bookmarked only"}
+          >
+            <Filter className="h-4 w-4" />
+          </Button>
+        </div>
         
         <div className="flex gap-2">
           <Button
@@ -393,14 +435,14 @@ export function Flashcards() {
         <>
           {filteredCards.length > 0 ? (
             <>
-              <div className="relative h-80 mb-4">
+              <div className="relative h-80 mb-4 perspective-1000">
                 <Card 
-                  className={`absolute inset-0 flex flex-col justify-center p-6 transition-transform duration-300 cursor-pointer ${
-                    showAnswer ? 'rotate-y-180 bg-gray-50 dark:bg-gray-800' : ''
+                  className={`absolute inset-0 flex flex-col justify-center p-6 cursor-pointer transition-all duration-500 transform-style-3d ${
+                    showAnswer ? 'rotate-y-180' : ''
                   }`}
                   onClick={toggleAnswer}
                 >
-                  <div className={`transition-opacity duration-300 ${showAnswer ? 'opacity-0' : 'opacity-100'}`}>
+                  <div className={`absolute inset-0 p-6 backface-hidden ${showAnswer ? 'rotate-y-180 pointer-events-none' : ''}`}>
                     <div className="absolute top-3 right-3 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
                       {currentIndex + 1} / {filteredCards.length}
                     </div>
@@ -418,9 +460,7 @@ export function Flashcards() {
                     </div>
                   </div>
                   
-                  <div className={`absolute inset-0 p-6 rotate-y-180 transition-opacity duration-300 ${
-                    showAnswer ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}>
+                  <div className={`absolute inset-0 p-6 backface-hidden rotate-y-180 ${!showAnswer ? 'pointer-events-none' : ''}`}>
                     <div className="absolute top-3 right-3 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
                       {currentIndex + 1} / {filteredCards.length}
                     </div>
@@ -445,7 +485,7 @@ export function Flashcards() {
                   variant="outline" 
                   size="icon"
                   onClick={goToPrevCard}
-                  className="rounded-full h-10 w-10"
+                  className="rounded-full h-10 w-10 hover:scale-105 transition-transform"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -456,7 +496,7 @@ export function Flashcards() {
                       variant="outline" 
                       size="sm"
                       onClick={() => updateConfidence('low')}
-                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:scale-105 transition-transform"
                     >
                       Difficult
                     </Button>
@@ -464,7 +504,7 @@ export function Flashcards() {
                       variant="outline" 
                       size="sm"
                       onClick={() => updateConfidence('medium')}
-                      className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700"
+                      className="border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-700 hover:scale-105 transition-transform"
                     >
                       Medium
                     </Button>
@@ -472,7 +512,7 @@ export function Flashcards() {
                       variant="outline" 
                       size="sm"
                       onClick={() => updateConfidence('high')}
-                      className="border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700"
+                      className="border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700 hover:scale-105 transition-transform"
                     >
                       Easy
                     </Button>
@@ -483,8 +523,20 @@ export function Flashcards() {
                   <Button 
                     variant="outline" 
                     size="icon"
+                    onClick={toggleBookmark}
+                    className={`rounded-full h-8 w-8 ${filteredCards[currentIndex]?.bookmarked ? "text-yellow-500 border-yellow-200 bg-yellow-50" : ""} hover:scale-105 transition-transform`}
+                    title={filteredCards[currentIndex]?.bookmarked ? "Remove bookmark" : "Bookmark this card"}
+                  >
+                    {filteredCards[currentIndex]?.bookmarked ? 
+                      <BookmarkCheck className="h-3 w-3" /> : 
+                      <BookmarkPlus className="h-3 w-3" />
+                    }
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
                     onClick={startEditingCard}
-                    className="rounded-full h-8 w-8"
+                    className="rounded-full h-8 w-8 hover:scale-105 transition-transform"
                     title="Edit card"
                   >
                     <Edit className="h-3 w-3" />
@@ -493,7 +545,7 @@ export function Flashcards() {
                     variant="outline" 
                     size="icon"
                     onClick={deleteCurrentCard}
-                    className="rounded-full h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    className="rounded-full h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 hover:scale-105 transition-transform"
                     title="Delete card"
                   >
                     <Trash className="h-3 w-3" />
@@ -504,19 +556,22 @@ export function Flashcards() {
                   variant="outline" 
                   size="icon"
                   onClick={goToNextCard}
-                  className="rounded-full h-10 w-10"
+                  className="rounded-full h-10 w-10 hover:scale-105 transition-transform"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </>
           ) : (
-            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg text-center">
+            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg text-center animate-fade-in">
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                No flashcards found for the selected subject.
+                {showBookmarkedOnly 
+                  ? "No bookmarked flashcards found for the selected subject."
+                  : "No flashcards found for the selected subject."}
               </p>
               <Button
                 onClick={() => setIsEditing(true)}
+                className="hover:scale-105 transition-transform"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Card
