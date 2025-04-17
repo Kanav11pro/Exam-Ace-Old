@@ -12,8 +12,8 @@ interface FlashcardFormProps {
   setNewCard: (card: { subject: string; question: string; answer: string }) => void;
   setEditCard: (card: FlashCard | null) => void;
   cancelEditing: () => void;
-  saveEditedCard: () => void | { title: string; description: string; variant?: string };
-  addNewCard: () => void | { title: string; description: string; variant?: string };
+  saveEditedCard: () => { title: string; description: string; variant?: string } | undefined;
+  addNewCard: () => { title: string; description: string; variant?: string } | undefined;
   onSave: (toast: { title: string; description: string; variant?: string } | undefined) => void;
 }
 
@@ -28,8 +28,8 @@ export function FlashcardForm({
   onSave
 }: FlashcardFormProps) {
   const handleSave = () => {
-    const toast = editCard ? saveEditedCard() : addNewCard();
-    onSave(toast);
+    const result = editCard ? saveEditedCard() : addNewCard();
+    onSave(result);
   };
 
   return (

@@ -39,7 +39,11 @@ export function Flashcards() {
 
   const handleToast = (toastData: { title: string; description: string; variant?: string } | undefined) => {
     if (toastData) {
-      toast(toastData);
+      toast({
+        title: toastData.title,
+        description: toastData.description,
+        variant: toastData.variant === 'destructive' ? 'destructive' : 'default'
+      });
     }
   };
 

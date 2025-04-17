@@ -15,15 +15,15 @@ import {
 import { ChevronLeft, Calendar, Clock, BookOpen, TrendingUp, Award } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { getSubjectProgress, getTotalProgress, getWeakChapters } = useJEEData();
+  const { getProgressBySubject, getTotalProgress, getWeakChapters } = useJEEData();
   const { studyStreak, studyTimes, pomodoroSessions, getTotalStudyTime, getStudyTimeByDay } = useStudyStats();
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
   
   // Progress data for subjects
   const subjectsProgress = [
-    { subject: 'Maths', progress: getSubjectProgress('Maths'), color: '#0891b2' },
-    { subject: 'Physics', progress: getSubjectProgress('Physics'), color: '#15803d' },
-    { subject: 'Chemistry', progress: getSubjectProgress('Chemistry'), color: '#f97316' }
+    { subject: 'Maths', progress: getProgressBySubject('Maths'), color: '#0891b2' },
+    { subject: 'Physics', progress: getProgressBySubject('Physics'), color: '#15803d' },
+    { subject: 'Chemistry', progress: getProgressBySubject('Chemistry'), color: '#f97316' }
   ];
   
   // Weekly study data
@@ -160,7 +160,7 @@ const DashboardPage = () => {
                 <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Overall Progress</p>
                 <div className="flex items-end gap-1">
                   <h3 className="text-2xl font-bold">
-                    {Math.round((getSubjectProgress('Maths') + getSubjectProgress('Physics') + getSubjectProgress('Chemistry')) / 3)}%
+                    {Math.round((getProgressBySubject('Maths') + getProgressBySubject('Physics') + getProgressBySubject('Chemistry')) / 3)}%
                   </h3>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Average across subjects</p>
