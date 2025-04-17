@@ -20,11 +20,11 @@ interface CategorySectionProps {
 }
 
 export function CategorySection({ subject, chapter, category, fields, isOpen }: CategorySectionProps) {
-  const { jeeData, updateChapterData, getCategoryProgress } = useJEEData();
+  const { jeeData, updateChapterData, getProgressByCategory } = useJEEData();
   const [isExpanded, setIsExpanded] = useState(isOpen);
   
   const chapterData = jeeData.subjects[subject]?.[chapter] || {} as SubtopicData;
-  const progress = getCategoryProgress(subject, chapter, category);
+  const progress = getProgressByCategory(subject, chapter, category);
 
   const progressVariant = 
     subject === 'Maths' ? 'maths' :

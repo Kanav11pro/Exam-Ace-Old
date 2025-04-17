@@ -12,13 +12,28 @@ interface WeakChapter {
 }
 
 export function WeakChaptersList() {
-  const { getWeakChapters, getChapterProgress } = useJEEData();
+  const { getWeakChapters, getProgressByChapter } = useJEEData();
   // Get weak chapters and add progress information
-  const weakChaptersInfo = getWeakChapters().map(item => ({
-    subject: item.subject,
-    chapter: item.chapter,
-    progress: getChapterProgress(item.subject, item.chapter)
-  }));
+  const weakChaptersWithObjects = getWeakChapters();
+  
+  // Transform to proper objects if they're not already
+  const weakChaptersInfo = weakChaptersWithObjects.map(item => {
+    if (typeof item === 'string') {
+      // Handle old format (just for safety)
+      return {
+        subject: 'Unknown',
+        chapter: item,
+        progress: 0
+      };
+    } else {
+      // Handle proper object format
+      return {
+        subject: item.subject,
+        chapter: item.chapter,
+        progress: getProgressByChapter(item.subject, item.chapter)
+      };
+    }
+  });
 
   if (weakChaptersInfo.length === 0) {
     return (

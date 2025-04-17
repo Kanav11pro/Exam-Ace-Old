@@ -23,7 +23,7 @@ export interface JEESubjects {
 
 export interface JEEDataState {
   subjects: JEESubjects;
-  weakChapters: string[];
+  weakChapters: Array<{subject: string; chapter: string}>;
 }
 
 export interface JEEDataContextType {
@@ -32,8 +32,8 @@ export interface JEEDataContextType {
   getProgressBySubject: (subject: string) => number;
   getProgressByChapter: (subject: string, chapter: string) => number;
   getProgressByCategory: (subject: string, chapter: string, category: string) => number;
-  getWeakChapters: () => string[];
-  updateWeakChapters: (chapters: string[]) => void;
+  getWeakChapters: () => Array<{subject: string; chapter: string}>;
+  updateWeakChapters: (chapters: Array<{subject: string; chapter: string}>) => void;
   getTotalProgress: () => number;
   resetData: () => void;
 }

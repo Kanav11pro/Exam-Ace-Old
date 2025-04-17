@@ -14,8 +14,8 @@ export function ChapterCard({
   subject,
   chapter
 }: ChapterCardProps) {
-  const { getChapterProgress } = useJEEData();
-  const progress = getChapterProgress(subject, chapter);
+  const { getProgressByChapter } = useJEEData();
+  const progress = getProgressByChapter(subject, chapter);
 
   // Determine the progress color based on the subject
   const progressVariant = subject === 'Maths' ? 'maths' : subject === 'Physics' ? 'physics' : 'chemistry';

@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 
 const ChapterPage = () => {
   const { subject, chapter } = useParams<{ subject: string; chapter: string }>();
-  const { getChapterProgress, markChapterComplete, resetChapter } = useJEEData();
+  const { getProgressByChapter, updateChapterData, resetData } = useJEEData();
   const { toast } = useToast();
   
   if (!subject || !chapter) {
@@ -32,7 +32,7 @@ const ChapterPage = () => {
     );
   }
   
-  const progress = getChapterProgress(subject, chapter);
+  const progress = getProgressByChapter(subject, chapter);
   
   // Determine the progress color based on the subject
   const progressVariant = 
@@ -41,7 +41,19 @@ const ChapterPage = () => {
     'chemistry';
   
   const handleResetChapter = () => {
-    resetChapter(subject, chapter);
+    // Since there is no direct resetChapter function, we'll simulate it by setting all fields to false
+    const fields = [
+      'notes', 'shortNotes', 'modules', 'ncert', 
+      'pyqMains', 'pyqAdv', 'testMains', 'testAdv',
+      'revisedMains', 'revisedAdv'
+    ];
+    
+    fields.forEach(field => {
+      updateChapterData(subject, chapter, field, false);
+    });
+    updateChapterData(subject, chapter, 'tag', '');
+    updateChapterData(subject, chapter, 'remarks', '');
+    
     toast({
       title: "Chapter reset",
       description: "All progress for this chapter has been reset.",
@@ -49,7 +61,16 @@ const ChapterPage = () => {
   };
   
   const handleMarkComplete = () => {
-    markChapterComplete(subject, chapter);
+    // Mark all fields as complete
+    const fields = [
+      'notes', 'shortNotes', 'modules', 'ncert', 
+      'pyqMains', 'pyqAdv', 'testMains', 'testAdv',
+      'revisedMains', 'revisedAdv'
+    ];
+    
+    fields.forEach(field => {
+      updateChapterData(subject, chapter, field, true);
+    });
     
     toast({
       title: "Chapter completed",

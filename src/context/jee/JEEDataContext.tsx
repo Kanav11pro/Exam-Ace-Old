@@ -72,7 +72,7 @@ export const JEEDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // Update weak chapters
-  const updateWeakChapters = (chapters: string[]) => {
+  const updateWeakChapters = (chapters: Array<{subject: string; chapter: string}>) => {
     setJeeData(prevData => {
       saveWeakChapters(chapters);
       return { ...prevData, weakChapters: chapters };
