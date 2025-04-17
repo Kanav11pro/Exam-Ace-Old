@@ -1,5 +1,5 @@
 
-import { useJEEData } from '@/context/jee';
+import { useJEEData } from '@/context/jee'; // Changed from '@/context/JEEDataContext'
 import { Link } from 'react-router-dom';
 import { chapterIcons } from '@/data/jeeData';
 import { motion } from 'framer-motion';

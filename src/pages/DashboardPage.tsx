@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStudyStats } from '@/context/StudyStatsContext';
-import { useJEEData } from '@/context/JEEDataContext';
+import { useJEEData } from '@/context/jee'; // Changed from '@/context/JEEDataContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WeakChaptersList } from '@/components/WeakChaptersList';

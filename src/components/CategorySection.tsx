@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useJEEData } from '@/context/jee';
+import { useJEEData } from '@/context/jee'; // Changed from '@/context/JEEDataContext'
 import { SubtopicData } from '@/context/jee/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';

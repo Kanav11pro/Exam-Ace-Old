@@ -1,6 +1,6 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useJEEData } from '@/context/jee';
+import { useJEEData } from '@/context/jee'; // Changed from '@/context/JEEDataContext'
 import { categoryLabels } from '@/data/jeeData';
 
 interface CategoryProgressChartProps {
