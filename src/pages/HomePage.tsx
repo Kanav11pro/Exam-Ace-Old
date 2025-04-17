@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -10,7 +9,6 @@ import { useJEEData } from '@/context/jee';
 import { ProgressBar } from '@/components/ProgressBar';
 import { BookOpen, Flame, Clock, Target, Calculator, BookCheck, BrainCircuit, LineChart, BellRing, Zap, Calendar, BookMarked, BarChart4 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
 const HomePage = () => {
   const {
     user
@@ -20,15 +18,12 @@ const HomePage = () => {
     getTotalStudyTime,
     getStudyTimeByDay
   } = useStudyStats();
-  
   const {
     getTotalProgress,
     getWeakChapters
   } = useJEEData();
-  
   const totalProgress = getTotalProgress();
   const weakChapters = getWeakChapters();
-
   const today = new Date().toISOString().split('T')[0];
   const todayStudyTime = Object.values(getStudyTimeByDay(1))[0] || 0;
   const getStudyGoalStatus = (minutes: number) => {
@@ -40,7 +35,6 @@ const HomePage = () => {
     };
   };
   const todayGoalStatus = getStudyGoalStatus(todayStudyTime);
-
   const upcomingEvents = [{
     title: "Chemistry Test",
     date: "Apr 12",
@@ -57,7 +51,6 @@ const HomePage = () => {
     subject: "All Subjects",
     urgent: true
   }];
-
   const quickTools = [{
     name: "Pomodoro Timer",
     icon: <Clock className="h-5 w-5" />,
@@ -75,7 +68,6 @@ const HomePage = () => {
     icon: <BrainCircuit className="h-5 w-5" />,
     path: "/tools/focus-mode"
   }];
-
   return <div className="container max-w-6xl py-6 animate-fade-in">
       <div className="mb-8">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl p-6 shadow-sm">
@@ -173,7 +165,7 @@ const HomePage = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="md:col-span-2 space-y-6">
-          <h2 className="text-xl font-bold mb-3">Your Subjects</h2>
+          <h2 className="text-xl font-bold mb-3">All Subjects</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <SubjectCard subject="Maths" variant="maths" />
             <SubjectCard subject="Physics" variant="physics" />
@@ -308,5 +300,4 @@ const HomePage = () => {
       </div>
     </div>;
 };
-
 export default HomePage;
