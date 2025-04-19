@@ -34,7 +34,7 @@ export function SubjectCard({
   }}>
       <Link to={subject === 'Dashboard' ? '/dashboard' : `/subject/${subject}`} className={`subject-card subject-card-${variant} p-6 h-40 flex flex-col justify-between group relative overflow-hidden`}>
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br opacity-70 from-transparent to-black/20 transition-opacity duration-300 group-hover:opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br opacity-70 from-transparent to-black/20 transition-opacity duration-300 group-hover:opacity-50 bg-cyan-400 rounded-none" />
         
         {/* Animated particle effect */}
         <div className="absolute right-0 bottom-0 w-24 h-24 opacity-20 group-hover:opacity-30 transition-opacity duration-300">
