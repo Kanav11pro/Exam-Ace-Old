@@ -19,7 +19,7 @@ export function ThemeToggle() {
       scale: 0
     }} transition={{
       duration: 0.3
-    }} key={theme} className="absolute inset-0 flex items-center justify-center bg-slate-300 rounded-none">
+    }} key={theme} className="absolute inset-0 flex items-center justify-center rounded-none bg-transparent">
         {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
       </motion.div>
       <span className="sr-only">Toggle theme</span>

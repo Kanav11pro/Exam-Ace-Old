@@ -192,7 +192,7 @@ const HomePage = () => {
         
         <div className="space-y-6">
           <div>
-            <h2 className="text-xl font-bold flex items-center mb-3">
+            <h2 className="text-xl font-bold flex items-center mb-3 text-rose-600">
               <Zap className="h-5 w-5 mr-2 text-yellow-500" />
               Needs Attention
             </h2>
@@ -208,7 +208,7 @@ const HomePage = () => {
                         </Link>
                         <p className="text-xs text-gray-500">{item.subject}</p>
                       </li>)}
-                  </ul> : <p className="text-center text-gray-500 dark:text-gray-400 py-2">
+                  </ul> : <p className="text-center py-2 text-indigo-600 text-base font-bold">
                     No weak chapters found
                   </p>}
                 {weakChapters.length > 3 && <div className="text-center mt-3">
