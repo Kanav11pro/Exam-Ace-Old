@@ -109,7 +109,8 @@ const Index = () => {
       </footer>
       
       {/* Global CSS for study-themed styling */}
-      <style jsx>{`
+      <style>
+        {`
         /* 3D book effect for cards */
         .book-card {
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -210,7 +211,8 @@ const Index = () => {
         .btn-bounce:active {
           transform: scale(0.95);
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
