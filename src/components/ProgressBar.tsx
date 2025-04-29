@@ -8,13 +8,15 @@ interface ProgressBarProps {
   variant?: 'default' | 'dashboard' | 'maths' | 'physics' | 'chemistry';
   animated?: boolean;
   height?: 'sm' | 'md' | 'lg';
+  showPercentage?: boolean; // Added this prop
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   variant = 'default',
   animated = false,
-  height = 'md'
+  height = 'md',
+  showPercentage = false // Set default value
 }) => {
   const [animatedProgress, setAnimatedProgress] = useState(0);
   
@@ -56,22 +58,30 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   return (
-    <div className={cn(
-      'w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden',
-      heightClass
-    )}>
-      <motion.div
-        className={cn(
-          'h-full rounded-full',
-          getVariantClasses()
-        )}
-        initial={{ width: '0%' }}
-        animate={{ width: `${animatedProgress}%` }}
-        transition={{ 
-          duration: animated ? 1 : 0, 
-          ease: [0.34, 1.56, 0.64, 1] 
-        }}
-      />
+    <div className="w-full">
+      <div className={cn(
+        'w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden',
+        heightClass
+      )}>
+        <motion.div
+          className={cn(
+            'h-full rounded-full',
+            getVariantClasses()
+          )}
+          initial={{ width: '0%' }}
+          animate={{ width: `${animatedProgress}%` }}
+          transition={{ 
+            duration: animated ? 1 : 0, 
+            ease: [0.34, 1.56, 0.64, 1] 
+          }}
+        />
+      </div>
+      
+      {showPercentage && (
+        <div className="text-xs text-right mt-1 text-gray-600 dark:text-gray-400">
+          {Math.round(safeProgress)}%
+        </div>
+      )}
     </div>
   );
 };

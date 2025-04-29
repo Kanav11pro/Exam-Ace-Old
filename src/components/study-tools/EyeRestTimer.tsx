@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,8 +6,9 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
 import { Eye, Bell, Volume2, VolumeX, Clock, PlayCircle, PauseCircle, RotateCcw, Calculator } from 'lucide-react';
+import { createReliableTimer, showNotification, playSound, formatTime, TimerState } from '@/utils/timerUtils';
+import 'react-circular-progressbar/dist/styles.css';
 
 export function EyeRestTimer() {
   // 20-20-20 rule settings
@@ -28,15 +28,147 @@ export function EyeRestTimer() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [totalCycles, setTotalCycles] = useState(0);
   const [totalWorkMinutes, setTotalWorkMinutes] = useState(0);
+  const [notificationPermissionStatus, setNotificationPermissionStatus] = useState<string>('default');
   
   // Timer refs
-  const intervalRef = useRef<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof createReliableTimer> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const { toast } = useToast();
   
-  // Load timer settings from localStorage
+  // Initialize timer on component mount
   useEffect(() => {
+    initializeTimer();
+    loadSettings();
+    loadTimerState();
+    
+    // Check notification permission
+    if ('Notification' in window) {
+      setNotificationPermissionStatus(Notification.permission);
+    }
+    
+    // Cleanup on component unmount
+    return () => {
+      if (timerRef.current) {
+        // Save state before unmounting
+        const state = timerRef.current.saveState();
+        if (state.isActive) {
+          localStorage.setItem('jeeEyeRestTimerCurrentState', JSON.stringify(state));
+        }
+      }
+    };
+  }, []);
+
+  // Re-initialize timer when work/rest durations change
+  useEffect(() => {
+    if (!isActive) {
+      initializeTimer();
+    }
+  }, [workMinutes, restSeconds]);
+
+  // Initialize the timer
+  const initializeTimer = () => {
+    // Clean up previous timer if it exists
+    if (timerRef.current) {
+      const prevState = timerRef.current.saveState();
+      if (prevState.isActive) {
+        // Don't reinitialize if timer is active
+        return;
+      }
+    }
+    
+    // Create work timer
+    const workTimer = createReliableTimer(
+      workMinutes * 60,
+      (seconds) => {
+        setTimeLeft(seconds);
+      },
+      () => {
+        // Work timer completed
+        handleWorkPhaseComplete();
+      }
+    );
+    
+    timerRef.current = workTimer;
+    setTimeLeft(workMinutes * 60);
+  };
+  
+  // Handle work phase completion
+  const handleWorkPhaseComplete = () => {
+    setIsRestPhase(true);
+    setTotalWorkMinutes(prev => prev + workMinutes);
+    
+    // Play sound
+    if (soundEnabled && audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.error("Failed to play audio:", e));
+    }
+    
+    // Show notification
+    if (notificationsEnabled) {
+      showNotification(
+        "Time to rest your eyes!",
+        `Look at something ${lookDistanceFeet} feet away for ${restSeconds} seconds.`
+      );
+      
+      toast({
+        title: "Time to rest your eyes!",
+        description: `Look at something ${lookDistanceFeet} feet away for ${restSeconds} seconds.`,
+        duration: 5000,
+      });
+    }
+    
+    // Create rest timer
+    const restTimer = createReliableTimer(
+      restSeconds,
+      (seconds) => {
+        setTimeLeft(seconds);
+      },
+      () => {
+        // Rest timer completed
+        handleRestPhaseComplete();
+      }
+    );
+    
+    timerRef.current = restTimer;
+    timerRef.current.start();
+  };
+  
+  // Handle rest phase completion
+  const handleRestPhaseComplete = () => {
+    setIsRestPhase(false);
+    setTotalCycles(prev => prev + 1);
+    
+    // Play sound
+    if (soundEnabled && audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.error("Failed to play audio:", e));
+    }
+    
+    // Show notification
+    if (notificationsEnabled) {
+      showNotification(
+        "Rest Complete!",
+        "You can continue working now."
+      );
+      
+      toast({
+        title: "Rest Complete!",
+        description: "You can continue working now.",
+        duration: 5000,
+      });
+    }
+    
+    // Create work timer again
+    initializeTimer();
+    timerRef.current?.start();
+    
+    // Save stats
+    saveStats();
+  };
+
+  // Load timer settings from localStorage
+  const loadSettings = () => {
     const savedSettings = localStorage.getItem('jeeEyeRestTimerSettings');
     if (savedSettings) {
       try {
@@ -46,17 +178,14 @@ export function EyeRestTimer() {
         setLookDistanceFeet(settings.lookDistanceFeet || DEFAULT_LOOK_DISTANCE_FEET);
         setSoundEnabled(settings.soundEnabled !== undefined ? settings.soundEnabled : true);
         setNotificationsEnabled(settings.notificationsEnabled !== undefined ? settings.notificationsEnabled : true);
-        
-        // Initialize timeLeft based on saved workMinutes
-        setTimeLeft((settings.workMinutes || DEFAULT_WORK_MINUTES) * 60);
       } catch (e) {
         console.error('Error loading eye rest timer settings:', e);
       }
     }
-  }, []);
+  };
   
   // Load timer stats from localStorage
-  useEffect(() => {
+  const loadStats = () => {
     const savedStats = localStorage.getItem('jeeEyeRestTimerStats');
     if (savedStats) {
       try {
@@ -67,7 +196,34 @@ export function EyeRestTimer() {
         console.error('Error loading eye rest timer stats:', e);
       }
     }
-  }, []);
+  };
+  
+  // Load timer state from localStorage (if app was closed mid-timer)
+  const loadTimerState = () => {
+    const savedState = localStorage.getItem('jeeEyeRestTimerCurrentState');
+    if (savedState) {
+      try {
+        const state: TimerState = JSON.parse(savedState);
+        
+        setIsActive(state.isActive);
+        setIsPaused(state.isPaused);
+        setTimeLeft(Math.ceil(state.timeLeft / 1000));
+        
+        // Determine if we're in rest phase based on the total duration
+        const isRest = state.totalDuration / 1000 <= 60; // If duration is less than a minute, assume it's rest phase
+        setIsRestPhase(isRest);
+        
+        if (timerRef.current && state.isActive) {
+          timerRef.current.loadState(state);
+          
+          // Clear the saved state once loaded
+          localStorage.removeItem('jeeEyeRestTimerCurrentState');
+        }
+      } catch (e) {
+        console.error('Error loading saved timer state:', e);
+      }
+    }
+  };
   
   // Save timer settings to localStorage
   useEffect(() => {
@@ -82,67 +238,13 @@ export function EyeRestTimer() {
   }, [workMinutes, restSeconds, lookDistanceFeet, soundEnabled, notificationsEnabled]);
   
   // Save timer stats to localStorage
-  useEffect(() => {
+  const saveStats = () => {
     const stats = {
       totalCycles,
       totalWorkMinutes
     };
     localStorage.setItem('jeeEyeRestTimerStats', JSON.stringify(stats));
-  }, [totalCycles, totalWorkMinutes]);
-  
-  // Timer logic
-  useEffect(() => {
-    if (isActive && !isPaused) {
-      intervalRef.current = window.setInterval(() => {
-        setTimeLeft(prevTime => {
-          if (prevTime <= 1) {
-            // Time's up
-            clearInterval(intervalRef.current!);
-            
-            // Play sound if enabled
-            if (soundEnabled && audioRef.current) {
-              audioRef.current.play().catch(e => console.error("Failed to play audio:", e));
-            }
-            
-            // Show notification if enabled
-            if (notificationsEnabled) {
-              if (isRestPhase) {
-                toast({
-                  title: "Rest Complete!",
-                  description: "You can continue working now.",
-                });
-                
-                // Start work phase
-                setIsRestPhase(false);
-                setTotalCycles(prev => prev + 1);
-                return workMinutes * 60;
-              } else {
-                toast({
-                  title: "Time to rest your eyes!",
-                  description: `Look at something ${lookDistanceFeet} feet away for ${restSeconds} seconds.`,
-                  duration: 5000,
-                });
-                
-                // Start rest phase
-                setIsRestPhase(true);
-                setTotalWorkMinutes(prev => prev + workMinutes);
-                return restSeconds;
-              }
-            }
-            
-            return prevTime;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isActive, isPaused, isRestPhase, workMinutes, restSeconds, lookDistanceFeet, soundEnabled, notificationsEnabled, toast]);
+  };
   
   // Handle start/pause timer
   const toggleTimer = () => {
@@ -150,33 +252,44 @@ export function EyeRestTimer() {
       // Starting the timer
       setIsActive(true);
       setIsPaused(false);
-      setIsRestPhase(false);
-      setTimeLeft(workMinutes * 60);
+      
+      if (timerRef.current) {
+        timerRef.current.start();
+      }
     } else if (isPaused) {
       // Resuming the timer
       setIsPaused(false);
+      
+      if (timerRef.current) {
+        timerRef.current.resume();
+      }
     } else {
       // Pausing the timer
       setIsPaused(true);
+      
+      if (timerRef.current) {
+        timerRef.current.pause();
+        
+        // Save the current state to localStorage
+        const state = timerRef.current.saveState();
+        localStorage.setItem('jeeEyeRestTimerCurrentState', JSON.stringify(state));
+      }
     }
   };
   
   // Handle reset timer
   const resetTimer = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (timerRef.current) {
+      timerRef.current.reset();
     }
+    
     setIsActive(false);
     setIsPaused(false);
     setIsRestPhase(false);
     setTimeLeft(workMinutes * 60);
-  };
-  
-  // Format time for display
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    
+    // Remove any saved timer state
+    localStorage.removeItem('jeeEyeRestTimerCurrentState');
   };
   
   // Update workMinutes
@@ -217,6 +330,7 @@ export function EyeRestTimer() {
     
     if (Notification.permission !== "granted") {
       const permission = await Notification.requestPermission();
+      setNotificationPermissionStatus(permission);
       
       if (permission === "granted") {
         toast({
@@ -236,7 +350,7 @@ export function EyeRestTimer() {
   
   // Enable notifications when the switch is toggled on
   useEffect(() => {
-    if (notificationsEnabled) {
+    if (notificationsEnabled && notificationPermissionStatus !== 'granted') {
       requestNotificationPermission();
     }
   }, [notificationsEnabled]);
@@ -246,9 +360,16 @@ export function EyeRestTimer() {
     return (feet * 0.3048).toFixed(1);
   };
   
+  // Make sure sounds are preloaded
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  }, []);
+  
   return (
     <div className="container max-w-4xl py-6">
-      <audio ref={audioRef} src="/notification.mp3" />
+      <audio ref={audioRef} src="/notification.mp3" preload="auto" />
       
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Eye Rest Timer (20-20-20 Rule)</h1>
