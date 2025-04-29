@@ -1,53 +1,77 @@
 
+import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 interface ProgressBarProps {
   progress: number;
-  className?: string;
-  variant?: 'maths' | 'physics' | 'chemistry' | 'dashboard';
-  showPercentage?: boolean;
+  variant?: 'default' | 'dashboard' | 'maths' | 'physics' | 'chemistry';
   animated?: boolean;
+  height?: 'sm' | 'md' | 'lg';
 }
 
-export function ProgressBar({ 
-  progress, 
-  className = "", 
-  variant = "maths", 
-  showPercentage = false,
-  animated = true
-}: ProgressBarProps) {
-  // Ensure progress is between 0 and 100
-  const clampedProgress = Math.min(100, Math.max(0, progress));
+export const ProgressBar: React.FC<ProgressBarProps> = ({
+  progress,
+  variant = 'default',
+  animated = false,
+  height = 'md'
+}) => {
+  const [animatedProgress, setAnimatedProgress] = useState(0);
   
+  // Ensure progress is always between 0 and 100
+  const safeProgress = Math.min(100, Math.max(0, progress));
+  
+  useEffect(() => {
+    if (animated) {
+      // Start with 0 then animate to actual progress
+      setAnimatedProgress(0);
+      const timer = setTimeout(() => {
+        setAnimatedProgress(safeProgress);
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimatedProgress(safeProgress);
+    }
+  }, [safeProgress, animated]);
+
+  const heightClass = {
+    sm: 'h-1',
+    md: 'h-2',
+    lg: 'h-3'
+  }[height];
+
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'maths':
+        return 'bg-gradient-to-r from-blue-400 to-cyan-400';
+      case 'physics':
+        return 'bg-gradient-to-r from-green-400 to-emerald-400';
+      case 'chemistry':
+        return 'bg-gradient-to-r from-orange-400 to-amber-400';
+      case 'dashboard':
+        return 'bg-gradient-to-r from-indigo-400 to-purple-400';
+      default:
+        return 'bg-gradient-to-r from-blue-500 to-indigo-500';
+    }
+  };
+
   return (
-    <div className="space-y-1">
-      <div className={cn("h-2 mt-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden", className)}>
-        <motion.div 
-          className={cn(
-            "h-full rounded-full",
-            {
-              "bg-cyan-400": variant === 'maths',
-              "bg-green-400": variant === 'physics',
-              "bg-orange-300": variant === 'chemistry',
-              "bg-purple-300": variant === 'dashboard'
-            }
-          )}
-          initial={animated ? { width: 0 } : { width: `${clampedProgress}%` }}
-          animate={{ width: `${clampedProgress}%` }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        />
-      </div>
-      {showPercentage && (
-        <motion.p 
-          className="text-xs text-right font-medium"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          {Math.round(clampedProgress)}%
-        </motion.p>
-      )}
+    <div className={cn(
+      'w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden',
+      heightClass
+    )}>
+      <motion.div
+        className={cn(
+          'h-full rounded-full',
+          getVariantClasses()
+        )}
+        initial={{ width: '0%' }}
+        animate={{ width: `${animatedProgress}%` }}
+        transition={{ 
+          duration: animated ? 1 : 0, 
+          ease: [0.34, 1.56, 0.64, 1] 
+        }}
+      />
     </div>
   );
-}
+};
