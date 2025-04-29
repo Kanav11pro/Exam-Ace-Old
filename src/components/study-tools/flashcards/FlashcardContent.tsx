@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { FlashCard } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
+import './FlashcardContent.css';
 
 interface FlashcardContentProps {
   card: FlashCard;
@@ -89,7 +90,7 @@ export function FlashcardContent({
     );
   }
 
-  // Enhanced animated card with error handling
+  // Enhanced animated card with proper error handling
   return (
     <div className="relative h-80 mb-4 perspective-1000">
       <div 
@@ -107,7 +108,10 @@ export function FlashcardContent({
               animate={{ rotateY: 0, opacity: 1 }}
               exit={{ rotateY: -90, opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              onAnimationError={handleAnimationError}
+              onAnimationComplete={() => {
+                if (!showAnswer && isAnimating) setIsAnimating(false);
+              }}
+              onError={() => handleAnimationError()}
             >
               {/* Question Side */}
               <Card className="w-full h-full flex flex-col justify-center p-6 shadow-lg border-2 border-indigo-100 dark:border-indigo-900 will-change-transform">
@@ -141,7 +145,10 @@ export function FlashcardContent({
               animate={{ rotateY: 0, opacity: 1 }}
               exit={{ rotateY: -90, opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              onAnimationError={handleAnimationError}
+              onAnimationComplete={() => {
+                if (showAnswer && isAnimating) setIsAnimating(false);
+              }}
+              onError={() => handleAnimationError()}
             >
               {/* Answer Side */}
               <Card className="w-full h-full flex flex-col justify-center p-6 shadow-lg border-2 border-green-100 dark:border-green-900 will-change-transform">
@@ -170,22 +177,6 @@ export function FlashcardContent({
           )}
         </AnimatePresence>
       </div>
-
-      {/* Add CSS for 3D effect */}
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        
-        .card-container {
-          transform-style: preserve-3d;
-          transition: transform 0.1s;
-        }
-        
-        .will-change-transform {
-          will-change: transform;
-        }
-      `}</style>
     </div>
   );
 }
