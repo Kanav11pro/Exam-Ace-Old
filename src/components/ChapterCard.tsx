@@ -27,14 +27,14 @@ export function ChapterCard({
     >
       <Link 
         to={`/subject/${subject}/${encodeURIComponent(chapter)}`} 
-        className="chapter-card bg-white dark:bg-gray-800 p-4 h-40 flex flex-col justify-between transition-all rounded-lg border border-gray-200 dark:border-gray-700"
+        className="chapter-card bg-white dark:bg-gray-800 p-4 h-40 flex flex-col justify-between transition-all"
       >
         <div className="flex justify-between items-start">
           <h3 className="text-lg font-semibold line-clamp-2 pr-2">{chapter}</h3>
           <motion.span 
             role="img" 
             aria-label={chapter} 
-            className="text-5xl"
+            className="text-6xl"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}

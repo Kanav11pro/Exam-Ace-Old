@@ -108,19 +108,9 @@ const Index = () => {
         </div>
       </footer>
       
-      {/* Global CSS for study-themed styling with fix for navigation dropdown overlap */}
+      {/* Global CSS for study-themed styling */}
       <style>
         {`
-        /* Navigation menu fixes */
-        .navigation-menu-content {
-          z-index: 1000;
-          background-color: var(--background);
-          border: 1px solid var(--border);
-          border-radius: 0.5rem;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          overflow: hidden;
-        }
-        
         /* 3D book effect for cards */
         .book-card {
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
