@@ -13,7 +13,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
       {/* Decorative SVG elements for study theme */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
         {/* Abstract book shapes */}
         <motion.div 
           className="absolute top-10 right-[5%] w-24 h-32 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg opacity-30"
