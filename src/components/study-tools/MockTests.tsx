@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -603,9 +604,10 @@ export function MockTests() {
       }
     });
 
+    // Fixed toast calls to use proper string values instead of functions
     toast({
-      title: prev => prev.includes(questionId) ? "Bookmark removed" : "Question bookmarked",
-      description: prev => prev.includes(questionId) 
+      title: bookmarkedQuestions.includes(questionId || '') ? "Bookmark removed" : "Question bookmarked",
+      description: bookmarkedQuestions.includes(questionId || '') 
         ? "Question removed from bookmarks" 
         : "Question added to bookmarks for later review",
     });
