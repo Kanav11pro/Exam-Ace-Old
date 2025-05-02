@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useFlashcards } from './useFlashcards';
@@ -414,7 +413,7 @@ export function Flashcards() {
                       >
                         <Lightbulb className="h-4 w-4 mt-0.5 text-amber-500" />
                         <p>
-                          {filteredCards[currentIndex].confidenceLevel === 'low' ? 
+                          {filteredCards[currentIndex].confidence === 'low' ? 
                             "Try rewriting this concept in your own words to improve retention." :
                             "Rating cards helps the app show you difficult cards more frequently."}
                         </p>
