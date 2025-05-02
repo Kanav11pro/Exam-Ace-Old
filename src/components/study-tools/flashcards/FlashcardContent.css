@@ -80,3 +80,152 @@
 .flashcard-3d:hover .flashcard-shine {
   opacity: 1;
 }
+
+/* New enhanced 3D flip animation */
+.flashcard-container {
+  perspective: 1500px;
+  width: 100%;
+  height: 100%;
+}
+
+.flashcard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  transform-origin: center;
+}
+
+.flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front:hover,
+.flashcard-back:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Confetti effect */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.confetti-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+/* Pulse animation for buttons */
+.btn-bounce:active {
+  animation: btn-bounce 0.2s ease-in-out;
+}
+
+@keyframes btn-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+}
+
+/* Study blobs animations */
+.study-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.15;
+  z-index: -1;
+}
+
+.study-blob-1 {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  right: 10%;
+  background: radial-gradient(circle, rgba(99,102,241,0.6) 0%, rgba(99,102,241,0.2) 100%);
+  animation: blob-float 20s ease-in-out infinite alternate;
+}
+
+.study-blob-2 {
+  width: 250px;
+  height: 250px;
+  bottom: 20%;
+  left: 5%;
+  background: radial-gradient(circle, rgba(16,185,129,0.6) 0%, rgba(16,185,129,0.2) 100%);
+  animation: blob-float 15s ease-in-out infinite alternate-reverse;
+}
+
+.study-blob-3 {
+  width: 200px;
+  height: 200px;
+  top: 50%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(245,158,11,0.6) 0%, rgba(245,158,11,0.2) 100%);
+  animation: blob-float 18s ease-in-out infinite alternate;
+}
+
+@keyframes blob-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -10px) scale(1.05);
+  }
+  100% {
+    transform: translate(-20px, 10px) scale(0.95);
+  }
+}
+
+/* Theme animations for transitions between themes */
+@keyframes theme-transition {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Make cards feel more physical */
+.card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.card:hover {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}

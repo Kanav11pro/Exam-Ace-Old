@@ -1,34 +1,42 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+type ThemeType = 'light' | 'dark' | 'purple' | 'green' | 'ocean';
+
 type ThemeContextType = {
-  theme: 'light' | 'dark';
+  theme: ThemeType;
+  setTheme: (theme: ThemeType) => void;
   toggleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+  const [theme, setTheme] = useState<ThemeType>(() => {
     const savedTheme = localStorage.getItem('jee-theme');
-    return (savedTheme as 'light' | 'dark') || 'light';
+    return (savedTheme as ThemeType) || 'light';
   });
 
   useEffect(() => {
     const root = window.document.documentElement;
     
-    root.classList.remove('light', 'dark');
+    // Remove all theme classes
+    root.classList.remove('light', 'dark', 'purple', 'green', 'ocean');
     root.classList.add(theme);
     
     localStorage.setItem('jee-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    // Rotate through themes in this order
+    const themes: ThemeType[] = ['light', 'dark', 'purple', 'green', 'ocean'];
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -105,6 +105,10 @@ export default {
 				'progress-fill': {
 					'0%': { width: '0%' },
 					'100%': { width: 'var(--progress-width)' }
+				},
+				'rotate-y': {
+					'0%': { transform: 'rotateY(0deg)' },
+					'100%': { transform: 'rotateY(180deg)' }
 				}
 			},
 			animation: {
@@ -113,7 +117,8 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-out': 'fade-out 0.3s ease-out',
 				'slide-in': 'slide-in 0.3s ease-out',
-				'progress-fill': 'progress-fill 1s ease-out forwards'
+				'progress-fill': 'progress-fill 1s ease-out forwards',
+				'rotate-y': 'rotate-y 0.6s ease-out forwards'
 			}
 		}
 	},

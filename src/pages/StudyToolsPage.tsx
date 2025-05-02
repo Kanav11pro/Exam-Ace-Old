@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -285,7 +284,7 @@ const StudyToolsPage = () => {
   
   return (
     <motion.div 
-      className="relative container max-w-6xl py-8"
+      className="relative container max-w-6xl py-4 sm:py-8 px-4 sm:px-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -296,7 +295,7 @@ const StudyToolsPage = () => {
         {floatingIcons.map((item, index) => (
           <motion.div
             key={index}
-            className={`absolute opacity-20 ${item.size}`}
+            className={`absolute opacity-20 ${item.size} hidden sm:block`}
             style={{
               top: `${Math.random() * 70 + 10}%`,
               left: `${Math.random() * 80 + 10}%`,
@@ -317,12 +316,12 @@ const StudyToolsPage = () => {
         ))}
 
         {/* Gradient blobs */}
-        <div className="study-blob study-blob-1"></div>
-        <div className="study-blob study-blob-2"></div>
-        <div className="study-blob study-blob-3"></div>
+        <div className="study-blob study-blob-1 hidden sm:block"></div>
+        <div className="study-blob study-blob-2 hidden sm:block"></div>
+        <div className="study-blob study-blob-3 hidden sm:block"></div>
         
         {/* Circle patterns */}
-        <svg width="100%" height="100%" className="absolute top-0 left-0 opacity-5 dark:opacity-10">
+        <svg width="100%" height="100%" className="absolute top-0 left-0 opacity-5 dark:opacity-10 hidden sm:block">
           <pattern id="pattern-circles" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
             <circle id="pattern-circle" cx="10" cy="10" r="1.6257413380501518" fill="none" stroke="currentColor" strokeWidth="1"></circle>
           </pattern>
@@ -342,7 +341,7 @@ const StudyToolsPage = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <motion.h1 
-            className="text-3xl font-bold relative" 
+            className="text-2xl sm:text-3xl font-bold relative" 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -357,7 +356,7 @@ const StudyToolsPage = () => {
           </motion.h1>
         </div>
         <motion.p 
-          className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl"
+          className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl text-sm sm:text-base"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
@@ -383,12 +382,12 @@ const StudyToolsPage = () => {
             className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Filter className="h-4 w-4 text-gray-500" />
           <select 
             value={selectedCategory} 
             onChange={e => setSelectedCategory(e.target.value)} 
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm"
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
           >
             {Object.entries(categoryLabels).map(([key, value]) => (
               <option key={key} value={key}>{value}</option>
@@ -397,13 +396,13 @@ const StudyToolsPage = () => {
         </div>
       </motion.div>
       
-      {/* Tools Tabs */}
+      {/* Tools Tabs - Scrollable on mobile */}
       <Tabs defaultValue="categories" className="w-full">
-        <TabsList className="mb-6 bg-white dark:bg-gray-800 p-1 border border-gray-100 dark:border-gray-800 shadow-sm">
-          <TabsTrigger value="categories">By Category</TabsTrigger>
-          <TabsTrigger value="all">All Tools</TabsTrigger>
-          <TabsTrigger value="favorites">Favorites</TabsTrigger>
-          <TabsTrigger value="recent">Recently Used</TabsTrigger>
+        <TabsList className="mb-6 bg-white dark:bg-gray-800 p-1 border border-gray-100 dark:border-gray-800 shadow-sm w-full overflow-x-auto study-tools-tabs">
+          <TabsTrigger value="categories" className="min-w-max">By Category</TabsTrigger>
+          <TabsTrigger value="all" className="min-w-max">All Tools</TabsTrigger>
+          <TabsTrigger value="favorites" className="min-w-max">Favorites</TabsTrigger>
+          <TabsTrigger value="recent" className="min-w-max">Recently Used</TabsTrigger>
         </TabsList>
         
         {/* Categories Tab */}
@@ -436,7 +435,7 @@ const StudyToolsPage = () => {
               </div>
               
               <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 study-tools-grid"
                 variants={container}
                 initial="hidden"
                 animate="show"
@@ -485,7 +484,7 @@ const StudyToolsPage = () => {
         {/* All Tools Tab */}
         <TabsContent value="all" className="space-y-6">
           <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 study-tools-grid"
             variants={container}
             initial="hidden"
             animate="show"
@@ -493,7 +492,7 @@ const StudyToolsPage = () => {
             {getFilteredTools(selectedCategory).map(tool => (
               <motion.div key={tool.id} variants={item}>
                 <Card 
-                  className="overflow-hidden hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-800 h-full hover:-translate-y-1 hover:shadow-lg"
+                  className="overflow-hidden hover:shadow-md transition-all cursor-pointer h-full hover:-translate-y-1 hover:shadow-lg" 
                   onClick={() => navigateToTool(tool.id)}
                 >
                   <CardContent className="p-0 h-full">
@@ -513,7 +512,7 @@ const StudyToolsPage = () => {
                               toggleFavorite(tool.id);
                             }}
                           >
-                            <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
+                            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
                           </Button>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
@@ -548,7 +547,7 @@ const StudyToolsPage = () => {
         <TabsContent value="favorites">
           {favoriteTools.length > 0 ? (
             <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 study-tools-grid"
               variants={container}
               initial="hidden"
               animate="show"
@@ -623,15 +622,15 @@ const StudyToolsPage = () => {
       
       {/* Tool Matrix - Productivity Guide */}
       <motion.section 
-        className="mt-16 relative"
+        className="mt-12 sm:mt-16 relative"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <div className="mx-auto max-w-4xl bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-center mb-6">Study Tools Selection Guide</h2>
+        <div className="mx-auto max-w-4xl bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-center mb-4 sm:mb-6">Study Tools Selection Guide</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-3">
               <div className="flex items-center">
                 <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -677,7 +676,7 @@ const StudyToolsPage = () => {
             </div>
           </div>
           
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-4 sm:mt-6 pt-2 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-center text-gray-500">Combining tools creates a comprehensive study system that addresses all aspects of your JEE preparation</p>
           </div>
         </div>
