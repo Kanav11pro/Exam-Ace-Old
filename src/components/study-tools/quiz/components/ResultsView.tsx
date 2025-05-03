@@ -256,12 +256,13 @@ export function ResultsView({
                     <div key={index} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center">
-                          <Badge className={getSubjectBadgeColor(question.subject)} className="mr-2">
+                          <Badge className={getSubjectBadgeColor(question.subject)} size="sm">
                             {question.subject}
                           </Badge>
                           {question.difficulty && (
                             <Badge variant={question.difficulty === 'easy' ? 'outline' : 
-                                    question.difficulty === 'medium' ? 'secondary' : 'destructive'}>
+                                    question.difficulty === 'medium' ? 'secondary' : 'destructive'}
+                                   className="ml-2">
                               {question.difficulty}
                             </Badge>
                           )}
