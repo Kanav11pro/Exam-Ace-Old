@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Clock, BookOpen, RefreshCw, ShieldQuestion, History, Star } from 'lucide-react';
+import { Trophy, Clock, ShieldQuestion, History, Star } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { QuizAttempt } from '../types';
 import { formatTime, getSubjectBadgeColor } from '../utils/helpers';

@@ -54,7 +54,7 @@ export function QuizHeader({
       <div className="flex items-center gap-2">
         <div className="text-sm font-medium bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full flex items-center">
           <Clock className="h-3.5 w-3.5 mr-1" />
-          {formatTime(isPaused ? pauseTime : timeSpent - pauseTime)}
+          {formatTime(isPaused ? pauseTime : timeSpent)}
         </div>
         
         <Button 

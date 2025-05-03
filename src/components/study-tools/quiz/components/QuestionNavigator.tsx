@@ -52,7 +52,7 @@ export function QuestionNavigator({
           <Button
             key={`question-nav-${index}`}
             size="icon"
-            className={`w-8 h-8 relative ${getQuestionStatusColor(status.status)}`}
+            className={`w-8 h-8 relative ${getQuestionStatusColor(status.status)} ${index === currentQuestionIndex ? 'ring-2 ring-primary' : ''}`}
             variant="outline"
             onClick={() => jumpToQuestion(index)}
           >

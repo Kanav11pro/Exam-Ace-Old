@@ -1,27 +1,12 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Trophy, Clock, ThumbsUp, Check, X, Star, AlertCircle, RefreshCw, AlertTriangle, FileQuestion, Flag, Timer } from 'lucide-react';
-import { StudyTip } from '@/components/study-tools/flashcards/components/StudyTip';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Check, X, Clock, BarChart2, Award, Brain, FileText } from 'lucide-react';
+import { getSubjectBadgeColor } from '../utils/helpers';
 import { Question } from '../types';
-import { getStreakMessage, formatTime, getSubjectBadgeColor } from '../utils/helpers';
-
-interface DifficultyBreakdown {
-  easy: { total: number; correct: number };
-  medium: { total: number; correct: number };
-  hard: { total: number; correct: number };
-}
-
-interface SpeedMetrics {
-  averageTimePerQuestion: number;
-  fastestQuestion: number;
-  slowestQuestion: number;
-}
 
 interface TestResult {
   testTitle: string;
@@ -36,10 +21,18 @@ interface TestResult {
     questionId: string;
     selectedAnswer: number | null;
   }[];
-  questionDetails?: Question[];
-  difficultyBreakdown?: DifficultyBreakdown;
-  speedMetrics?: SpeedMetrics;
-  improvementAreas?: string[];
+  questionDetails: Question[];
+  difficultyBreakdown: {
+    easy: { total: number; correct: number };
+    medium: { total: number; correct: number };
+    hard: { total: number; correct: number };
+  };
+  speedMetrics: {
+    averageTimePerQuestion: number;
+    fastestQuestion: number;
+    slowestQuestion: number;
+  };
+  improvementAreas: string[];
 }
 
 interface ResultsViewProps {
@@ -62,425 +55,332 @@ export function ResultsView({
   setDetailedReport
 }: ResultsViewProps) {
   if (!result) return null;
-
-  const questionsCount = result.questionDetails?.length || 0;
-
+  
+  const calculatePercentage = (correct: number, total: number) => {
+    return total > 0 ? Math.round((correct / total) * 100) : 0;
+  };
+  
+  const getPerformanceLabel = (percentage: number) => {
+    if (percentage >= 90) return "Excellent";
+    if (percentage >= 80) return "Very Good";
+    if (percentage >= 70) return "Good";
+    if (percentage >= 60) return "Above Average";
+    if (percentage >= 50) return "Average";
+    if (percentage >= 40) return "Below Average";
+    if (percentage >= 30) return "Needs Improvement";
+    return "Needs Significant Work";
+  };
+  
+  const overallPerformance = calculatePercentage(result.score.total, result.questionDetails.length);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Trophy className="h-5 w-5 text-yellow-500 mr-2" />
-            Quiz Results
+          <DialogTitle className="flex items-center text-2xl">
+            <Award className="h-6 w-6 mr-2 text-primary" />
+            Quiz Results: {result.testTitle}
           </DialogTitle>
-          <DialogDescription>
-            Here's how you did on the quiz!
-          </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 py-2 max-h-[70vh] overflow-y-auto pr-1">
-          {/* Score summary */}
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="w-32 h-32 rounded-full border-8 border-gray-100 dark:border-gray-800 flex items-center justify-center relative">
-              <div className="text-3xl font-bold">
-                {result.score.total}/{questionsCount}
+        <Tabs defaultValue="summary" className="mt-4">
+          <TabsList className="grid grid-cols-3">
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            <TabsTrigger value="questions">Questions</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="summary" className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="text-3xl font-bold mb-2">{overallPerformance}%</div>
+                <div className="text-lg mb-1">Overall Score</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {getPerformanceLabel(overallPerformance)}
+                </div>
               </div>
-              <svg className="absolute inset-0" viewBox="0 0 100 100">
-                <circle 
-                  className="text-gray-200 dark:text-gray-700" 
-                  strokeWidth="8" 
-                  stroke="currentColor" 
-                  fill="transparent" 
-                  r="42" 
-                  cx="50" 
-                  cy="50" 
-                />
-                <circle 
-                  className="text-primary" 
-                  strokeWidth="8" 
-                  strokeDasharray={264}
-                  strokeDashoffset={264 - (264 * result.score.total) / questionsCount} 
-                  strokeLinecap="round" 
-                  stroke="currentColor" 
-                  fill="transparent" 
-                  r="42" 
-                  cx="50" 
-                  cy="50" 
-                />
-              </svg>
+              
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="text-3xl font-bold mb-2">{result.score.total}/{result.questionDetails.length}</div>
+                <div className="text-lg mb-1">Correct Answers</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {result.questionDetails.length - result.score.total} incorrect
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-center">
+                <div className="text-3xl font-bold mb-2">{result.totalTime} min</div>
+                <div className="text-lg mb-1">Total Time</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  ~{result.speedMetrics.averageTimePerQuestion} sec per question
+                </div>
+              </div>
             </div>
             
-            <div className="flex-1 space-y-4">
-              <p className="text-center md:text-left font-medium text-lg">
-                {getStreakMessage(result.score.total, questionsCount)}
+            <h3 className="font-medium text-lg mb-2">Subject Performance</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {result.score.maths > 0 || result.score.physics > 0 || result.score.chemistry > 0 ? (
+                <>
+                  <SubjectScore 
+                    subject="Mathematics" 
+                    score={result.score.maths} 
+                    total={result.questionDetails.filter(q => q.subject === 'Maths').length}
+                  />
+                  <SubjectScore 
+                    subject="Physics" 
+                    score={result.score.physics} 
+                    total={result.questionDetails.filter(q => q.subject === 'Physics').length}
+                  />
+                  <SubjectScore 
+                    subject="Chemistry" 
+                    score={result.score.chemistry} 
+                    total={result.questionDetails.filter(q => q.subject === 'Chemistry').length}
+                  />
+                </>
+              ) : (
+                <div className="col-span-3 text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  This quiz focused on {result.testTitle} only
+                </div>
+              )}
+            </div>
+            
+            <h3 className="font-medium text-lg mb-2">Areas for Improvement</h3>
+            <ul className="list-disc list-inside space-y-1 mb-6">
+              {result.improvementAreas.map((area, index) => (
+                <li key={index} className="text-gray-800 dark:text-gray-200">
+                  {area}
+                </li>
+              ))}
+            </ul>
+            
+            <h3 className="font-medium text-lg mb-2">Difficulty Breakdown</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <DifficultyScore 
+                level="Easy" 
+                correct={result.difficultyBreakdown.easy.correct}
+                total={result.difficultyBreakdown.easy.total}
+                variant="success"
+              />
+              <DifficultyScore 
+                level="Medium" 
+                correct={result.difficultyBreakdown.medium.correct}
+                total={result.difficultyBreakdown.medium.total}
+                variant="warning"
+              />
+              <DifficultyScore 
+                level="Hard" 
+                correct={result.difficultyBreakdown.hard.correct}
+                total={result.difficultyBreakdown.hard.total}
+                variant="danger"
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="analysis" className="p-4">
+            <h3 className="font-medium text-lg mb-3">Performance Analysis</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h4 className="flex items-center font-medium mb-3">
+                  <Clock className="h-4 w-4 mr-2" />
+                  Time Analysis
+                </h4>
+                <ul className="space-y-2">
+                  <li className="flex justify-between">
+                    <span>Average time per question:</span>
+                    <span className="font-medium">{result.speedMetrics.averageTimePerQuestion} seconds</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Total quiz duration:</span>
+                    <span className="font-medium">{result.totalTime} minutes</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h4 className="flex items-center font-medium mb-3">
+                  <BarChart2 className="h-4 w-4 mr-2" />
+                  Question Difficulty
+                </h4>
+                <ul className="space-y-2">
+                  <li className="flex justify-between">
+                    <span>Easy questions:</span>
+                    <span className="font-medium">
+                      {result.difficultyBreakdown.easy.correct}/{result.difficultyBreakdown.easy.total} correct
+                    </span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Medium questions:</span>
+                    <span className="font-medium">
+                      {result.difficultyBreakdown.medium.correct}/{result.difficultyBreakdown.medium.total} correct
+                    </span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Hard questions:</span>
+                    <span className="font-medium">
+                      {result.difficultyBreakdown.hard.correct}/{result.difficultyBreakdown.hard.total} correct
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <h3 className="font-medium text-lg mb-3">
+              <Brain className="h-5 w-5 inline-block mr-2" />
+              Recommendations
+            </h3>
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6">
+              <ul className="list-disc list-inside space-y-2">
+                {result.improvementAreas.map((area, index) => (
+                  <li key={index}>{area}</li>
+                ))}
+              </ul>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="questions" className="p-4">
+            <div className="mb-4">
+              <FileText className="h-5 w-5 inline-block mr-2" />
+              <span className="text-lg font-medium">Question Review</span>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Review all questions with their correct answers and your responses
               </p>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Time taken</div>
-                  <div className="font-medium flex items-center">
-                    <Clock className="h-4 w-4 mr-1 text-blue-500" />
-                    {formatTime(result.totalTime * 60)}
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Accuracy</div>
-                  <div className="font-medium flex items-center">
-                    <ThumbsUp className="h-4 w-4 mr-1 text-green-500" />
-                    {Math.round((result.score.total / questionsCount) * 100)}%
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Subject</div>
-                  <div className="font-medium">
-                    {result.testTitle}
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Attempted</div>
-                  <div className="font-medium">
-                    {result.answers.filter(a => a.selectedAnswer !== null).length}/{questionsCount}
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-          
-          <Separator />
-          
-          {/* Advanced report tabs */}
-          <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="summary">Summary</TabsTrigger>
-              <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="subjects">By Subject</TabsTrigger>
-              <TabsTrigger value="improvements">Improvements</TabsTrigger>
-            </TabsList>
             
-            <TabsContent value="summary" className="space-y-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Performance Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium text-sm mb-2">Score by Difficulty</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Badge variant="outline" className="bg-green-50 dark:bg-green-900/10">Easy</Badge>
-                          <div className="text-sm">{
-                            result.difficultyBreakdown?.easy.correct
-                          }/{
-                            result.difficultyBreakdown?.easy.total
-                          }</div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Badge variant="secondary">Medium</Badge>
-                          <div className="text-sm">{
-                            result.difficultyBreakdown?.medium.correct
-                          }/{
-                            result.difficultyBreakdown?.medium.total
-                          }</div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <Badge variant="destructive">Hard</Badge>
-                          <div className="text-sm">{
-                            result.difficultyBreakdown?.hard.correct
-                          }/{
-                            result.difficultyBreakdown?.hard.total
-                          }</div>
-                        </div>
+            <div className="space-y-4">
+              {result.questionDetails.map((question, index) => {
+                const userAnswer = result.answers.find(a => a.questionId === question.id)?.selectedAnswer;
+                const isCorrect = userAnswer === question.correctAnswer;
+                
+                return (
+                  <div key={index} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center">
+                        <Badge className={`${getSubjectBadgeColor(question.subject)} mr-2`}>
+                          {question.subject}
+                        </Badge>
+                        {question.difficulty && (
+                          <Badge variant={question.difficulty === 'easy' ? 'outline' : 
+                                  question.difficulty === 'medium' ? 'secondary' : 'destructive'}>
+                            {question.difficulty}
+                          </Badge>
+                        )}
                       </div>
+                      <Badge variant={isCorrect ? "success" : "destructive"}>
+                        {isCorrect ? (
+                          <><Check className="h-3 w-3 mr-1" /> Correct</>
+                        ) : (
+                          <><X className="h-3 w-3 mr-1" /> Incorrect</>
+                        )}
+                      </Badge>
                     </div>
                     
-                    <div>
-                      <h4 className="font-medium text-sm mb-2">Performance Metrics</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm">Avg. time per question</div>
-                          <div className="text-sm font-medium">
-                            {formatTime(result.speedMetrics?.averageTimePerQuestion || 0)}
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm">Unattempted questions</div>
-                          <div className="text-sm font-medium">
-                            {questionsCount - result.answers.filter(a => a.selectedAnswer !== null).length}
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm">Performance rating</div>
-                          <div className="text-sm font-medium flex items-center">
-                            {result.score.total / questionsCount >= 0.8 ? (
-                              <>Excellent <Star className="h-4 w-4 text-yellow-500 ml-1" /></>
-                            ) : result.score.total / questionsCount >= 0.6 ? (
-                              <>Good <ThumbsUp className="h-4 w-4 text-blue-500 ml-1" /></>
-                            ) : result.score.total / questionsCount >= 0.4 ? (
-                              <>Average <Check className="h-4 w-4 text-green-500 ml-1" /></>
-                            ) : (
-                              <>Needs improvement <AlertCircle className="h-4 w-4 text-red-500 ml-1" /></>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Time Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="w-full h-48 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                    <p className="text-gray-500 text-sm">[Time analysis graph would be displayed here]</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="questions" className="space-y-4">
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 flex justify-between items-center">
-                  <h3 className="font-medium">Question Analysis</h3>
-                  <div className="text-sm text-gray-500">Total: {questionsCount}</div>
-                </div>
-                
-                <div className="divide-y">
-                  {result.questionDetails?.map((question, index) => (
-                    <div key={index} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center">
-                          <Badge className={getSubjectBadgeColor(question.subject)} size="sm">
-                            {question.subject}
-                          </Badge>
-                          {question.difficulty && (
-                            <Badge variant={question.difficulty === 'easy' ? 'outline' : 
-                                    question.difficulty === 'medium' ? 'secondary' : 'destructive'}
-                                   className="ml-2">
-                              {question.difficulty}
-                            </Badge>
+                    <h4 className="font-medium mb-2">{question.text}</h4>
+                    
+                    <div className="mb-2 space-y-1">
+                      {question.options.map((option, optIndex) => (
+                        <div 
+                          key={optIndex} 
+                          className={`p-2 rounded text-sm ${
+                            optIndex === question.correctAnswer
+                              ? 'bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-700'
+                              : optIndex === userAnswer && optIndex !== question.correctAnswer
+                                ? 'bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700'
+                                : 'bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+                          }`}
+                        >
+                          {optIndex === question.correctAnswer && (
+                            <Check className="h-4 w-4 text-green-600 dark:text-green-400 inline-block mr-1" />
                           )}
+                          {optIndex === userAnswer && optIndex !== question.correctAnswer && (
+                            <X className="h-4 w-4 text-red-600 dark:text-red-400 inline-block mr-1" />
+                          )}
+                          {option}
                         </div>
-                        
-                        {result.answers[index].selectedAnswer === question.correctAnswer ? (
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                            Correct <Check className="ml-1 h-3 w-3" />
-                          </Badge>
-                        ) : result.answers[index].selectedAnswer !== null ? (
-                          <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                            Wrong <X className="ml-1 h-3 w-3" />
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline">
-                            Not Attempted
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <p className="text-sm mb-2">{index + 1}. {question.text}</p>
-                      
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {result.answers[index].selectedAnswer !== null ? (
-                          <>Your answer: {question.options[result.answers[index].selectedAnswer || 0]}</>
-                        ) : (
-                          <>You did not answer this question</>
-                        )}
-                      </div>
-                      
-                      <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-                        Correct answer: {question.options[question.correctAnswer]}
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="subjects" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Math performance */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center">
-                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 mr-2">
-                        Math
-                      </Badge>
-                      <div className="text-base">
-                        {Math.round(
-                          (result.score.maths / 
-                          Math.max(1, result.questionDetails?.filter(q => q.subject === 'Maths').length || 1)) * 100
-                        )}%
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Total Questions</span>
-                        <span>{result.questionDetails?.filter(q => q.subject === 'Maths').length || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Correct Answers</span>
-                        <span>{result.score.maths}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Wrong Answers</span>
-                        <span>{(result.questionDetails?.filter(q => q.subject === 'Maths').length || 0) - result.score.maths}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Unattempted</span>
-                        <span>{result.questionDetails?.filter((q, i) => q.subject === 'Maths' && 
-                          result.answers[i].selectedAnswer === null).length || 0}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Physics performance */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center">
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 mr-2">
-                        Physics
-                      </Badge>
-                      <div className="text-base">
-                        {Math.round(
-                          (result.score.physics / 
-                          Math.max(1, result.questionDetails?.filter(q => q.subject === 'Physics').length || 1)) * 100
-                        )}%
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Total Questions</span>
-                        <span>{result.questionDetails?.filter(q => q.subject === 'Physics').length || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Correct Answers</span>
-                        <span>{result.score.physics}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Wrong Answers</span>
-                        <span>{(result.questionDetails?.filter(q => q.subject === 'Physics').length || 0) - result.score.physics}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Unattempted</span>
-                        <span>{result.questionDetails?.filter((q, i) => q.subject === 'Physics' && 
-                          result.answers[i].selectedAnswer === null).length || 0}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Chemistry performance */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center">
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 mr-2">
-                        Chemistry
-                      </Badge>
-                      <div className="text-base">
-                        {Math.round(
-                          (result.score.chemistry / 
-                          Math.max(1, result.questionDetails?.filter(q => q.subject === 'Chemistry').length || 1)) * 100
-                        )}%
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Total Questions</span>
-                        <span>{result.questionDetails?.filter(q => q.subject === 'Chemistry').length || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Correct Answers</span>
-                        <span>{result.score.chemistry}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Wrong Answers</span>
-                        <span>{(result.questionDetails?.filter(q => q.subject === 'Chemistry').length || 0) - result.score.chemistry}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Unattempted</span>
-                        <span>{result.questionDetails?.filter((q, i) => q.subject === 'Chemistry' && 
-                          result.answers[i].selectedAnswer === null).length || 0}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="improvements" className="space-y-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Improvement Areas</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    {(result.improvementAreas || []).map((area, index) => (
-                      <div key={`improvement-${index}`} className="flex items-start gap-2">
-                        {area.toLowerCase().includes('focus') ? (
-                          <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
-                        ) : area.toLowerCase().includes('time') ? (
-                          <Timer className="h-5 w-5 text-amber-500 mt-0.5" />
-                        ) : area.toLowerCase().includes('attempt') ? (
-                          <FileQuestion className="h-5 w-5 text-amber-500 mt-0.5" />
-                        ) : (
-                          <Flag className="h-5 w-5 text-amber-500 mt-0.5" />
-                        )}
-                        <div>
-                          <h4 className="font-medium">{area.split(':')[0] || "Improvement Area"}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {area}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
                     
-                    {(!result.improvementAreas || result.improvementAreas.length === 0) && (
-                      <div className="flex items-start gap-2">
-                        <Trophy className="h-5 w-5 text-yellow-500 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium">Great Performance!</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            You're doing well! Continue practicing regularly to maintain and improve your performance.
-                          </p>
-                        </div>
+                    {!isCorrect && (
+                      <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 text-sm rounded-md border border-blue-200 dark:border-blue-800">
+                        <h5 className="font-medium mb-1">Explanation:</h5>
+                        {question.explanation}
                       </div>
                     )}
                   </div>
-                  
-                  {/* General advice */}
-                  <StudyTip 
-                    title="Continued Improvement" 
-                    tip="Regular practice is key to success in competitive exams. Try to take at least 1-2 practice tests every week and analyze your mistakes carefully."
-                    variant="success"
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+        </Tabs>
         
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={onReturn}>
             Return to Home
           </Button>
           <Button onClick={onRetry}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+            Try Again
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SubjectScore({ subject, score, total }: { subject: string, score: number, total: number }) {
+  if (total === 0) return null;
+  
+  const percentage = Math.round((score / total) * 100);
+  let color = "text-red-500";
+  
+  if (percentage >= 80) color = "text-green-500";
+  else if (percentage >= 60) color = "text-amber-500";
+  
+  return (
+    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+      <h4 className="font-medium mb-2">{subject}</h4>
+      <div className="flex justify-between items-center">
+        <div>{score}/{total} correct</div>
+        <div className={`font-bold text-lg ${color}`}>{percentage}%</div>
+      </div>
+    </div>
+  );
+}
+
+function DifficultyScore({ 
+  level, 
+  correct, 
+  total, 
+  variant 
+}: { 
+  level: string, 
+  correct: number, 
+  total: number, 
+  variant: 'success' | 'warning' | 'danger' 
+}) {
+  if (total === 0) return null;
+  
+  const percentage = Math.round((correct / total) * 100);
+  let bgColor = "bg-gray-50 dark:bg-gray-800";
+  let textColor = "text-gray-800 dark:text-gray-200";
+  
+  if (variant === 'success') {
+    bgColor = "bg-green-50 dark:bg-green-900/20";
+    textColor = "text-green-800 dark:text-green-300";
+  } else if (variant === 'warning') {
+    bgColor = "bg-amber-50 dark:bg-amber-900/20";
+    textColor = "text-amber-800 dark:text-amber-300";
+  } else if (variant === 'danger') {
+    bgColor = "bg-red-50 dark:bg-red-900/20";
+    textColor = "text-red-800 dark:text-red-300";
+  }
+  
+  return (
+    <div className={`${bgColor} p-4 rounded-lg`}>
+      <h4 className="font-medium mb-2">{level} Questions</h4>
+      <div className="flex justify-between items-center">
+        <div>{correct}/{total} correct</div>
+        <div className={`font-bold text-lg ${textColor}`}>{percentage}%</div>
+      </div>
+    </div>
   );
 }

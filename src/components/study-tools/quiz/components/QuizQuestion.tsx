@@ -37,7 +37,7 @@ export function QuizQuestion({
   nextQuestion
 }: QuizQuestionProps) {
   return (
-    <Card>
+    <Card className="shadow-sm">
       <CardContent className="pt-6">
         <h2 className="text-xl font-bold mb-6">
           {question.text}
@@ -52,12 +52,12 @@ export function QuizQuestion({
           {question.options.map((option, index) => (
             <div 
               key={index} 
-              className={`flex items-center space-x-2 border p-3 rounded-lg ${
+              className={`flex items-center space-x-2 border p-4 rounded-lg transition-colors ${
                 isAnswered && index === question.correctAnswer
                   ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
                   : isAnswered && index === selectedAnswer && index !== question.correctAnswer
                     ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700'
-                    : ''
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
               <RadioGroupItem 
