@@ -1,21 +1,15 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
-  Search, BookOpen, FileText, Video, ExternalLink, 
-  Filter, ChevronDown, Bookmark, Copy, Clock, Download,
-  ChevronLeft, Play, CheckCircle, Target
+  Search, BookOpen, FileText, Video, Link as LinkIcon, 
+  Download, Play, Lightbulb, CheckCircle, ExternalLink, 
+  Filter, ChevronDown, Bookmark, Copy, Clock
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useJEEData } from '@/context/jee';
-import { subjectIcons, chapterIcons } from '@/data/jeeData';
 import {
   Accordion,
   AccordionContent,
@@ -33,129 +27,200 @@ interface Resource {
   subject: 'Maths' | 'Physics' | 'Chemistry';
   chapter: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  category: 'learn' | 'practice' | 'test' | 'revise';
   tags: string[];
 }
 
 export function LearningResourcesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const { toast } = useToast();
-  const { jeeData, getProgressBySubject, getProgressByChapter } = useJEEData();
   
-  // Enhanced resource data with proper categorization
   const resources: Resource[] = [
-    // Mathematics Resources
+    // Resource data
     {
-      id: 'math-basic-1',
-      title: 'Fundamentals of Mathematics',
-      description: 'Complete foundation course covering number systems, basic operations, and mathematical reasoning',
+      id: 'math-complex-numbers-1',
+      title: 'Complex Numbers Fundamentals',
+      description: 'Learn the basics of complex numbers, operations, and properties',
       type: 'video',
       source: 'Khan Academy',
-      url: '#',
+      url: 'https://example.com/complex-numbers',
       subject: 'Maths',
-      chapter: 'Basic of Mathematics',
+      chapter: 'Complex Numbers',
       difficulty: 'beginner',
-      category: 'learn',
-      tags: ['foundation', 'basics']
-    },
-    {
-      id: 'math-basic-2',
-      title: 'Practice Problems - Basic Mathematics',
-      description: 'Comprehensive problem set for building mathematical foundation',
-      type: 'practice',
-      source: 'NCERT',
-      url: '#',
-      subject: 'Maths',
-      chapter: 'Basic of Mathematics',
-      difficulty: 'beginner',
-      category: 'practice',
-      tags: ['problems', 'practice']
+      tags: ['theory', 'fundamentals']
     },
     {
       id: 'math-quadratic-1',
-      title: 'Quadratic Equations Theory',
-      description: 'Complete theory with derivations and graphical interpretations',
+      title: 'Solving Quadratic Equations - Complete Guide',
+      description: 'Comprehensive techniques for solving all types of quadratic equations',
       type: 'pdf',
-      source: 'Reference Book',
-      url: '#',
+      source: 'NCERT',
+      url: 'https://example.com/quadratic-equations',
       subject: 'Maths',
-      chapter: 'Quadratic Equation',
+      chapter: 'Quadratic Equations',
       difficulty: 'intermediate',
-      category: 'learn',
-      tags: ['theory', 'graphs']
+      tags: ['reference', 'practice problems']
     },
     {
-      id: 'math-quadratic-2',
-      title: 'Quadratic Equations Test Series',
-      description: 'JEE Main level test with detailed solutions and explanations',
-      type: 'practice',
-      source: 'Test Series',
-      url: '#',
+      id: 'math-calculus-1',
+      title: 'Integration Techniques for JEE Advanced',
+      description: 'Advanced integration methods with solved problems from previous JEE papers',
+      type: 'article',
+      source: 'JEE Advanced Solutions',
+      url: 'https://example.com/integration-advanced',
       subject: 'Maths',
-      chapter: 'Quadratic Equation',
+      chapter: 'Integration',
+      difficulty: 'advanced',
+      tags: ['previous year', 'advanced techniques']
+    },
+    {
+      id: 'math-vectors-1',
+      title: 'Vector Algebra Practice Questions',
+      description: '100 practice problems with step-by-step solutions',
+      type: 'practice',
+      source: 'JEE Prep Materials',
+      url: 'https://example.com/vector-practice',
+      subject: 'Maths',
+      chapter: 'Vectors',
       difficulty: 'intermediate',
-      category: 'test',
-      tags: ['JEE Main', 'test']
+      tags: ['practice', 'solutions']
+    },
+    {
+      id: 'math-probability-1',
+      title: 'Interactive Probability Simulator',
+      description: 'Visual probability calculator with interactive examples',
+      type: 'interactive',
+      source: 'Math Interactive',
+      url: 'https://example.com/probability-simulator',
+      subject: 'Maths',
+      chapter: 'Probability',
+      difficulty: 'beginner',
+      tags: ['interactive', 'visual learning']
     },
     
-    // Physics Resources
     {
-      id: 'physics-units-1',
-      title: 'Units and Dimensions Fundamentals',
-      description: 'Master the concept of units, dimensions, and dimensional analysis',
+      id: 'physics-mechanics-1',
+      title: 'Mechanics: Forces and Motion',
+      description: 'Comprehensive video series on Newtonian mechanics',
       type: 'video',
-      source: 'Physics Wallah',
-      url: '#',
+      source: 'Physics Galaxy',
+      url: 'https://example.com/mechanics-series',
       subject: 'Physics',
-      chapter: 'Units and Dimensions',
-      difficulty: 'beginner',
-      category: 'learn',
-      tags: ['fundamentals', 'dimensional analysis']
+      chapter: 'Laws of Motion',
+      difficulty: 'intermediate',
+      tags: ['video series', 'conceptual']
     },
     {
-      id: 'physics-motion-1',
-      title: 'Motion in One Dimension - Complete Notes',
-      description: 'Comprehensive notes covering kinematics equations and graphical analysis',
+      id: 'physics-electrostatics-1',
+      title: 'Electric Fields and Potential',
+      description: 'Detailed study material with solved examples on electrostatics',
       type: 'pdf',
       source: 'HC Verma',
-      url: '#',
+      url: 'https://example.com/electrostatics-potential',
       subject: 'Physics',
-      chapter: 'Motion In One Dimension',
-      difficulty: 'intermediate',
-      category: 'learn',
-      tags: ['kinematics', 'graphs']
-    },
-    
-    // Chemistry Resources
-    {
-      id: 'chemistry-basic-1',
-      title: 'Basic Concepts of Chemistry',
-      description: 'Introduction to atoms, molecules, moles, and stoichiometry',
-      type: 'video',
-      source: 'Unacademy',
-      url: '#',
-      subject: 'Chemistry',
-      chapter: 'Some Basic Concepts of Chemistry',
-      difficulty: 'beginner',
-      category: 'learn',
-      tags: ['concepts', 'stoichiometry']
+      chapter: 'Electrostatics',
+      difficulty: 'advanced',
+      tags: ['theory', 'examples']
     },
     {
-      id: 'chemistry-atom-1',
-      title: 'Atomic Structure Interactive Model',
-      description: 'Visual representation of atomic structure and electron configuration',
+      id: 'physics-optics-1',
+      title: 'Wave Optics Simulator',
+      description: 'Interactive simulator for understanding wave phenomena in optics',
       type: 'interactive',
       source: 'PhET Simulations',
-      url: '#',
-      subject: 'Chemistry',
-      chapter: 'Structure of Atom',
+      url: 'https://example.com/wave-optics-simulator',
+      subject: 'Physics',
+      chapter: 'Wave Optics',
       difficulty: 'intermediate',
-      category: 'learn',
-      tags: ['interactive', 'visualization']
-    }
+      tags: ['simulation', 'interactive']
+    },
+    {
+      id: 'physics-modern-1',
+      title: 'Quantum Physics Explained',
+      description: 'Simple explanations of complex quantum physics concepts for JEE',
+      type: 'article',
+      source: 'Physics Today',
+      url: 'https://example.com/quantum-physics',
+      subject: 'Physics',
+      chapter: 'Modern Physics',
+      difficulty: 'advanced',
+      tags: ['conceptual', 'simplified']
+    },
+    {
+      id: 'physics-thermodynamics-1',
+      title: 'Thermodynamics Practice Problems',
+      description: 'Collection of thermodynamics problems from previous JEE papers',
+      type: 'practice',
+      source: 'JEE Archive',
+      url: 'https://example.com/thermodynamics-practice',
+      subject: 'Physics',
+      chapter: 'Thermodynamics',
+      difficulty: 'intermediate',
+      tags: ['practice', 'previous year']
+    },
+    
+    {
+      id: 'chemistry-periodic-1',
+      title: 'Periodic Table Trends',
+      description: 'Detailed video on periodic trends and properties',
+      type: 'video',
+      source: 'Chemistry Coach',
+      url: 'https://example.com/periodic-trends',
+      subject: 'Chemistry',
+      chapter: 'Periodic Table',
+      difficulty: 'beginner',
+      tags: ['fundamentals', 'trends']
+    },
+    {
+      id: 'chemistry-organic-1',
+      title: 'Organic Chemistry Reaction Mechanisms',
+      description: 'Comprehensive guide to organic reaction mechanisms with animations',
+      type: 'interactive',
+      source: 'Organic Chemistry Portal',
+      url: 'https://example.com/organic-mechanisms',
+      subject: 'Chemistry',
+      chapter: 'Organic Chemistry',
+      difficulty: 'advanced',
+      tags: ['mechanisms', 'animations']
+    },
+    {
+      id: 'chemistry-chemical-1',
+      title: 'Chemical Equilibrium Cheat Sheet',
+      description: 'Quick reference guide for all chemical equilibrium concepts',
+      type: 'pdf',
+      source: 'Chemistry Notes',
+      url: 'https://example.com/equilibrium-cheatsheet',
+      subject: 'Chemistry',
+      chapter: 'Chemical Equilibrium',
+      difficulty: 'intermediate',
+      tags: ['reference', 'quick study']
+    },
+    {
+      id: 'chemistry-bonding-1',
+      title: 'Chemical Bonding Practice Test',
+      description: 'Self-assessment test with detailed explanations',
+      type: 'practice',
+      source: 'Chemistry Practice',
+      url: 'https://example.com/bonding-practice',
+      subject: 'Chemistry',
+      chapter: 'Chemical Bonding',
+      difficulty: 'intermediate',
+      tags: ['test', 'assessment']
+    },
+    {
+      id: 'chemistry-coordination-1',
+      title: 'Understanding Coordination Compounds',
+      description: 'Detailed article on coordination chemistry with visualizations',
+      type: 'article',
+      source: 'Chemistry Journal',
+      url: 'https://example.com/coordination-compounds',
+      subject: 'Chemistry',
+      chapter: 'Coordination Compounds',
+      difficulty: 'advanced',
+      tags: ['theory', 'visualization']
+    },
   ];
 
   const filteredResources = resources.filter(resource => {
@@ -165,377 +230,324 @@ export function LearningResourcesPage() {
       resource.chapter.toLowerCase().includes(searchTerm.toLowerCase());
       
     const matchesSubject = selectedSubject === 'all' || resource.subject === selectedSubject;
-    const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
+    const matchesType = selectedType === 'all' || resource.type === selectedType;
+    const matchesDifficulty = selectedDifficulty === 'all' || resource.difficulty === selectedDifficulty;
     
-    return matchesSearch && matchesSubject && matchesCategory;
+    return matchesSearch && matchesSubject && matchesType && matchesDifficulty;
   });
 
+  const resourcesBySubject: Record<string, Resource[]> = {
+    'Maths': filteredResources.filter(r => r.subject === 'Maths'),
+    'Physics': filteredResources.filter(r => r.subject === 'Physics'),
+    'Chemistry': filteredResources.filter(r => r.subject === 'Chemistry')
+  };
+
+  const resourcesByChapter: Record<string, Record<string, Resource[]>> = {
+    'Maths': {},
+    'Physics': {},
+    'Chemistry': {}
+  };
+
+  for (const subject of ['Maths', 'Physics', 'Chemistry'] as const) {
+    for (const resource of resourcesBySubject[subject]) {
+      if (!resourcesByChapter[subject][resource.chapter]) {
+        resourcesByChapter[subject][resource.chapter] = [];
+      }
+      resourcesByChapter[subject][resource.chapter].push(resource);
+    }
+  }
+
   const handleBookmark = (resourceId: string) => {
-    setBookmarks(prev => {
-      const newBookmarks = prev.includes(resourceId) 
-        ? prev.filter(id => id !== resourceId)
-        : [...prev, resourceId];
-      
-      toast({
-        title: prev.includes(resourceId) ? "Bookmark removed" : "Resource bookmarked",
-        description: prev.includes(resourceId) 
-          ? "Resource removed from bookmarks" 
-          : "You can access bookmarked resources quickly",
-      });
-      
-      return newBookmarks;
+    toast({
+      title: "Resource bookmarked",
+      description: "You can access your bookmarked resources in your profile",
+    });
+  };
+
+  const handleCopyLink = (url: string) => {
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Link copied",
+      description: "Resource link copied to clipboard",
     });
   };
 
   const getResourceTypeIcon = (type: string) => {
     switch (type) {
-      case 'video': return <Video className="h-4 w-4" />;
-      case 'pdf': return <FileText className="h-4 w-4" />;
-      case 'article': return <BookOpen className="h-4 w-4" />;
-      case 'practice': return <CheckCircle className="h-4 w-4" />;
-      case 'interactive': return <Play className="h-4 w-4" />;
-      default: return <BookOpen className="h-4 w-4" />;
+      case 'video':
+        return <Video className="h-4 w-4" />;
+      case 'pdf':
+        return <FileText className="h-4 w-4" />;
+      case 'article':
+        return <BookOpen className="h-4 w-4" />;
+      case 'practice':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'interactive':
+        return <Play className="h-4 w-4" />;
+      default:
+        return <LinkIcon className="h-4 w-4" />;
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'learn': return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'practice': return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300';
-      case 'test': return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300';
-      case 'revise': return 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300';
+  const getResourceTypeColor = (type: string) => {
+    switch (type) {
+      case 'video':
+        return 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300';
+      case 'pdf':
+        return 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300';
+      case 'article':
+        return 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-300';
+      case 'practice':
+        return 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300';
+      case 'interactive':
+        return 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300';
+      default:
+        return 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-300';
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'learn': return '📚';
-      case 'practice': return '📝';
-      case 'test': return '🧪';
-      case 'revise': return '🔄';
-      default: return '📖';
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'beginner':
+        return 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300';
+      case 'intermediate':
+        return 'bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300';
+      case 'advanced':
+        return 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300';
+      default:
+        return 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-300';
     }
   };
 
   return (
-    <div className="container max-w-7xl py-8 space-y-8">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-4"
-      >
-        <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Home
-        </Link>
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Learning Resources
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Comprehensive study materials organized by subjects and chapters
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Download All
-            </Button>
-            <Button className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              Smart Recommendations
-            </Button>
-          </div>
+    <div className="container max-w-6xl py-8 animate-fade-in">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Learning Resources</h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Curated learning materials for JEE preparation
+          </p>
         </div>
-      </motion.div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Download All
+          </Button>
+          <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+            <Lightbulb className="h-4 w-4" />
+            Resource Recommendations
+          </Button>
+        </div>
+      </div>
       
-      {/* Search and Filters */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search resources, chapters, or topics..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              
-              <div className="flex gap-2 flex-wrap">
+      <Card className="mb-8">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search resources..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-1">
                 <select
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="bg-background border border-input rounded-md px-3 py-2 text-sm"
+                  className="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm"
                 >
                   <option value="all">All Subjects</option>
                   <option value="Maths">Mathematics</option>
                   <option value="Physics">Physics</option>
                   <option value="Chemistry">Chemistry</option>
                 </select>
-                
+              </div>
+              <div className="flex items-center gap-1">
                 <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="bg-background border border-input rounded-md px-3 py-2 text-sm"
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm"
                 >
-                  <option value="all">All Categories</option>
-                  <option value="learn">📚 Learn</option>
-                  <option value="practice">📝 Practice</option>
-                  <option value="test">🧪 Test</option>
-                  <option value="revise">🔄 Revise</option>
+                  <option value="all">All Types</option>
+                  <option value="video">Videos</option>
+                  <option value="pdf">PDFs</option>
+                  <option value="article">Articles</option>
+                  <option value="practice">Practice</option>
+                  <option value="interactive">Interactive</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-1">
+                <select
+                  value={selectedDifficulty}
+                  onChange={(e) => setSelectedDifficulty(e.target.value)}
+                  className="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm"
+                >
+                  <option value="all">All Levels</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
                 </select>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </div>
+        </CardContent>
+      </Card>
       
-      {/* Subject Overview Cards */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        {(['Maths', 'Physics', 'Chemistry'] as const).map((subject, index) => {
-          const progress = getProgressBySubject(subject);
-          const chapters = Object.keys(jeeData.subjects[subject] || {});
-          const subjectResources = resources.filter(r => r.subject === subject);
-          
-          return (
-            <motion.div
-              key={subject}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-            >
-              <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <CardHeader className="relative">
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl">{subjectIcons[subject]}</div>
-                    <div>
-                      <CardTitle className="text-xl">{subject}</CardTitle>
-                      <CardDescription>{chapters.length} chapters</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="relative space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Progress</span>
-                      <span className="font-medium">{Math.round(progress)}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                  </div>
-                  
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{subjectResources.length} resources</span>
-                    <Link 
-                      to={`/subject/${subject}`}
-                      className="text-primary hover:underline"
-                    >
-                      View Details →
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </motion.div>
-      
-      {/* Resources by Subject */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-fit">
-            <TabsTrigger value="all">All Resources</TabsTrigger>
-            <TabsTrigger value="bookmarks">
-              <Bookmark className="h-4 w-4 mr-2" />
-              Bookmarks
-            </TabsTrigger>
-            <TabsTrigger value="recent">
-              <Clock className="h-4 w-4 mr-2" />
-              Recent
-            </TabsTrigger>
-            <TabsTrigger value="recommended">
-              <Target className="h-4 w-4 mr-2" />
-              For You
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all">
-            {(['Maths', 'Physics', 'Chemistry'] as const).map((subject) => {
-              const subjectResources = filteredResources.filter(r => r.subject === subject);
-              if (subjectResources.length === 0) return null;
-              
-              // Group resources by chapter
-              const chapterGroups = subjectResources.reduce((acc, resource) => {
-                if (!acc[resource.chapter]) acc[resource.chapter] = [];
-                acc[resource.chapter].push(resource);
-                return acc;
-              }, {} as Record<string, Resource[]>);
-              
-              return (
-                <motion.div 
-                  key={subject}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-6"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl">{subjectIcons[subject]}</div>
-                    <h2 className="text-2xl font-bold">{subject}</h2>
-                    <Badge variant="outline">{subjectResources.length} resources</Badge>
-                  </div>
-                  
-                  <Accordion type="multiple" defaultValue={Object.keys(chapterGroups)}>
-                    {Object.entries(chapterGroups).map(([chapter, chapterResources]) => (
-                      <AccordionItem key={chapter} value={chapter}>
-                        <AccordionTrigger className="hover:bg-muted/50 px-4 py-3 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="text-xl">{chapterIcons[chapter] || '📖'}</div>
-                            <div className="text-left">
-                              <div className="font-medium">{chapter}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {chapterResources.length} resources • {Math.round(getProgressByChapter(subject, chapter))}% complete
-                              </div>
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="all">All Resources</TabsTrigger>
+          <TabsTrigger value="bookmarks">Bookmarked</TabsTrigger>
+          <TabsTrigger value="recent">Recently Viewed</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all">
+          {filteredResources.length === 0 ? (
+            <div className="text-center py-12">
+              <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No resources found</h3>
+              <p className="text-gray-500">Try changing your search or filter criteria</p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {(['Maths', 'Physics', 'Chemistry'] as const).map(subject => {
+                if (resourcesBySubject[subject].length === 0) return null;
+                
+                return (
+                  <div key={subject}>
+                    <h2 className="text-xl font-bold mb-4 flex items-center">
+                      {subject === 'Maths' ? (
+                        <div className="bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300 p-1 rounded mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      ) : subject === 'Physics' ? (
+                        <div className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 p-1 rounded mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 p-1 rounded mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                          </svg>
+                        </div>
+                      )}
+                      {subject}
+                    </h2>
+                    
+                    <Accordion type="multiple" defaultValue={Object.keys(resourcesByChapter[subject])}>
+                      {Object.entries(resourcesByChapter[subject]).map(([chapter, chapterResources]) => (
+                        <AccordionItem key={chapter} value={chapter}>
+                          <AccordionTrigger className="hover:bg-gray-50 dark:hover:bg-gray-800 px-4 py-2 rounded-lg">
+                            {chapter} ({chapterResources.length})
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-3 p-2">
+                              {chapterResources.map(resource => (
+                                <Card 
+                                  key={resource.id} 
+                                  className="overflow-hidden hover:shadow transition-all"
+                                >
+                                  <CardContent className="p-0">
+                                    <div className="p-4">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <div className="flex items-center gap-2">
+                                          <Badge className={`flex items-center gap-1 ${getResourceTypeColor(resource.type)}`}>
+                                            {getResourceTypeIcon(resource.type)}
+                                            {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
+                                          </Badge>
+                                          <Badge variant="outline" className={getDifficultyColor(resource.difficulty)}>
+                                            {resource.difficulty.charAt(0).toUpperCase() + resource.difficulty.slice(1)}
+                                          </Badge>
+                                        </div>
+                                        <div className="flex gap-1">
+                                          <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-8 w-8" 
+                                            onClick={() => handleBookmark(resource.id)}
+                                          >
+                                            <Bookmark className="h-4 w-4 text-gray-400" />
+                                          </Button>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-8 w-8"
+                                            onClick={() => handleCopyLink(resource.url)}
+                                          >
+                                            <Copy className="h-4 w-4 text-gray-400" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                      
+                                      <h3 className="font-semibold text-lg mb-1">{resource.title}</h3>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                        {resource.description}
+                                      </p>
+                                      
+                                      <div className="flex flex-wrap items-center justify-between">
+                                        <div className="text-xs text-gray-500">
+                                          Source: <span className="font-medium">{resource.source}</span>
+                                        </div>
+                                        <Button
+                                          variant="outline" 
+                                          size="sm"
+                                          className="text-xs h-8"
+                                          asChild
+                                        >
+                                          <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                                            Open Resource
+                                            <ExternalLink className="ml-1 h-3 w-3" />
+                                          </a>
+                                        </Button>
+                                      </div>
+                                      
+                                      {resource.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mt-3">
+                                          {resource.tags.map(tag => (
+                                            <Badge key={tag} variant="secondary" className="text-xs">
+                                              {tag}
+                                            </Badge>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
                             </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          {/* Category tabs for each chapter */}
-                          <Tabs defaultValue="all" className="mt-4">
-                            <TabsList className="grid w-full grid-cols-5">
-                              <TabsTrigger value="all">All</TabsTrigger>
-                              <TabsTrigger value="learn">📚 Learn</TabsTrigger>
-                              <TabsTrigger value="practice">📝 Practice</TabsTrigger>
-                              <TabsTrigger value="test">🧪 Test</TabsTrigger>
-                              <TabsTrigger value="revise">🔄 Revise</TabsTrigger>
-                            </TabsList>
-                            
-                            {['all', 'learn', 'practice', 'test', 'revise'].map(category => (
-                              <TabsContent key={category} value={category}>
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-                                  {chapterResources
-                                    .filter(r => category === 'all' || r.category === category)
-                                    .map((resource, index) => (
-                                    <motion.div
-                                      key={resource.id}
-                                      initial={{ opacity: 0, y: 10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{ delay: index * 0.05 }}
-                                    >
-                                      <Card className="h-full hover:shadow-md transition-all duration-200 group">
-                                        <CardContent className="p-4">
-                                          <div className="flex justify-between items-start mb-3">
-                                            <div className="flex items-center gap-2">
-                                              <Badge className={`${getCategoryColor(resource.category)} border`}>
-                                                {getResourceTypeIcon(resource.type)}
-                                                {resource.type}
-                                              </Badge>
-                                              <Badge variant="outline" className={getCategoryColor(resource.category)}>
-                                                {getCategoryIcon(resource.category)} {resource.category}
-                                              </Badge>
-                                            </div>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-8 w-8"
-                                              onClick={() => handleBookmark(resource.id)}
-                                            >
-                                              <Bookmark 
-                                                className={`h-4 w-4 ${
-                                                  bookmarks.includes(resource.id) 
-                                                    ? 'fill-primary text-primary' 
-                                                    : 'text-muted-foreground'
-                                                }`} 
-                                              />
-                                            </Button>
-                                          </div>
-                                          
-                                          <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">
-                                            {resource.title}
-                                          </h3>
-                                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                                            {resource.description}
-                                          </p>
-                                          
-                                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                            <span>Source: <span className="font-medium">{resource.source}</span></span>
-                                            <Button size="sm" variant="outline" className="h-7 text-xs">
-                                              Open Resource
-                                              <ExternalLink className="ml-1 h-3 w-3" />
-                                            </Button>
-                                          </div>
-                                          
-                                          {resource.tags.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 mt-3">
-                                              {resource.tags.map(tag => (
-                                                <Badge key={tag} variant="secondary" className="text-xs">
-                                                  {tag}
-                                                </Badge>
-                                              ))}
-                                            </div>
-                                          )}
-                                        </CardContent>
-                                      </Card>
-                                    </motion.div>
-                                  ))}
-                                </div>
-                              </TabsContent>
-                            ))}
-                          </Tabs>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </motion.div>
-              );
-            })}
-          </TabsContent>
-          
-          <TabsContent value="bookmarks">
-            <div className="text-center py-12">
-              <Bookmark className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No bookmarked resources</h3>
-              <p className="text-muted-foreground">Bookmark resources to access them quickly later</p>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
+                );
+              })}
             </div>
-          </TabsContent>
-          
-          <TabsContent value="recent">
-            <div className="text-center py-12">
-              <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No recent resources</h3>
-              <p className="text-muted-foreground">Resources you access will appear here</p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="recommended">
-            <div className="text-center py-12">
-              <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Personalized recommendations coming soon</h3>
-              <p className="text-muted-foreground">We'll suggest resources based on your study progress and weak areas</p>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="bookmarks">
+          <div className="text-center py-12">
+            <Bookmark className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No bookmarked resources</h3>
+            <p className="text-gray-500">Bookmark resources to access them quickly later</p>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="recent">
+          <div className="text-center py-12">
+            <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No recent resources</h3>
+            <p className="text-gray-500">Resources you view will appear here</p>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
