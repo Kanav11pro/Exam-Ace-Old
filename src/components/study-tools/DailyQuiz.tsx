@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -342,17 +341,39 @@ export function DailyQuiz() {
     updateQuestionStatus(currentQuestionIndex, isMarked ? 'answered-marked' : 'answered');
   };
   
+  // Jump to a specific question
+  const jumpToQuestion = (index: number) => {
+    if (index >= 0 && index < quizQuestions.length) {
+      setCurrentQuestionIndex(index);
+      
+      // Get the saved answer for this question, or reset to null
+      const savedAnswer = userAnswers[index];
+      setSelectedAnswer(savedAnswer !== undefined ? savedAnswer : null);
+      setIsAnswered(savedAnswer !== null);
+      setShowExplanation(false);
+      
+      // Update status if not visited before
+      if (questionStatuses[index]?.status === 'not-visited') {
+        updateQuestionStatus(index, 'not-answered');
+      }
+    }
+  };
+  
   // Next question handler
   const nextQuestion = () => {
     if (currentQuestionIndex < quizQuestions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setIsAnswered(false);
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      
+      // Get the saved answer for the next question, or reset to null
+      const savedAnswer = userAnswers[nextIndex];
+      setSelectedAnswer(savedAnswer !== undefined ? savedAnswer : null);
+      setIsAnswered(savedAnswer !== null);
       setShowExplanation(false);
       
       // Update status of the next question if it was not visited before
-      if (questionStatuses[currentQuestionIndex + 1]?.status === 'not-visited') {
-        updateQuestionStatus(currentQuestionIndex + 1, 'not-answered');
+      if (questionStatuses[nextIndex]?.status === 'not-visited') {
+        updateQuestionStatus(nextIndex, 'not-answered');
       }
     } else {
       // Quiz completed
@@ -388,21 +409,6 @@ export function DailyQuiz() {
       
       // Clear incomplete quiz
       localStorage.removeItem('jeeDailyQuizIncomplete');
-    }
-  };
-  
-  // Jump to a specific question
-  const jumpToQuestion = (index: number) => {
-    if (index >= 0 && index < quizQuestions.length) {
-      setCurrentQuestionIndex(index);
-      setSelectedAnswer(userAnswers[index]);
-      setIsAnswered(userAnswers[index] !== null);
-      setShowExplanation(false);
-      
-      // Update status if not visited before
-      if (questionStatuses[index]?.status === 'not-visited') {
-        updateQuestionStatus(index, 'not-answered');
-      }
     }
   };
   
