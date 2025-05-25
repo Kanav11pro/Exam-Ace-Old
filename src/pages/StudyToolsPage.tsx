@@ -1,687 +1,393 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
-import { Search, Clock, BookMinus, Brain, Target, Calculator, Calendar, BookMarked, Music2, Bookmark, Eye, Trophy, FileQuestion, BookCheck, Sparkles, BellRing, PenLine, BookOpen, Star, Filter, BrainCircuit, ClipboardCheck, ArrowLeft, ArrowRight, Lightbulb } from 'lucide-react';
-import { motion } from 'framer-motion';
 
-// Study tool interface
-interface StudyTool {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
-  category: 'time' | 'content' | 'practice' | 'wellness' | 'organization';
-  favorite?: boolean;
-}
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { studyTools } from '@/data/jeeData';
+import { 
+  Search, Filter, Heart, Clock, Star, Zap, 
+  ChevronLeft, Grid3X3, List, Bookmark
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/components/ui/use-toast';
 
 const StudyToolsPage = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [tools, setTools] = useState<StudyTool[]>([]);
-  const [visibleCategories, setVisibleCategories] = useState<string[]>(['all']);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [recentlyUsed, setRecentlyUsed] = useState<string[]>([]);
+  const { toast } = useToast();
 
-  // Define study tools
-  const studyTools: StudyTool[] = [
-    // Time Management Category
-    {
-      id: 'pomodoro-timer',
-      name: 'Pomodoro Timer',
-      description: 'Focus with time-boxed intervals and breaks',
-      icon: <Clock className="h-6 w-6 text-red-500" />,
-      category: 'time'
-    }, 
-    {
-      id: 'study-timer',
-      name: 'Study Timer',
-      description: 'Track your study sessions and statistics',
-      icon: <Clock className="h-6 w-6 text-blue-500" />,
-      category: 'time'
-    },
-    {
-      id: 'eye-rest-timer',
-      name: 'Eye Rest Timer',
-      description: '20-20-20 rule timer for eye strain relief',
-      icon: <Eye className="h-6 w-6 text-teal-500" />,
-      category: 'wellness'
-    },
-    
-    // Content & Notes Category
-    {
-      id: 'note-taker',
-      name: 'Note Taker',
-      description: 'Take organized notes while studying',
-      icon: <PenLine className="h-6 w-6 text-violet-500" />,
-      category: 'content'
-    },
-    {
-      id: 'formula-sheet',
-      name: 'Formula Sheet',
-      description: 'Quick access to essential formulas',
-      icon: <Calculator className="h-6 w-6 text-rose-500" />,
-      category: 'content'
-    },
-    {
-      id: 'learning-resources',
-      name: 'Learning Resources',
-      description: 'Curated resources for each chapter',
-      icon: <BookOpen className="h-6 w-6 text-green-500" />,
-      category: 'content'
-    },
-    
-    // Practice & Revision Category
-    {
-      id: 'flashcards',
-      name: 'Flashcards',
-      description: 'Create and practice with digital flashcards',
-      icon: <BookCheck className="h-6 w-6 text-emerald-500" />,
-      category: 'practice'
-    },
-    {
-      id: 'error-log',
-      name: 'Error Log',
-      description: 'Track and review your mistakes',
-      icon: <ClipboardCheck className="h-6 w-6 text-red-500" />,
-      category: 'practice'
-    },
-    {
-      id: 'daily-quiz',
-      name: 'Daily Quiz',
-      description: 'Test your knowledge with quick quizzes',
-      icon: <BookMinus className="h-6 w-6 text-green-500" />,
-      category: 'practice'
-    },
-    {
-      id: 'question-generator',
-      name: 'Question Generator',
-      description: 'Generate practice questions by topic',
-      icon: <FileQuestion className="h-6 w-6 text-indigo-500" />,
-      category: 'practice'
-    },
-    {
-      id: 'mock-tests',
-      name: 'Mock Tests',
-      description: 'Full JEE simulation with timer',
-      icon: <Brain className="h-6 w-6 text-blue-500" />,
-      category: 'practice'
-    },
-    
-    // Wellness & Focus Category
-    {
-      id: 'focus-mode',
-      name: 'Focus Mode',
-      description: 'Eliminate distractions and stay focused',
-      icon: <BrainCircuit className="h-6 w-6 text-indigo-500" />,
-      category: 'wellness'
-    },
-    {
-      id: 'mindfulness',
-      name: 'Mindfulness',
-      description: 'Guided meditation for better focus',
-      icon: <Sparkles className="h-6 w-6 text-amber-500" />,
-      category: 'wellness'
-    },
-    {
-      id: 'study-music',
-      name: 'Study Music',
-      description: 'Concentration music & binaural beats',
-      icon: <Music2 className="h-6 w-6 text-blue-500" />,
-      category: 'wellness'
-    },
-    {
-      id: 'achievements',
-      name: 'Achievements & Badges',
-      description: 'Earn badges for your study accomplishments',
-      icon: <Trophy className="h-6 w-6 text-amber-500" />,
-      category: 'wellness'
-    },
-    
-    // Organization Category
-    {
-      id: 'goal-tracker',
-      name: 'Goal Tracker',
-      description: 'Set and track your study goals',
-      icon: <Target className="h-6 w-6 text-orange-500" />,
-      category: 'organization'
-    },
-    {
-      id: 'weekly-planner',
-      name: 'Weekly Planner',
-      description: 'Plan your study schedule for the week',
-      icon: <Calendar className="h-6 w-6 text-cyan-500" />,
-      category: 'organization'
-    },
-    {
-      id: 'revision-reminder',
-      name: 'Revision Reminder',
-      description: 'Spaced repetition based on forgetting curve',
-      icon: <BellRing className="h-6 w-6 text-purple-500" />,
-      category: 'organization'
-    },
-    {
-      id: 'bookmark-manager',
-      name: 'Bookmark Manager',
-      description: 'Save important topics and questions',
-      icon: <Bookmark className="h-6 w-6 text-yellow-500" />,
-      category: 'organization'
-    }
-  ];
-
-  // Load favorites from localStorage
+  // Load favorites and recently used from localStorage
   useEffect(() => {
-    const savedFavorites = localStorage.getItem('favoriteStudyTools');
-    if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites) as string[];
-      const toolsWithFavorites = studyTools.map(tool => ({
-        ...tool,
-        favorite: favoriteIds.includes(tool.id)
-      }));
-      setTools(toolsWithFavorites);
-    } else {
-      setTools(studyTools);
-    }
+    const savedFavorites = localStorage.getItem('studyToolsFavorites');
+    const savedRecent = localStorage.getItem('studyToolsRecent');
     
-    // Initialize visible categories
-    setVisibleCategories(['time', 'practice', 'content', 'organization', 'wellness']);
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+    if (savedRecent) {
+      setRecentlyUsed(JSON.parse(savedRecent));
+    }
   }, []);
 
-  // Save favorites to localStorage
-  const saveFavorites = (updatedTools: StudyTool[]) => {
-    const favoriteIds = updatedTools.filter(tool => tool.favorite).map(tool => tool.id);
-    localStorage.setItem('favoriteStudyTools', JSON.stringify(favoriteIds));
-  };
+  // Save to localStorage when favorites change
+  useEffect(() => {
+    localStorage.setItem('studyToolsFavorites', JSON.stringify(favorites));
+  }, [favorites]);
 
-  // Toggle favorite status
-  const toggleFavorite = (id: string) => {
-    const updatedTools = tools.map(tool => tool.id === id ? {
-      ...tool,
-      favorite: !tool.favorite
-    } : tool);
-    setTools(updatedTools);
-    saveFavorites(updatedTools);
-  };
+  useEffect(() => {
+    localStorage.setItem('studyToolsRecent', JSON.stringify(recentlyUsed));
+  }, [recentlyUsed]);
 
-  // Filter tools based on search term and category
-  const getFilteredTools = (category: string) => {
-    return tools.filter(tool => {
-      const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           tool.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = category === 'all' || tool.category === category;
-      return matchesSearch && matchesCategory;
+  const categories = ['all', 'productivity', 'revision', 'organization', 'practice', 'wellbeing'];
+  
+  const filteredTools = studyTools.filter(tool => {
+    const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         tool.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || tool.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const favoriteTools = studyTools.filter(tool => favorites.includes(tool.id));
+  const recentTools = studyTools.filter(tool => recentlyUsed.includes(tool.id));
+
+  const toggleFavorite = (toolId: string) => {
+    setFavorites(prev => {
+      const newFavorites = prev.includes(toolId) 
+        ? prev.filter(id => id !== toolId)
+        : [...prev, toolId];
+      
+      toast({
+        title: prev.includes(toolId) ? "Removed from favorites" : "Added to favorites",
+        description: "Your favorites have been updated",
+      });
+      
+      return newFavorites;
     });
   };
 
-  // Get favorites
-  const favoriteTools = tools.filter(tool => tool.favorite);
-
-  // Navigate to the selected tool
-  const navigateToTool = (id: string) => {
-    navigate(`/tools/${id}`);
+  const addToRecent = (toolId: string) => {
+    setRecentlyUsed(prev => {
+      const filtered = prev.filter(id => id !== toolId);
+      return [toolId, ...filtered].slice(0, 10); // Keep only last 10
+    });
   };
 
-  // Category labels
-  const categoryLabels: Record<string, string> = {
-    'all': 'All Tools',
-    'time': 'Time Management',
-    'content': 'Content & Notes',
-    'practice': 'Practice & Revision',
-    'wellness': 'Wellness & Focus',
-    'organization': 'Organization'
-  };
-
-  // Category styles
-  const getCategoryStyle = (category: string) => {
-    const styles: Record<string, string> = {
-      'time': 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300',
-      'content': 'bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-300',
-      'practice': 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300',
-      'wellness': 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300',
-      'organization': 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/20 dark:border-cyan-800 dark:text-cyan-300'
-    };
-    return styles[category] || '';
-  };
-
-  // Category background gradients
-  const getCategoryGradient = (category: string) => {
-    const gradients: Record<string, string> = {
-      'time': 'from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20',
-      'content': 'from-violet-100 to-violet-50 dark:from-violet-900/30 dark:to-violet-800/20',
-      'practice': 'from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20',
-      'wellness': 'from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20',
-      'organization': 'from-cyan-100 to-cyan-50 dark:from-cyan-900/30 dark:to-cyan-800/20'
-    };
-    return gradients[category] || '';
-  };
-  
-  // Animation variants
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'productivity': return '⚡';
+      case 'revision': return '🔄';
+      case 'organization': return '📋';
+      case 'practice': return '📝';
+      case 'wellbeing': return '🧘';
+      default: return '🛠️';
     }
   };
-  
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'productivity': return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'revision': return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300';
+      case 'organization': return 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300';
+      case 'practice': return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300';
+      case 'wellbeing': return 'bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-900/30 dark:text-pink-300';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300';
+    }
   };
 
-  const floatingIcons = [
-    { icon: <Calculator className="text-blue-300 dark:text-blue-700" />, delay: 0, size: "h-10 w-10" },
-    { icon: <BookOpen className="text-green-300 dark:text-green-700" />, delay: 2, size: "h-12 w-12" },
-    { icon: <Brain className="text-purple-300 dark:text-purple-700" />, delay: 4, size: "h-14 w-14" },
-    { icon: <Clock className="text-amber-300 dark:text-amber-700" />, delay: 1, size: "h-8 w-8" },
-    { icon: <Lightbulb className="text-yellow-300 dark:text-yellow-700" />, delay: 3, size: "h-9 w-9" },
-    { icon: <Target className="text-red-300 dark:text-red-700" />, delay: 5, size: "h-11 w-11" },
-  ];
-  
-  return (
-    <motion.div 
-      className="relative container max-w-6xl py-4 sm:py-8 px-4 sm:px-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+  const ToolCard = ({ tool, index }: { tool: typeof studyTools[0], index: number }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="group"
     >
-      {/* Animated Background Graphics */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-        {/* Floating study icons */}
-        {floatingIcons.map((item, index) => (
-          <motion.div
-            key={index}
-            className={`absolute opacity-20 ${item.size} hidden sm:block`}
-            style={{
-              top: `${Math.random() * 70 + 10}%`,
-              left: `${Math.random() * 80 + 10}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 10, 0, -10, 0],
-              opacity: [0.1, 0.2, 0.1]
-            }}
-            transition={{
-              duration: Math.random() * 5 + 15,
-              repeat: Infinity,
-              delay: item.delay,
-            }}
-          >
-            {item.icon}
-          </motion.div>
-        ))}
-
-        {/* Gradient blobs */}
-        <div className="study-blob study-blob-1 hidden sm:block"></div>
-        <div className="study-blob study-blob-2 hidden sm:block"></div>
-        <div className="study-blob study-blob-3 hidden sm:block"></div>
-        
-        {/* Circle patterns */}
-        <svg width="100%" height="100%" className="absolute top-0 left-0 opacity-5 dark:opacity-10 hidden sm:block">
-          <pattern id="pattern-circles" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
-            <circle id="pattern-circle" cx="10" cy="10" r="1.6257413380501518" fill="none" stroke="currentColor" strokeWidth="1"></circle>
-          </pattern>
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-circles)"></rect>
-        </svg>
-      </div>
-
-      {/* Page Header */}
-      <div className="relative">
-        <div className="flex items-center mb-4">
+      <Card className="h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer relative overflow-hidden">
+        <div className="absolute top-3 right-3 z-10">
           <Button
             variant="ghost"
             size="icon"
-            className="mr-2"
-            onClick={() => navigate('/')}
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.preventDefault();
+              toggleFavorite(tool.id);
+            }}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <Heart 
+              className={`h-4 w-4 ${favorites.includes(tool.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
+            />
           </Button>
-          <motion.h1 
-            className="text-2xl sm:text-3xl font-bold relative" 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Study Tools
-            <motion.span 
-              className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: '100%' }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            ></motion.span>
-          </motion.h1>
         </div>
-        <motion.p 
-          className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl text-sm sm:text-base"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+        
+        <Link 
+          to={`/tools/${tool.id}`}
+          onClick={() => addToRecent(tool.id)}
+          className="block h-full"
         >
-          Enhance your JEE preparation with these specialized tools designed to streamline your study process, 
-          improve retention, and boost your productivity.
-        </motion.p>
-      </div>
-      
-      {/* Search and Filter */}
+          <CardHeader className="pb-3">
+            <div className="flex items-start gap-3">
+              <div className="text-3xl">{tool.icon}</div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                  {tool.name}
+                </CardTitle>
+                <Badge 
+                  variant="outline" 
+                  className={`mt-2 ${getCategoryColor(tool.category)}`}
+                >
+                  {getCategoryIcon(tool.category)} {tool.category}
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-sm leading-relaxed">
+              {tool.description}
+            </CardDescription>
+            
+            {recentlyUsed.includes(tool.id) && (
+              <Badge variant="outline" className="mt-3 bg-blue-50 text-blue-600 border-blue-200">
+                <Clock className="h-3 w-3 mr-1" />
+                Recently Used
+              </Badge>
+            )}
+          </CardContent>
+        </Link>
+      </Card>
+    </motion.div>
+  );
+
+  const ListToolCard = ({ tool, index }: { tool: typeof studyTools[0], index: number }) => (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card className="hover:shadow-md transition-all duration-200">
+        <Link 
+          to={`/tools/${tool.id}`}
+          onClick={() => addToRecent(tool.id)}
+          className="block"
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="text-2xl">{tool.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold hover:text-primary transition-colors">{tool.name}</h3>
+                  <Badge variant="outline" className={`${getCategoryColor(tool.category)} text-xs`}>
+                    {tool.category}
+                  </Badge>
+                  {recentlyUsed.includes(tool.id) && (
+                    <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 text-xs">
+                      Recent
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">{tool.description}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleFavorite(tool.id);
+                }}
+              >
+                <Heart 
+                  className={`h-4 w-4 ${favorites.includes(tool.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
+                />
+              </Button>
+            </div>
+          </CardContent>
+        </Link>
+      </Card>
+    </motion.div>
+  );
+
+  return (
+    <div className="container max-w-7xl py-8 space-y-8">
+      {/* Header */}
       <motion.div 
-        className="flex flex-col sm:flex-row gap-4 items-center mb-6 z-10 relative"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
+        className="space-y-4"
       >
-        <div className="relative w-full sm:w-auto flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input 
-            placeholder="Search tools..." 
-            value={searchTerm} 
-            onChange={e => setSearchTerm(e.target.value)} 
-            className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-          />
-        </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="h-4 w-4 text-gray-500" />
-          <select 
-            value={selectedCategory} 
-            onChange={e => setSelectedCategory(e.target.value)} 
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
-          >
-            {Object.entries(categoryLabels).map(([key, value]) => (
-              <option key={key} value={key}>{value}</option>
-            ))}
-          </select>
+        <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Back to Home
+        </Link>
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Study Tools
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Enhance your learning experience with our comprehensive suite of study tools
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </motion.div>
-      
-      {/* Tools Tabs - Scrollable on mobile */}
-      <Tabs defaultValue="categories" className="w-full">
-        <TabsList className="mb-6 bg-white dark:bg-gray-800 p-1 border border-gray-100 dark:border-gray-800 shadow-sm w-full overflow-x-auto study-tools-tabs">
-          <TabsTrigger value="categories" className="min-w-max">By Category</TabsTrigger>
-          <TabsTrigger value="all" className="min-w-max">All Tools</TabsTrigger>
-          <TabsTrigger value="favorites" className="min-w-max">Favorites</TabsTrigger>
-          <TabsTrigger value="recent" className="min-w-max">Recently Used</TabsTrigger>
-        </TabsList>
-        
-        {/* Categories Tab */}
-        <TabsContent value="categories" className="space-y-8">
-          {visibleCategories.filter(cat => cat !== 'all').map((category) => (
-            <motion.div 
-              key={category}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                  {category === 'time' && <Clock className="h-5 w-5 text-blue-500" />}
-                  {category === 'content' && <BookOpen className="h-5 w-5 text-violet-500" />}
-                  {category === 'practice' && <Brain className="h-5 w-5 text-green-500" />}
-                  {category === 'wellness' && <Sparkles className="h-5 w-5 text-amber-500" />}
-                  {category === 'organization' && <Calendar className="h-5 w-5 text-cyan-500" />}
-                  {categoryLabels[category]}
-                </h2>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setSelectedCategory(category)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  View all <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-              
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 study-tools-grid"
-                variants={container}
-                initial="hidden"
-                animate="show"
-              >
-                {getFilteredTools(category).slice(0, 3).map(tool => (
-                  <motion.div key={tool.id} variants={item}>
-                    <Card 
-                      className="overflow-hidden hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-800 h-full hover:-translate-y-1 hover:shadow-lg"
-                      onClick={() => navigateToTool(tool.id)}
-                    >
-                      <CardContent className="p-0 h-full">
-                        <div className={`flex h-full bg-gradient-to-br ${getCategoryGradient(tool.category)}`}>
-                          <div className="w-2 h-full"></div>
-                          <div className="flex items-start p-4 flex-1">
-                            <div className="mr-4 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-                              {tool.icon}
-                            </div>
-                            <div className="flex-1 flex flex-col h-full">
-                              <div className="flex items-center justify-between">
-                                <h3 className="font-semibold">{tool.name}</h3>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 hover:scale-110 transition-transform" 
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    toggleFavorite(tool.id);
-                                  }}
-                                >
-                                  <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
-                                </Button>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-          ))}
-        </TabsContent>
-        
-        {/* All Tools Tab */}
-        <TabsContent value="all" className="space-y-6">
-          <motion.div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 study-tools-grid"
-            variants={container}
-            initial="hidden"
-            animate="show"
-          >
-            {getFilteredTools(selectedCategory).map(tool => (
-              <motion.div key={tool.id} variants={item}>
-                <Card 
-                  className="overflow-hidden hover:shadow-md transition-all cursor-pointer h-full hover:-translate-y-1 hover:shadow-lg" 
-                  onClick={() => navigateToTool(tool.id)}
-                >
-                  <CardContent className="p-0 h-full">
-                    <div className="flex items-start p-4 h-full">
-                      <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                        {tool.icon}
-                      </div>
-                      <div className="flex-1 flex flex-col h-full">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold">{tool.name}</h3>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 hover:scale-110 transition-transform" 
-                            onClick={e => {
-                              e.stopPropagation();
-                              toggleFavorite(tool.id);
-                            }}
-                          >
-                            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                          </Button>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                        <div className="mt-auto pt-2">
-                          <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
-                            {categoryLabels[tool.category]}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-          
-          {getFilteredTools(selectedCategory).length === 0 && (
-            <motion.div 
-              className="text-center py-12"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No tools found</h3>
-              <p className="text-gray-500">Try changing your search or filter criteria</p>
-            </motion.div>
-          )}
-        </TabsContent>
-        
-        {/* Favorites Tab */}
-        <TabsContent value="favorites">
-          {favoriteTools.length > 0 ? (
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 study-tools-grid"
-              variants={container}
-              initial="hidden"
-              animate="show"
-            >
-              {favoriteTools.map(tool => (
-                <motion.div key={tool.id} variants={item}>
-                  <Card 
-                    className="overflow-hidden hover:shadow-md transition-all cursor-pointer h-full hover:-translate-y-1 hover:shadow-lg" 
-                    onClick={() => navigateToTool(tool.id)}
-                  >
-                    <CardContent className="p-0 h-full">
-                      <div className="flex items-start p-4 h-full">
-                        <div className="mr-4 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
-                          {tool.icon}
-                        </div>
-                        <div className="flex-1 flex flex-col h-full">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{tool.name}</h3>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 hover:scale-110 transition-transform" 
-                              onClick={e => {
-                                e.stopPropagation();
-                                toggleFavorite(tool.id);
-                              }}
-                            >
-                              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tool.description}</p>
-                          <div className="mt-auto pt-2">
-                            <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
-                              {categoryLabels[tool.category]}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div 
-              className="text-center py-12"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
-              <p className="text-gray-500">Star your favorite tools to see them here</p>
-            </motion.div>
-          )}
-        </TabsContent>
-        
-        {/* Recently Used Tab */}
-        <TabsContent value="recent">
-          <motion.div 
-            className="text-center py-12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4 animate-pulse-slow" />
-            <h3 className="text-lg font-medium mb-2">No recent tools</h3>
-            <p className="text-gray-500">Your recently used tools will appear here</p>
-          </motion.div>
-        </TabsContent>
-      </Tabs>
-      
-      {/* Tool Matrix - Productivity Guide */}
-      <motion.section 
-        className="mt-12 sm:mt-16 relative"
+
+      {/* Search and Filters */}
+      <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        transition={{ delay: 0.1 }}
       >
-        <div className="mx-auto max-w-4xl bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-center mb-4 sm:mb-6">Study Tools Selection Guide</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="ml-3">
-                  <h3 className="font-medium">When you need to focus</h3>
-                  <p className="text-sm text-gray-500">Use Pomodoro Timer or Focus Mode</p>
-                </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search study tools..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
               
-              <div className="flex items-center">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <Brain className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                <div className="ml-3">
-                  <h3 className="font-medium">To improve retention</h3>
-                  <p className="text-sm text-gray-500">Try Flashcards or Question Generator</p>
-                </div>
+              <div className="flex gap-2 flex-wrap">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                    className="capitalize"
+                  >
+                    {getCategoryIcon(category)} {category}
+                  </Button>
+                ))}
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                  <Lightbulb className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div className="ml-3">
-                  <h3 className="font-medium">For better planning</h3>
-                  <p className="text-sm text-gray-500">Use Weekly Planner or Goal Tracker</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                  <BookOpen className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                </div>
-                <div className="ml-3">
-                  <h3 className="font-medium">When studying content</h3>
-                  <p className="text-sm text-gray-500">Use Note Taker or Formula Sheet</p>
-                </div>
-              </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Content */}
+      <Tabs defaultValue="all" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 lg:w-fit">
+          <TabsTrigger value="all" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            All Tools ({filteredTools.length})
+          </TabsTrigger>
+          <TabsTrigger value="favorites" className="flex items-center gap-2">
+            <Heart className="h-4 w-4" />
+            Favorites ({favoriteTools.length})
+          </TabsTrigger>
+          <TabsTrigger value="recent" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Recent ({recentTools.length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-6">
+          {filteredTools.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No tools found</h3>
+              <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            </motion.div>
+          ) : (
+            <div className={
+              viewMode === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+                : "space-y-4"
+            }>
+              <AnimatePresence>
+                {filteredTools.map((tool, index) => 
+                  viewMode === 'grid' 
+                    ? <ToolCard key={tool.id} tool={tool} index={index} />
+                    : <ListToolCard key={tool.id} tool={tool} index={index} />
+                )}
+              </AnimatePresence>
             </div>
-          </div>
-          
-          <div className="mt-4 sm:mt-6 pt-2 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-center text-gray-500">Combining tools creates a comprehensive study system that addresses all aspects of your JEE preparation</p>
-          </div>
-        </div>
-      </motion.section>
-    </motion.div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="favorites">
+          {favoriteTools.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No favorite tools yet</h3>
+              <p className="text-muted-foreground">Add tools to your favorites by clicking the heart icon</p>
+            </motion.div>
+          ) : (
+            <div className={
+              viewMode === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+                : "space-y-4"
+            }>
+              {favoriteTools.map((tool, index) => 
+                viewMode === 'grid' 
+                  ? <ToolCard key={tool.id} tool={tool} index={index} />
+                  : <ListToolCard key={tool.id} tool={tool} index={index} />
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="recent">
+          {recentTools.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No recently used tools</h3>
+              <p className="text-muted-foreground">Tools you use will appear here for quick access</p>
+            </motion.div>
+          ) : (
+            <div className={
+              viewMode === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+                : "space-y-4"
+            }>
+              {recentTools.map((tool, index) => 
+                viewMode === 'grid' 
+                  ? <ToolCard key={tool.id} tool={tool} index={index} />
+                  : <ListToolCard key={tool.id} tool={tool} index={index} />
+              )}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
