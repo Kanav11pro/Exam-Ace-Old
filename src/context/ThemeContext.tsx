@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type ThemeType = 'light' | 'dark' | 'purple' | 'green' | 'ocean';
+type ThemeType = 'light' | 'dark' | 'purple' | 'green' | 'ocean' | 'neon' | 'sunset' | 'midnight' | 'forest' | 'cyber';
 
 type ThemeContextType = {
   theme: ThemeType;
@@ -21,7 +21,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = window.document.documentElement;
     
     // Remove all theme classes
-    root.classList.remove('light', 'dark', 'purple', 'green', 'ocean');
+    root.classList.remove('light', 'dark', 'purple', 'green', 'ocean', 'neon', 'sunset', 'midnight', 'forest', 'cyber');
     root.classList.add(theme);
     
     localStorage.setItem('jee-theme', theme);
@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const toggleTheme = () => {
     // Rotate through themes in this order
-    const themes: ThemeType[] = ['light', 'dark', 'purple', 'green', 'ocean'];
+    const themes: ThemeType[] = ['light', 'dark', 'purple', 'green', 'ocean', 'neon', 'sunset', 'midnight', 'forest', 'cyber'];
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);

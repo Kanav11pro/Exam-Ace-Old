@@ -5,11 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { JEEDataProvider } from "@/context/jee"; // Updated import path
+import { JEEDataProvider } from "@/context/jee";
 import { StudyStatsProvider } from "@/context/StudyStatsContext";
 
 import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
+import PrepometerPage from "./pages/PrepometerPage";
 import SubjectPage from "./pages/SubjectPage";
 import ChapterPage from "./pages/ChapterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -52,10 +53,10 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<Index />}>
                 <Route index element={<HomePage />} />
+                <Route path="prepometer" element={<PrepometerPage />} />
                 <Route path="subject/:subject" element={<SubjectPage />} />
                 <Route path="subject/:subject/:chapter" element={<ChapterPage />} />
                 <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="prepometer" element={<Navigate to="/subject/Maths" replace />} />
                 
                 {/* Study Tools Routes */}
                 <Route path="tools" element={<StudyToolsPage />} />
