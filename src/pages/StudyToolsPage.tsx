@@ -21,7 +21,7 @@ import {
   Zap,
   Heart,
   Settings,
-  Flashcards,
+  CreditCard,
   TestTube
 } from 'lucide-react';
 
@@ -50,7 +50,7 @@ const studyTools = [
     id: 'flashcards',
     title: 'Smart Flashcards',
     description: 'Advanced spaced repetition with AI-powered insights',
-    icon: <Flashcards className="h-6 w-6" />,
+    icon: <CreditCard className="h-6 w-6" />,
     component: Flashcards,
     category: 'Core',
     color: 'from-purple-500 to-pink-500',
