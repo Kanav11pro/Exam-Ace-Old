@@ -1,631 +1,1041 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Timer, 
-  BookOpen, 
-  Target, 
-  Brain, 
-  TrendingUp, 
-  Lightbulb, 
-  Award, 
-  Clock,
-  Focus,
-  HelpCircle,
-  Zap,
-  PenTool,
-  Coffee,
-  Music,
-  Eye,
-  Calendar,
-  FileText,
-  Bookmark,
-  BarChart3,
-  CheckSquare,
-  Layers,
-  Heart,
-  Users,
-  Shuffle
-} from 'lucide-react';
-
-import { AdvancedStudyTimer } from '@/components/study-tools/AdvancedStudyTimer';
+import { useNavigate } from 'react-router-dom';
+import { Search, Clock, BookMinus, Brain, Target, Calculator, Calendar, BookMarked, Music2, Bookmark, Eye, Trophy, FileQuestion, BookCheck, Sparkles, BellRing, PenLine, BookOpen, Star, Filter, BrainCircuit, ClipboardCheck, ArrowLeft, ArrowRight, Lightbulb, Info, HelpCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { StudyToolsGuide } from '@/components/study-tools/StudyToolsGuide';
-import { NoteTaker } from '@/components/study-tools/NoteTaker';
-import { Flashcards } from '@/components/study-tools/Flashcards';
-import { FormulaSheet } from '@/components/study-tools/FormulaSheet';
-import { DailyQuiz } from '@/components/study-tools/DailyQuiz';
-import { MockTests } from '@/components/study-tools/MockTests';
-import { GoalTracker } from '@/components/study-tools/GoalTracker';
-import { WeeklyPlanner } from '@/components/study-tools/WeeklyPlanner';
-import { RevisionReminder } from '@/components/study-tools/RevisionReminder';
-import { StudyMusic } from '@/components/study-tools/StudyMusic';
-import { EyeRestTimer } from '@/components/study-tools/EyeRestTimer';
-import { Mindfulness } from '@/components/study-tools/Mindfulness';
-import { ErrorLog } from '@/components/study-tools/ErrorLog';
-import { BookmarkManager } from '@/components/study-tools/BookmarkManager';
-import { BacklogManagement } from '@/components/study-tools/BacklogManagement';
-import { QuestionGenerator } from '@/components/study-tools/QuestionGenerator';
 
-const studyTools = [
-  {
-    id: 'advanced-timer',
-    name: 'Advanced Study Timer',
-    description: 'Integrated timer combining deep focus, Pomodoro technique, and custom sessions with advanced productivity features',
-    icon: <Timer className="h-6 w-6 text-blue-600" />,
-    category: 'time',
-    isPremium: false,
-    isNew: true,
-    component: AdvancedStudyTimer,
-    detailedDescription: 'The Advanced Study Timer is a comprehensive time management tool that combines three powerful study techniques: Deep Focus sessions for uninterrupted concentration, Pomodoro Technique for structured work-break cycles, and Custom Timer for flexible study periods. It features fullscreen focus mode, motivational quotes, progress tracking, and smart notifications.',
-    usageGuide: [
-      'Choose your study mode: Deep Focus for long sessions, Pomodoro for structured cycles, or Custom for flexible timing',
-      'Select your subject and chapter (optional) for accurate progress tracking',
-      'Set your focus goal or what you want to accomplish in the session',
-      'Click Start to begin your study session - the timer will track your progress',
-      'Use fullscreen mode for distraction-free studying',
-      'Enable auto-start features for seamless Pomodoro cycles',
-      'Review your daily progress and maintain study streaks'
-    ],
-    benefits: [
-      'Combines proven time management techniques in one tool',
-      'Tracks study time automatically across subjects',
-      'Provides motivational quotes and progress feedback',
-      'Supports both focused deep work and structured breaks',
-      'Offers fullscreen distraction-free mode',
-      'Smart notifications and audio alerts',
-      'Detailed analytics and progress tracking'
-    ]
-  },
-  {
-    id: 'note-taker',
-    name: 'Smart Note Taker',
-    description: 'Organized note-taking with templates, auto-save, and smart categorization by subjects',
-    icon: <PenTool className="h-6 w-6 text-green-600" />,
-    category: 'content',
-    isPremium: false,
-    component: NoteTaker,
-    detailedDescription: 'Smart Note Taker helps you create, organize, and manage your study notes efficiently. It provides subject-wise organization, various note templates, and powerful search capabilities to help you find information quickly.',
-    usageGuide: [
-      'Select your subject and chapter to organize notes properly',
-      'Choose from various note templates or start with a blank note',
-      'Use the rich text editor to format your notes with headings, lists, and highlights',
-      'Add tags to make notes easily searchable',
-      'Use the search function to quickly find specific notes or topics',
-      'Export notes as PDF or share them with study groups'
-    ],
-    benefits: [
-      'Automatic organization by subject and chapter',
-      'Rich text formatting for better note structure',
-      'Quick search and filtering capabilities',
-      'Multiple export options',
-      'Auto-save prevents data loss',
-      'Template library for different note types'
-    ]
-  },
-  {
-    id: 'flashcards',
-    name: 'Interactive Flashcards',
-    description: 'Create, study, and review flashcards with spaced repetition algorithm for better retention',
-    icon: <Layers className="h-6 w-6 text-purple-600" />,
-    category: 'practice',
-    isPremium: false,
-    component: Flashcards,
-    detailedDescription: 'Interactive Flashcards use scientifically-proven spaced repetition to help you memorize and retain information more effectively. Create custom flashcards for any subject and let the algorithm schedule optimal review times.',
-    usageGuide: [
-      'Create flashcards by adding questions and answers',
-      'Organize flashcards by subject, chapter, or custom categories',
-      'Study using the spaced repetition algorithm',
-      'Rate your confidence level after each card review',
-      'Focus on cards you find difficult with targeted practice',
-      'Track your progress and retention rates over time'
-    ],
-    benefits: [
-      'Spaced repetition algorithm for optimal learning',
-      'Progress tracking and analytics',
-      'Customizable categories and tags',
-      'Confidence-based review scheduling',
-      'Export and import flashcard sets',
-      'Study statistics and performance insights'
-    ]
-  },
-  {
-    id: 'formula-sheet',
-    name: 'Formula Reference',
-    description: 'Quick access to important formulas and concepts organized by subjects and chapters',
-    icon: <FileText className="h-6 w-6 text-orange-600" />,
-    category: 'content',
-    isPremium: false,
-    component: FormulaSheet,
-    detailedDescription: 'Formula Reference provides instant access to important formulas, equations, and key concepts. Organized by subject and chapter, it serves as your quick reference guide during study sessions.',
-    usageGuide: [
-      'Browse formulas by subject (Maths, Physics, Chemistry)',
-      'Use search to quickly find specific formulas',
-      'Add your own custom formulas and notes',
-      'Bookmark frequently used formulas for quick access',
-      'Practice with built-in formula examples',
-      'Export formula sheets for offline reference'
-    ],
-    benefits: [
-      'Comprehensive formula database',
-      'Quick search and filtering',
-      'Custom formula addition',
-      'Bookmark important formulas',
-      'Example problems and solutions',
-      'Offline access capability'
-    ]
-  },
-  {
-    id: 'daily-quiz',
-    name: 'Daily Practice Quiz',
-    description: 'Daily quizzes with adaptive difficulty to test and improve your knowledge consistently',
-    icon: <Brain className="h-6 w-6 text-red-600" />,
-    category: 'practice',
-    isPremium: false,
-    component: DailyQuiz,
-    detailedDescription: 'Daily Practice Quiz provides fresh questions every day to test your knowledge and identify areas for improvement. The adaptive difficulty system adjusts to your performance level.',
-    usageGuide: [
-      'Take daily quizzes to test your current knowledge',
-      'Choose specific subjects or take mixed topic quizzes',
-      'Review detailed explanations for each answer',
-      'Track your performance trends over time',
-      'Focus on weak areas identified by the quiz',
-      'Set daily quiz goals to maintain consistency'
-    ],
-    benefits: [
-      'Fresh questions daily',
-      'Adaptive difficulty based on performance',
-      'Detailed answer explanations',
-      'Performance analytics and trends',
-      'Weak area identification',
-      'Consistent practice routine'
-    ]
-  },
-  {
-    id: 'mock-tests',
-    name: 'Mock Test Series',
-    description: 'Full-length practice tests with detailed analysis and performance insights',
-    icon: <Target className="h-6 w-6 text-indigo-600" />,
-    category: 'practice',
-    isPremium: true,
-    component: MockTests,
-    detailedDescription: 'Mock Test Series provides comprehensive practice tests that simulate real exam conditions. Get detailed performance analysis, time management insights, and subject-wise breakdowns.',
-    usageGuide: [
-      'Choose from various test patterns and durations',
-      'Take tests under timed conditions',
-      'Review detailed performance analysis',
-      'Identify strong and weak areas',
-      'Track improvement over multiple attempts',
-      'Compare your performance with peers'
-    ],
-    benefits: [
-      'Real exam simulation',
-      'Comprehensive performance analysis',
-      'Time management training',
-      'Peer comparison and ranking',
-      'Subject-wise detailed reports',
-      'Progress tracking over time'
-    ]
-  },
-  {
-    id: 'goal-tracker',
-    name: 'Goal & Progress Tracker',
-    description: 'Set study goals, track milestones, and visualize your academic progress over time',
-    icon: <TrendingUp className="h-6 w-6 text-cyan-600" />,
-    category: 'organization',
-    isPremium: false,
-    component: GoalTracker,
-    detailedDescription: 'Goal & Progress Tracker helps you set realistic study goals, break them into manageable milestones, and track your progress visually. Stay motivated with achievement badges and progress celebrations.',
-    usageGuide: [
-      'Set SMART goals for your studies (Specific, Measurable, Achievable, Relevant, Time-bound)',
-      'Break large goals into smaller, manageable milestones',
-      'Track daily and weekly progress toward your goals',
-      'Celebrate achievements and learn from setbacks',
-      'Adjust goals based on your progress and circumstances',
-      'Share goals with study partners for accountability'
-    ],
-    benefits: [
-      'SMART goal setting framework',
-      'Visual progress tracking',
-      'Milestone celebrations',
-      'Goal adjustment flexibility',
-      'Accountability features',
-      'Achievement badges and rewards'
-    ]
-  },
-  {
-    id: 'weekly-planner',
-    name: 'Study Planner',
-    description: 'Comprehensive weekly and monthly study planning with calendar integration',
-    icon: <Calendar className="h-6 w-6 text-pink-600" />,
-    category: 'organization',
-    isPremium: false,
-    component: WeeklyPlanner,
-    detailedDescription: 'Study Planner provides comprehensive scheduling tools to organize your study time effectively. Plan weekly and monthly study schedules, set reminders, and balance different subjects.',
-    usageGuide: [
-      'Create weekly study schedules with time blocks',
-      'Assign subjects and topics to specific time slots',
-      'Set study reminders and notifications',
-      'Balance study time across different subjects',
-      'Plan for exams and important deadlines',
-      'Review and adjust your schedule regularly'
-    ],
-    benefits: [
-      'Visual weekly and monthly planning',
-      'Time block scheduling',
-      'Subject balance optimization',
-      'Reminder and notification system',
-      'Deadline tracking',
-      'Schedule flexibility and adjustments'
-    ]
-  },
-  {
-    id: 'revision-reminder',
-    name: 'Revision Scheduler',
-    description: 'Smart revision reminders based on forgetting curve and spaced repetition principles',
-    icon: <Clock className="h-6 w-6 text-amber-600" />,
-    category: 'organization',
-    isPremium: false,
-    component: RevisionReminder,
-    detailedDescription: 'Revision Scheduler uses scientific principles of memory retention to schedule optimal revision times. Never forget to review important topics with smart, personalized reminders.',
-    usageGuide: [
-      'Mark topics as studied to start the revision schedule',
-      'Receive smart reminders based on the forgetting curve',
-      'Rate your confidence level after each revision',
-      'Adjust revision frequency based on difficulty',
-      'Track revision streaks and consistency',
-      'Plan revision sessions around your schedule'
-    ],
-    benefits: [
-      'Scientific forgetting curve algorithm',
-      'Personalized revision schedules',
-      'Confidence-based adjustments',
-      'Streak tracking for motivation',
-      'Flexible scheduling options',
-      'Long-term retention optimization'
-    ]
-  },
-  {
-    id: 'study-music',
-    name: 'Focus Music Player',
-    description: 'Curated background music and nature sounds designed to enhance concentration',
-    icon: <Music className="h-6 w-6 text-violet-600" />,
-    category: 'wellness',
-    isPremium: false,
-    component: StudyMusic,
-    detailedDescription: 'Focus Music Player offers carefully curated playlists of background music, white noise, and nature sounds scientifically proven to enhance concentration and reduce stress during study sessions.',
-    usageGuide: [
-      'Choose from various music categories: classical, ambient, nature sounds, or white noise',
-      'Adjust volume levels to complement your study environment',
-      'Use timer features to automatically stop music after study sessions',
-      'Create custom playlists for different subjects or moods',
-      'Enable focus mode to minimize distractions from the player',
-      'Track which music types work best for your concentration'
-    ],
-    benefits: [
-      'Scientifically curated focus-enhancing audio',
-      'Multiple audio categories and styles',
-      'Timer integration with study sessions',
-      'Custom playlist creation',
-      'Minimal distraction interface',
-      'Concentration tracking and optimization'
-    ]
-  },
-  {
-    id: 'eye-rest',
-    name: 'Eye Rest Timer',
-    description: 'Protect your eyes with regular break reminders and eye exercise guides',
-    icon: <Eye className="h-6 w-6 text-teal-600" />,
-    category: 'wellness',
-    isPremium: false,
-    component: EyeRestTimer,
-    detailedDescription: 'Eye Rest Timer helps protect your vision during long study sessions by reminding you to take regular breaks and providing guided eye exercises based on the 20-20-20 rule.',
-    usageGuide: [
-      'Enable automatic eye rest reminders (recommended every 20 minutes)',
-      'Follow guided eye exercises during break periods',
-      'Adjust reminder frequency based on your comfort',
-      'Track your eye rest compliance over time',
-      'Learn about proper study posture and screen distance',
-      'Set custom break durations and exercise routines'
-    ],
-    benefits: [
-      'Prevents digital eye strain',
-      'Guided eye exercise routines',
-      'Customizable reminder schedules',
-      'Health compliance tracking',
-      'Posture and ergonomics tips',
-      'Long-term vision protection'
-    ]
-  },
-  {
-    id: 'mindfulness',
-    name: 'Study Mindfulness',
-    description: 'Meditation and breathing exercises to reduce stress and improve focus',
-    icon: <Heart className="h-6 w-6 text-rose-600" />,
-    category: 'wellness',
-    isPremium: false,
-    component: Mindfulness,
-    detailedDescription: 'Study Mindfulness provides guided meditation, breathing exercises, and stress reduction techniques specifically designed for students to improve focus, reduce anxiety, and enhance overall well-being.',
-    usageGuide: [
-      'Start with short 5-minute guided meditation sessions',
-      'Practice breathing exercises before stressful study sessions',
-      'Use quick stress relief techniques during exam preparation',
-      'Build a daily mindfulness routine for better mental health',
-      'Track your mood and stress levels over time',
-      'Access emergency calm-down exercises when overwhelmed'
-    ],
-    benefits: [
-      'Reduces study-related stress and anxiety',
-      'Improves focus and concentration',
-      'Builds emotional resilience',
-      'Better sleep quality',
-      'Enhanced overall well-being',
-      'Coping strategies for exam pressure'
-    ]
-  },
-  {
-    id: 'error-log',
-    name: 'Mistake Tracker',
-    description: 'Log and analyze your mistakes to avoid repeating them in exams',
-    icon: <CheckSquare className="h-6 w-6 text-red-500" />,
-    category: 'practice',
-    isPremium: false,
-    component: ErrorLog,
-    detailedDescription: 'Mistake Tracker helps you systematically record, analyze, and learn from your errors. By understanding your mistake patterns, you can avoid repeating them in actual exams.',
-    usageGuide: [
-      'Record mistakes immediately after practice sessions or mock tests',
-      'Categorize errors by type (conceptual, calculation, careless, etc.)',
-      'Add detailed explanations and correct solutions',
-      'Review mistake patterns regularly to identify weak areas',
-      'Create targeted practice sessions for frequent mistake types',
-      'Track improvement over time as mistake frequency decreases'
-    ],
-    benefits: [
-      'Systematic mistake tracking and analysis',
-      'Pattern recognition for common errors',
-      'Targeted improvement strategies',
-      'Reduced error repetition in exams',
-      'Better understanding of weak concepts',
-      'Progress tracking and confidence building'
-    ]
-  },
-  {
-    id: 'bookmarks',
-    name: 'Study Bookmarks',
-    description: 'Save and organize important study resources, links, and references',
-    icon: <Bookmark className="h-6 w-6 text-yellow-600" />,
-    category: 'organization',
-    isPremium: false,
-    component: BookmarkManager,
-    detailedDescription: 'Study Bookmarks helps you organize and quickly access important study resources, including websites, videos, PDFs, and reference materials, all categorized by subject and topic.',
-    usageGuide: [
-      'Save important websites, videos, and online resources',
-      'Organize bookmarks by subject, chapter, and custom tags',
-      'Add notes and descriptions to each bookmark',
-      'Create bookmark collections for specific topics',
-      'Share useful resources with study groups',
-      'Export bookmark lists for offline reference'
-    ],
-    benefits: [
-      'Centralized resource organization',
-      'Quick access to study materials',
-      'Collaborative resource sharing',
-      'Custom categorization and tagging',
-      'Search and filter capabilities',
-      'Cross-platform accessibility'
-    ]
-  },
-  {
-    id: 'backlog',
-    name: 'Study Backlog',
-    description: 'Manage pending topics, assignments, and study tasks with priority scheduling',
-    icon: <BarChart3 className="h-6 w-6 text-gray-600" />,
-    category: 'organization',
-    isPremium: false,
-    component: BacklogManagement,
-    detailedDescription: 'Study Backlog helps you track and prioritize pending study tasks, assignments, and topics that need attention. Never lose track of what needs to be studied next.',
-    usageGuide: [
-      'Add pending topics, assignments, and study tasks to your backlog',
-      'Set priority levels and due dates for each item',
-      'Break large tasks into smaller, manageable subtasks',
-      'Schedule backlog items into your study plan',
-      'Track completion progress and update priorities',
-      'Review and adjust your backlog regularly'
-    ],
-    benefits: [
-      'Comprehensive task tracking',
-      'Priority-based organization',
-      'Progress monitoring',
-      'Deadline management',
-      'Task breakdown capabilities',
-      'Integration with study planning'
-    ]
-  },
-  {
-    id: 'question-generator',
-    name: 'Question Generator',
-    description: 'AI-powered question generation from your study materials for practice',
-    icon: <Shuffle className="h-6 w-6 text-blue-500" />,
-    category: 'practice',
-    isPremium: true,
-    component: QuestionGenerator,
-    detailedDescription: 'Question Generator uses AI to create practice questions from your study materials, helping you test your understanding and prepare for exams with unlimited practice opportunities.',
-    usageGuide: [
-      'Upload or input your study material (text, notes, or topics)',
-      'Select question types (MCQ, short answer, essay questions)',
-      'Choose difficulty levels and number of questions',
-      'Generate practice questions instantly',
-      'Take practice tests with generated questions',
-      'Review answers and explanations'
-    ],
-    benefits: [
-      'Unlimited practice question generation',
-      'Multiple question formats',
-      'Adaptive difficulty levels',
-      'Instant feedback and explanations',
-      'Covers all study material comprehensively',
-      'Saves time on creating practice tests'
-    ]
-  }
-];
+// Study tool interface
+interface StudyTool {
+  id: string;
+  name: string;
+  description: string;
+  detailedDescription: string;
+  usageGuide: string[];
+  benefits: string[];
+  icon: React.ReactNode;
+  category: 'time' | 'content' | 'practice' | 'wellness' | 'organization';
+  favorite?: boolean;
+  lastUsed?: Date;
+}
 
-export default function StudyToolsPage() {
-  const [selectedTool, setSelectedTool] = useState<string>('advanced-timer');
+const StudyToolsPage = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [tools, setTools] = useState<StudyTool[]>([]);
   const [showGuide, setShowGuide] = useState(false);
+  const [recentlyUsedTools, setRecentlyUsedTools] = useState<StudyTool[]>([]);
 
-  const categories = [
-    { id: 'all', name: 'All Tools', icon: <BookOpen className="h-4 w-4" /> },
-    { id: 'time', name: 'Time Management', icon: <Clock className="h-4 w-4" /> },
-    { id: 'content', name: 'Content & Notes', icon: <PenTool className="h-4 w-4" /> },
-    { id: 'practice', name: 'Practice & Tests', icon: <Target className="h-4 w-4" /> },
-    { id: 'wellness', name: 'Health & Wellness', icon: <Heart className="h-4 w-4" /> },
-    { id: 'organization', name: 'Organization', icon: <Layers className="h-4 w-4" /> }
+  // Define study tools with detailed descriptions
+  const studyTools: StudyTool[] = [
+    // Time Management Category
+    {
+      id: 'pomodoro-timer',
+      name: 'Pomodoro Timer',
+      description: 'Focus with time-boxed intervals and breaks',
+      detailedDescription: 'The Pomodoro Technique is a time management method that uses a timer to break work into focused intervals, traditionally 25 minutes, separated by short breaks. This technique helps maintain concentration and prevents burnout.',
+      usageGuide: [
+        'Set a 25-minute timer for focused study',
+        'Take a 5-minute break after each session',
+        'After 4 sessions, take a longer 15-30 minute break',
+        'Choose your subject before starting'
+      ],
+      benefits: [
+        'Improved focus and concentration',
+        'Better time management',
+        'Reduced mental fatigue',
+        'Increased productivity'
+      ],
+      icon: <Clock className="h-6 w-6 text-red-500" />,
+      category: 'time'
+    },
+    {
+      id: 'study-timer',
+      name: 'Study Timer',
+      description: 'Track your study sessions and statistics',
+      detailedDescription: 'A comprehensive timer that tracks your study sessions across different subjects, providing detailed analytics and insights into your study patterns and productivity.',
+      usageGuide: [
+        'Select your subject and topic',
+        'Start the timer when you begin studying',
+        'Pause when taking breaks',
+        'Review your daily and weekly statistics'
+      ],
+      benefits: [
+        'Track study time per subject',
+        'Identify productive hours',
+        'Set daily study goals',
+        'Monitor progress over time'
+      ],
+      icon: <Clock className="h-6 w-6 text-blue-500" />,
+      category: 'time'
+    },
+    {
+      id: 'eye-rest-timer',
+      name: 'Eye Rest Timer',
+      description: '20-20-20 rule timer for eye strain relief',
+      detailedDescription: 'Follows the 20-20-20 rule to reduce eye strain during long study sessions. Every 20 minutes, look at something 20 feet away for 20 seconds.',
+      usageGuide: [
+        'Timer reminds you every 20 minutes',
+        'Look at something 20 feet away',
+        'Hold the gaze for 20 seconds',
+        'Return to studying refreshed'
+      ],
+      benefits: [
+        'Reduces eye strain and fatigue',
+        'Prevents dry eyes',
+        'Maintains visual health',
+        'Improves long-term focus'
+      ],
+      icon: <Eye className="h-6 w-6 text-teal-500" />,
+      category: 'wellness'
+    },
+    
+    // Content & Notes Category
+    {
+      id: 'note-taker',
+      name: 'Note Taker',
+      description: 'Take organized notes while studying',
+      detailedDescription: 'A digital note-taking tool designed for students, with features like text formatting, formula insertion, drawing capabilities, and organization by subjects and chapters.',
+      usageGuide: [
+        'Create notes organized by subject and chapter',
+        'Use formatting tools for better readability',
+        'Insert mathematical formulas and diagrams',
+        'Search through your notes quickly'
+      ],
+      benefits: [
+        'Well-organized digital notes',
+        'Easy search and retrieval',
+        'Multimedia support',
+        'Sync across devices'
+      ],
+      icon: <PenLine className="h-6 w-6 text-violet-500" />,
+      category: 'content'
+    },
+    {
+      id: 'formula-sheet',
+      name: 'Formula Sheet',
+      description: 'Quick access to essential formulas',
+      detailedDescription: 'A comprehensive collection of important formulas for Physics, Chemistry, and Mathematics, organized by chapters with quick search functionality.',
+      usageGuide: [
+        'Browse formulas by subject and chapter',
+        'Use search to find specific formulas',
+        'Bookmark frequently used formulas',
+        'Download PDF versions for offline use'
+      ],
+      benefits: [
+        'Quick formula reference',
+        'Organized by chapters',
+        'Searchable database',
+        'Offline access available'
+      ],
+      icon: <Calculator className="h-6 w-6 text-rose-500" />,
+      category: 'content'
+    },
+    {
+      id: 'learning-resources',
+      name: 'Learning Resources',
+      description: 'Curated resources for each chapter',
+      detailedDescription: 'Access curated learning materials including video lectures, practice problems, mock tests, and revision notes for every JEE chapter.',
+      usageGuide: [
+        'Select your subject and chapter',
+        'Choose from Learn, Practice, Test, or Revise',
+        'Access video lectures and study materials',
+        'Track your progress through each chapter'
+      ],
+      benefits: [
+        'Comprehensive study materials',
+        'Structured learning path',
+        'Multiple resource types',
+        'Progress tracking'
+      ],
+      icon: <BookOpen className="h-6 w-6 text-green-500" />,
+      category: 'content'
+    },
+    
+    // Practice & Revision Category
+    {
+      id: 'flashcards',
+      name: 'Flashcards',
+      description: 'Create and practice with digital flashcards',
+      detailedDescription: 'Create custom flashcards for quick revision and memory retention. Uses spaced repetition algorithm to optimize learning efficiency.',
+      usageGuide: [
+        'Create flashcards for important concepts',
+        'Use the spaced repetition system',
+        'Mark difficult cards for extra practice',
+        'Review statistics to track improvement'
+      ],
+      benefits: [
+        'Enhanced memory retention',
+        'Spaced repetition learning',
+        'Custom card creation',
+        'Progress analytics'
+      ],
+      icon: <BookCheck className="h-6 w-6 text-emerald-500" />,
+      category: 'practice'
+    },
+    {
+      id: 'error-log',
+      name: 'Error Log',
+      description: 'Track and review your mistakes',
+      detailedDescription: 'Maintain a log of mistakes and errors to identify weak areas and prevent repeated errors. Includes analysis and improvement suggestions.',
+      usageGuide: [
+        'Log errors immediately after practice',
+        'Categorize by subject and topic',
+        'Review error patterns regularly',
+        'Create targeted practice sessions'
+      ],
+      benefits: [
+        'Identify weak areas',
+        'Prevent repeated mistakes',
+        'Targeted improvement',
+        'Error pattern analysis'
+      ],
+      icon: <ClipboardCheck className="h-6 w-6 text-red-500" />,
+      category: 'practice'
+    },
+    {
+      id: 'daily-quiz',
+      name: 'Daily Quiz',
+      description: 'Test your knowledge with quick quizzes',
+      detailedDescription: 'Daily quizzes covering different topics to keep your knowledge fresh and identify areas that need more attention.',
+      usageGuide: [
+        'Take daily quizzes in your weak subjects',
+        'Review explanations for wrong answers',
+        'Track your daily quiz performance',
+        'Set reminders for consistent practice'
+      ],
+      benefits: [
+        'Daily knowledge reinforcement',
+        'Consistent practice habit',
+        'Immediate feedback',
+        'Performance tracking'
+      ],
+      icon: <BookMinus className="h-6 w-6 text-green-500" />,
+      category: 'practice'
+    },
+    {
+      id: 'question-generator',
+      name: 'Question Generator',
+      description: 'Generate practice questions by topic',
+      detailedDescription: 'AI-powered tool that generates practice questions based on specific topics and difficulty levels, providing unlimited practice opportunities.',
+      usageGuide: [
+        'Select subject and specific topics',
+        'Choose difficulty level',
+        'Generate custom question sets',
+        'Practice with instant feedback'
+      ],
+      benefits: [
+        'Unlimited practice questions',
+        'Customizable difficulty',
+        'Topic-specific practice',
+        'Instant feedback'
+      ],
+      icon: <FileQuestion className="h-6 w-6 text-indigo-500" />,
+      category: 'practice'
+    },
+    {
+      id: 'mock-tests',
+      name: 'Mock Tests',
+      description: 'Full JEE simulation with timer',
+      detailedDescription: 'Complete JEE Main and Advanced mock tests with real exam interface, timing, and detailed performance analysis.',
+      usageGuide: [
+        'Choose JEE Main or Advanced format',
+        'Complete the test within time limits',
+        'Review detailed performance analysis',
+        'Identify areas for improvement'
+      ],
+      benefits: [
+        'Real exam experience',
+        'Time management practice',
+        'Performance analysis',
+        'Exam strategy development'
+      ],
+      icon: <Brain className="h-6 w-6 text-blue-500" />,
+      category: 'practice'
+    },
+    
+    // Wellness & Focus Category
+    {
+      id: 'focus-mode',
+      name: 'Focus Mode',
+      description: 'Eliminate distractions and stay focused',
+      detailedDescription: 'A distraction-free environment that blocks social media and other distracting websites while you study, with ambient sounds for better concentration.',
+      usageGuide: [
+        'Activate focus mode before studying',
+        'Set study duration and subjects',
+        'Choose ambient sounds if needed',
+        'Take scheduled breaks'
+      ],
+      benefits: [
+        'Eliminates digital distractions',
+        'Improved concentration',
+        'Better study environment',
+        'Increased productivity'
+      ],
+      icon: <BrainCircuit className="h-6 w-6 text-indigo-500" />,
+      category: 'wellness'
+    },
+    {
+      id: 'mindfulness',
+      name: 'Mindfulness',
+      description: 'Guided meditation for better focus',
+      detailedDescription: 'Guided meditation sessions specifically designed for students to reduce stress, improve focus, and enhance mental clarity.',
+      usageGuide: [
+        'Choose meditation duration (5-20 minutes)',
+        'Find a quiet, comfortable space',
+        'Follow the guided instructions',
+        'Practice regularly for best results'
+      ],
+      benefits: [
+        'Reduced stress and anxiety',
+        'Improved focus and clarity',
+        'Better emotional regulation',
+        'Enhanced overall well-being'
+      ],
+      icon: <Sparkles className="h-6 w-6 text-amber-500" />,
+      category: 'wellness'
+    },
+    {
+      id: 'study-music',
+      name: 'Study Music',
+      description: 'Concentration music & binaural beats',
+      detailedDescription: 'Curated playlist of study music, binaural beats, and ambient sounds scientifically proven to enhance concentration and cognitive performance.',
+      usageGuide: [
+        'Choose from different music categories',
+        'Adjust volume to comfortable levels',
+        'Use with headphones for binaural beats',
+        'Experiment to find what works best'
+      ],
+      benefits: [
+        'Enhanced concentration',
+        'Improved cognitive performance',
+        'Reduced distractions',
+        'Better mood while studying'
+      ],
+      icon: <Music2 className="h-6 w-6 text-blue-500" />,
+      category: 'wellness'
+    },
+    {
+      id: 'achievements',
+      name: 'Achievements & Badges',
+      description: 'Earn badges for your study accomplishments',
+      detailedDescription: 'Gamified system that rewards consistent study habits, milestone achievements, and improvement with badges and certificates.',
+      usageGuide: [
+        'Complete daily study goals',
+        'Maintain study streaks',
+        'Achieve chapter completion milestones',
+        'Share achievements with friends'
+      ],
+      benefits: [
+        'Increased motivation',
+        'Habit formation',
+        'Progress visualization',
+        'Sense of accomplishment'
+      ],
+      icon: <Trophy className="h-6 w-6 text-amber-500" />,
+      category: 'wellness'
+    },
+    
+    // Organization Category
+    {
+      id: 'goal-tracker',
+      name: 'Goal Tracker',
+      description: 'Set and track your study goals',
+      detailedDescription: 'Set SMART goals for your JEE preparation and track progress with visual indicators, deadlines, and milestone celebrations.',
+      usageGuide: [
+        'Set specific, measurable goals',
+        'Break large goals into smaller tasks',
+        'Track daily and weekly progress',
+        'Adjust goals based on performance'
+      ],
+      benefits: [
+        'Clear direction and focus',
+        'Measurable progress tracking',
+        'Motivation through achievements',
+        'Better time management'
+      ],
+      icon: <Target className="h-6 w-6 text-orange-500" />,
+      category: 'organization'
+    },
+    {
+      id: 'weekly-planner',
+      name: 'Weekly Planner',
+      description: 'Plan your study schedule for the week',
+      detailedDescription: 'Comprehensive weekly planner that helps you schedule study sessions, track commitments, and maintain a balanced study routine.',
+      usageGuide: [
+        'Plan your week every Sunday',
+        'Allocate time for each subject',
+        'Include breaks and leisure time',
+        'Review and adjust daily'
+      ],
+      benefits: [
+        'Better time management',
+        'Balanced study schedule',
+        'Reduced stress',
+        'Improved productivity'
+      ],
+      icon: <Calendar className="h-6 w-6 text-cyan-500" />,
+      category: 'organization'
+    },
+    {
+      id: 'revision-reminder',
+      name: 'Revision Reminder',
+      description: 'Spaced repetition based on forgetting curve',
+      detailedDescription: 'Smart reminder system based on the forgetting curve that prompts you to revise topics at optimal intervals for maximum retention.',
+      usageGuide: [
+        'Mark topics as learned',
+        'Receive automated revision reminders',
+        'Follow the spaced repetition schedule',
+        'Track retention rates'
+      ],
+      benefits: [
+        'Optimal retention timing',
+        'Automated reminders',
+        'Efficient revision',
+        'Long-term memory formation'
+      ],
+      icon: <BellRing className="h-6 w-6 text-purple-500" />,
+      category: 'organization'
+    },
+    {
+      id: 'bookmark-manager',
+      name: 'Bookmark Manager',
+      description: 'Save important topics and questions',
+      detailedDescription: 'Organize and manage bookmarks for important topics, questions, formulas, and resources with tags and quick access.',
+      usageGuide: [
+        'Bookmark important content while studying',
+        'Organize with tags and categories',
+        'Create quick access collections',
+        'Export bookmarks for offline use'
+      ],
+      benefits: [
+        'Quick access to important content',
+        'Organized resource management',
+        'Easy content retrieval',
+        'Efficient study sessions'
+      ],
+      icon: <Bookmark className="h-6 w-6 text-yellow-500" />,
+      category: 'organization'
+    }
   ];
 
-  const filteredTools = selectedCategory === 'all' 
-    ? studyTools 
-    : studyTools.filter(tool => tool.category === selectedCategory);
+  // Load favorites and recently used from localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('favoriteStudyTools');
+    const savedRecentlyUsed = localStorage.getItem('recentlyUsedStudyTools');
+    
+    let favoriteIds: string[] = [];
+    let recentlyUsedData: Array<{id: string, lastUsed: string}> = [];
+    
+    if (savedFavorites) {
+      favoriteIds = JSON.parse(savedFavorites);
+    }
+    
+    if (savedRecentlyUsed) {
+      recentlyUsedData = JSON.parse(savedRecentlyUsed);
+    }
+    
+    const toolsWithFavorites = studyTools.map(tool => ({
+      ...tool,
+      favorite: favoriteIds.includes(tool.id),
+      lastUsed: recentlyUsedData.find(item => item.id === tool.id) 
+        ? new Date(recentlyUsedData.find(item => item.id === tool.id)!.lastUsed)
+        : undefined
+    }));
+    
+    setTools(toolsWithFavorites);
+    
+    // Set recently used tools (last 5)
+    const recentTools = recentlyUsedData
+      .sort((a, b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime())
+      .slice(0, 5)
+      .map(item => toolsWithFavorites.find(tool => tool.id === item.id))
+      .filter(Boolean) as StudyTool[];
+    
+    setRecentlyUsedTools(recentTools);
+  }, []);
 
-  const selectedToolData = studyTools.find(tool => tool.id === selectedTool);
-  const SelectedComponent = selectedToolData?.component;
+  // Save favorites to localStorage
+  const saveFavorites = (updatedTools: StudyTool[]) => {
+    const favoriteIds = updatedTools.filter(tool => tool.favorite).map(tool => tool.id);
+    localStorage.setItem('favoriteStudyTools', JSON.stringify(favoriteIds));
+  };
 
+  // Save recently used to localStorage
+  const saveRecentlyUsed = (toolId: string) => {
+    const savedRecentlyUsed = localStorage.getItem('recentlyUsedStudyTools');
+    let recentlyUsedData: Array<{id: string, lastUsed: string}> = [];
+    
+    if (savedRecentlyUsed) {
+      recentlyUsedData = JSON.parse(savedRecentlyUsed);
+    }
+    
+    // Remove existing entry for this tool
+    recentlyUsedData = recentlyUsedData.filter(item => item.id !== toolId);
+    
+    // Add to beginning
+    recentlyUsedData.unshift({
+      id: toolId,
+      lastUsed: new Date().toISOString()
+    });
+    
+    // Keep only last 10
+    recentlyUsedData = recentlyUsedData.slice(0, 10);
+    
+    localStorage.setItem('recentlyUsedStudyTools', JSON.stringify(recentlyUsedData));
+    
+    // Update recently used tools display
+    const recentTools = recentlyUsedData
+      .slice(0, 5)
+      .map(item => tools.find(tool => tool.id === item.id))
+      .filter(Boolean) as StudyTool[];
+    
+    setRecentlyUsedTools(recentTools);
+  };
+
+  // Toggle favorite status
+  const toggleFavorite = (id: string) => {
+    const updatedTools = tools.map(tool => tool.id === id ? {
+      ...tool,
+      favorite: !tool.favorite
+    } : tool);
+    setTools(updatedTools);
+    saveFavorites(updatedTools);
+  };
+
+  // Filter tools based on search term and category
+  const getFilteredTools = (category: string) => {
+    return tools.filter(tool => {
+      const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           tool.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = category === 'all' || tool.category === category;
+      return matchesSearch && matchesCategory;
+    });
+  };
+
+  // Get favorites
+  const favoriteTools = tools.filter(tool => tool.favorite);
+
+  // Navigate to the selected tool
+  const navigateToTool = (id: string) => {
+    saveRecentlyUsed(id);
+    navigate(`/tools/${id}`);
+  };
+
+  // Category labels
+  const categoryLabels: Record<string, string> = {
+    'all': 'All Tools',
+    'time': 'Time Management',
+    'content': 'Content & Notes',
+    'practice': 'Practice & Revision',
+    'wellness': 'Wellness & Focus',
+    'organization': 'Organization'
+  };
+
+  // Category styles
+  const getCategoryStyle = (category: string) => {
+    const styles: Record<string, string> = {
+      'time': 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300',
+      'content': 'bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-300',
+      'practice': 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300',
+      'wellness': 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300',
+      'organization': 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-900/20 dark:border-cyan-800 dark:text-cyan-300'
+    };
+    return styles[category] || '';
+  };
+
+  // Category background gradients
+  const getCategoryGradient = (category: string) => {
+    const gradients: Record<string, string> = {
+      'time': 'from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20',
+      'content': 'from-violet-100 to-violet-50 dark:from-violet-900/30 dark:to-violet-800/20',
+      'practice': 'from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20',
+      'wellness': 'from-amber-100 to-amber-50 dark:from-amber-900/30 dark:to-amber-800/20',
+      'organization': 'from-cyan-100 to-cyan-50 dark:from-cyan-900/30 dark:to-cyan-800/20'
+    };
+    return gradients[category] || '';
+  };
+  
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+  
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
+  const floatingIcons = [
+    { icon: <Calculator className="text-blue-300 dark:text-blue-700" />, delay: 0, size: "h-10 w-10" },
+    { icon: <BookOpen className="text-green-300 dark:text-green-700" />, delay: 2, size: "h-12 w-12" },
+    { icon: <Brain className="text-purple-300 dark:text-purple-700" />, delay: 4, size: "h-14 w-14" },
+    { icon: <Clock className="text-amber-300 dark:text-amber-700" />, delay: 1, size: "h-8 w-8" },
+    { icon: <Lightbulb className="text-yellow-300 dark:text-yellow-700" />, delay: 3, size: "h-9 w-9" },
+    { icon: <Target className="text-red-300 dark:text-red-700" />, delay: 5, size: "h-11 w-11" },
+  ];
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-center gap-3">
-            <Zap className="h-10 w-10 text-blue-600" />
-            Advanced Study Tools
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Supercharge your learning with our comprehensive suite of study tools designed to enhance focus, 
-            improve retention, and boost academic performance.
-          </p>
-          <div className="flex justify-center gap-4 mt-6">
-            <Button 
-              onClick={() => setShowGuide(true)}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <HelpCircle className="h-4 w-4" />
-              Study Tools Guide
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar - Tool Categories and List */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Tool Categories</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <ScrollArea className="h-[600px]">
-                  <div className="p-4 space-y-2">
-                    {/* Category Filter */}
-                    <div className="space-y-2 mb-4">
-                      {categories.map(category => (
-                        <Button
-                          key={category.id}
-                          variant={selectedCategory === category.id ? 'default' : 'ghost'}
-                          className="w-full justify-start"
-                          onClick={() => setSelectedCategory(category.id)}
-                        >
-                          {category.icon}
-                          <span className="ml-2">{category.name}</span>
-                          <Badge variant="secondary" className="ml-auto">
-                            {category.id === 'all' ? studyTools.length : studyTools.filter(t => t.category === category.id).length}
-                          </Badge>
-                        </Button>
-                      ))}
-                    </div>
-
-                    {/* Tool List */}
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Available Tools ({filteredTools.length})
-                      </h4>
-                      {filteredTools.map(tool => (
-                        <Button
-                          key={tool.id}
-                          variant={selectedTool === tool.id ? 'default' : 'ghost'}
-                          className="w-full justify-start p-3 h-auto"
-                          onClick={() => setSelectedTool(tool.id)}
-                        >
-                          <div className="flex items-start gap-3 text-left">
-                            {tool.icon}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-sm truncate">{tool.name}</span>
-                                {tool.isNew && <Badge variant="secondary" className="text-xs">New</Badge>}
-                                {tool.isPremium && <Badge className="text-xs bg-amber-500">Pro</Badge>}
-                              </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
-                                {tool.description}
-                              </p>
-                            </div>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            {selectedToolData && (
-              <div className="space-y-6">
-                {/* Tool Header */}
-                <Card>
-                  <CardHeader className="bg-gradient-to-r from-blue-500/10 to-purple-500/10">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {selectedToolData.icon}
-                        <div>
-                          <CardTitle className="text-2xl flex items-center gap-2">
-                            {selectedToolData.name}
-                            {selectedToolData.isNew && <Badge variant="secondary">New</Badge>}
-                            {selectedToolData.isPremium && <Badge className="bg-amber-500">Pro</Badge>}
-                          </CardTitle>
-                          <CardDescription className="text-base mt-1">
-                            {selectedToolData.description}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="capitalize">
-                          {selectedToolData.category}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-
-                {/* Tool Component */}
-                <div className="animate-fade-in">
-                  {SelectedComponent && <SelectedComponent />}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+    <motion.div 
+      className="relative container max-w-7xl py-4 sm:py-8 px-4 sm:px-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Animated Background Graphics */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+        {/* Floating study icons */}
+        {floatingIcons.map((item, index) => (
+          <motion.div
+            key={index}
+            className={`absolute opacity-20 ${item.size} hidden sm:block`}
+            style={{
+              top: `${Math.random() * 70 + 10}%`,
+              left: `${Math.random() * 80 + 10}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              rotate: [0, 10, 0, -10, 0],
+              opacity: [0.1, 0.2, 0.1]
+            }}
+            transition={{
+              duration: Math.random() * 5 + 15,
+              repeat: Infinity,
+              delay: item.delay,
+            }}
+          >
+            {item.icon}
+          </motion.div>
+        ))}
       </div>
 
+      {/* Page Header */}
+      <div className="relative">
+        <div className="flex items-center mb-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+            onClick={() => navigate('/')}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <motion.h1 
+            className="text-2xl sm:text-3xl font-bold relative" 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Study Tools
+            <motion.span 
+              className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            ></motion.span>
+          </motion.h1>
+        </div>
+        <motion.p 
+          className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl text-sm sm:text-base"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          Enhance your JEE preparation with these specialized tools designed to streamline your study process, 
+          improve retention, and boost your productivity.
+        </motion.p>
+      </div>
+
+      {/* Study Tools Guide Button */}
+      <motion.div 
+        className="mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+      >
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02]">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
+                  <HelpCircle className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                    Study Tools Guide
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    Complete guide to all study tools with detailed usage instructions and tips
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => setShowGuide(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Info className="mr-2 h-4 w-4" />
+                Open Guide
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      
+      {/* Search and Filter */}
+      <motion.div 
+        className="flex flex-col sm:flex-row gap-4 items-center mb-6 z-10 relative"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <div className="relative w-full sm:w-auto flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input 
+            placeholder="Search tools..." 
+            value={searchTerm} 
+            onChange={e => setSearchTerm(e.target.value)} 
+            className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+          />
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="h-4 w-4 text-gray-500" />
+          <select 
+            value={selectedCategory} 
+            onChange={e => setSelectedCategory(e.target.value)} 
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+          >
+            {Object.entries(categoryLabels).map(([key, value]) => (
+              <option key={key} value={key}>{value}</option>
+            ))}
+          </select>
+        </div>
+      </motion.div>
+      
+      {/* Tools Tabs */}
+      <Tabs defaultValue="categories" className="w-full">
+        <TabsList className="mb-6 bg-white dark:bg-gray-800 p-1 border border-gray-100 dark:border-gray-800 shadow-sm w-full overflow-x-auto">
+          <TabsTrigger value="categories" className="min-w-max">By Category</TabsTrigger>
+          <TabsTrigger value="all" className="min-w-max">All Tools</TabsTrigger>
+          <TabsTrigger value="favorites" className="min-w-max">
+            Favorites ({favoriteTools.length})
+          </TabsTrigger>
+          <TabsTrigger value="recent" className="min-w-max">
+            Recently Used ({recentlyUsedTools.length})
+          </TabsTrigger>
+        </TabsList>
+        
+        {/* Categories Tab */}
+        <TabsContent value="categories" className="space-y-8">
+          {Object.keys(categoryLabels).filter(cat => cat !== 'all').map((category) => (
+            <motion.div 
+              key={category}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                  {category === 'time' && <Clock className="h-5 w-5 text-blue-500" />}
+                  {category === 'content' && <BookOpen className="h-5 w-5 text-violet-500" />}
+                  {category === 'practice' && <Brain className="h-5 w-5 text-green-500" />}
+                  {category === 'wellness' && <Sparkles className="h-5 w-5 text-amber-500" />}
+                  {category === 'organization' && <Calendar className="h-5 w-5 text-cyan-500" />}
+                  {categoryLabels[category]}
+                </h2>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedCategory(category)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  View all <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+              
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                variants={container}
+                initial="hidden"
+                animate="show"
+              >
+                {getFilteredTools(category).slice(0, 3).map(tool => (
+                  <motion.div key={tool.id} variants={item}>
+                    <Card 
+                      className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-800 h-full hover:-translate-y-2 relative"
+                      onClick={() => navigateToTool(tool.id)}
+                    >
+                      <CardContent className="p-0 h-full">
+                        <div className={`flex h-full bg-gradient-to-br ${getCategoryGradient(tool.category)} relative`}>
+                          <div className="w-2 h-full bg-gradient-to-b from-blue-500 to-purple-500"></div>
+                          <div className="flex flex-col p-6 flex-1">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                {tool.icon}
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 hover:scale-110 transition-transform opacity-70 hover:opacity-100" 
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  toggleFavorite(tool.id);
+                                }}
+                              >
+                                <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
+                              </Button>
+                            </div>
+                            
+                            <div className="flex-1">
+                              <h3 className="font-bold text-lg mb-2 text-gray-800 dark:text-gray-200">
+                                {tool.name}
+                              </h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                                {tool.description}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-500 line-clamp-3">
+                                {tool.detailedDescription}
+                              </p>
+                            </div>
+                            
+                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                              <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
+                                {categoryLabels[tool.category]}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          ))}
+        </TabsContent>
+        
+        {/* All Tools Tab */}
+        <TabsContent value="all" className="space-y-6">
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={container}
+            initial="hidden"
+            animate="show"
+          >
+            {getFilteredTools(selectedCategory).map(tool => (
+              <motion.div key={tool.id} variants={item}>
+                <Card 
+                  className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer h-full hover:-translate-y-2" 
+                  onClick={() => navigateToTool(tool.id)}
+                >
+                  <CardContent className="p-6 h-full flex flex-col">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        {tool.icon}
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 hover:scale-110 transition-transform opacity-70 hover:opacity-100" 
+                        onClick={e => {
+                          e.stopPropagation();
+                          toggleFavorite(tool.id);
+                        }}
+                      >
+                        <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-2">{tool.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{tool.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 line-clamp-3 mb-4">
+                        {tool.detailedDescription}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
+                        {categoryLabels[tool.category]}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+          
+          {getFilteredTools(selectedCategory).length === 0 && (
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No tools found</h3>
+              <p className="text-gray-500">Try changing your search or filter criteria</p>
+            </motion.div>
+          )}
+        </TabsContent>
+        
+        {/* Favorites Tab */}
+        <TabsContent value="favorites">
+          {favoriteTools.length > 0 ? (
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={container}
+              initial="hidden"
+              animate="show"
+            >
+              {favoriteTools.map(tool => (
+                <motion.div key={tool.id} variants={item}>
+                  <Card 
+                    className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer h-full hover:-translate-y-2" 
+                    onClick={() => navigateToTool(tool.id)}
+                  >
+                    <CardContent className="p-6 h-full flex flex-col">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                          {tool.icon}
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 hover:scale-110 transition-transform" 
+                          onClick={e => {
+                            e.stopPropagation();
+                            toggleFavorite(tool.id);
+                          }}
+                        >
+                          <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                        </Button>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg mb-2">{tool.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{tool.description}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 line-clamp-3">
+                          {tool.detailedDescription}
+                        </p>
+                      </div>
+                      
+                      <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
+                          {categoryLabels[tool.category]}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No favorites yet</h3>
+              <p className="text-gray-500">Star your favorite tools to see them here</p>
+            </motion.div>
+          )}
+        </TabsContent>
+        
+        {/* Recently Used Tab */}
+        <TabsContent value="recent">
+          {recentlyUsedTools.length > 0 ? (
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={container}
+              initial="hidden"
+              animate="show"
+            >
+              {recentlyUsedTools.map(tool => (
+                <motion.div key={tool.id} variants={item}>
+                  <Card 
+                    className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer h-full hover:-translate-y-2" 
+                    onClick={() => navigateToTool(tool.id)}
+                  >
+                    <CardContent className="p-6 h-full flex flex-col">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                          {tool.icon}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 hover:scale-110 transition-transform opacity-70 hover:opacity-100" 
+                            onClick={e => {
+                              e.stopPropagation();
+                              toggleFavorite(tool.id);
+                            }}
+                          >
+                            <Star className={`h-5 w-5 ${tool.favorite ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg mb-2">{tool.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{tool.description}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 line-clamp-3">
+                          {tool.detailedDescription}
+                        </p>
+                      </div>
+                      
+                      <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <Badge className={`text-xs ${getCategoryStyle(tool.category)}`}>
+                          {categoryLabels[tool.category]}
+                        </Badge>
+                        {tool.lastUsed && (
+                          <span className="text-xs text-gray-400">
+                            {tool.lastUsed.toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No recent tools</h3>
+              <p className="text-gray-500">Your recently used tools will appear here</p>
+            </motion.div>
+          )}
+        </TabsContent>
+      </Tabs>
+      
       {/* Study Tools Guide Modal */}
       <StudyToolsGuide 
         isOpen={showGuide}
         onClose={() => setShowGuide(false)}
         tools={studyTools}
       />
-    </div>
+    </motion.div>
   );
-}
+};
+
+export default StudyToolsPage;
