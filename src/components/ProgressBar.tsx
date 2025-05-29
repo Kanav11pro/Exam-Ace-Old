@@ -8,7 +8,8 @@ interface ProgressBarProps {
   variant?: 'default' | 'dashboard' | 'maths' | 'physics' | 'chemistry';
   animated?: boolean;
   height?: 'sm' | 'md' | 'lg';
-  showPercentage?: boolean; // Added this prop
+  showPercentage?: boolean;
+  className?: string; // Added className prop
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -16,7 +17,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   variant = 'default',
   animated = false,
   height = 'md',
-  showPercentage = false // Set default value
+  showPercentage = false,
+  className // Added className parameter
 }) => {
   const [animatedProgress, setAnimatedProgress] = useState(0);
   
@@ -61,7 +63,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     <div className="w-full">
       <div className={cn(
         'w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden',
-        heightClass
+        heightClass,
+        className // Apply the className prop here
       )}>
         <motion.div
           className={cn(
