@@ -81,7 +81,7 @@ const Index = () => {
       {location.pathname !== '/auth' && <Header />}
       
       <div className="flex flex-1 relative">
-        {showSidebar && !isMobile && <Sidebar />}
+        {showSidebar && <Sidebar />}
         
         <motion.main 
           className={`flex-1 pb-6 relative overflow-x-hidden ${
