@@ -86,7 +86,7 @@ export const Sidebar = () => {
       gradient: 'from-indigo-500 to-purple-500',
       glow: 'shadow-indigo-500/25',
       subItems: [
-        { label: 'Advanced Study Timer', path: '/tools/advanced-study-timer', icon: '⏱️' },
+        { label: 'Pomodoro Timer', path: '/tools/pomodoro-timer', icon: '⏱️' },
         { label: 'Flashcards', path: '/tools/flashcards', icon: '🗂️' },
         { label: 'Formula Sheet', path: '/tools/formula-sheet', icon: '📊' }
       ]
@@ -381,11 +381,11 @@ export const Sidebar = () => {
   if (isMobile) {
     return (
       <>
-        {/* Mobile Trigger Button - Fixed positioning */}
+        {/* Mobile Trigger Button */}
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-4 left-4 z-50 md:hidden bg-background/90 backdrop-blur-md border border-border/50 shadow-lg hover:bg-background/95 transition-all duration-200"
+          className="fixed top-16 left-4 z-50 md:hidden bg-background/80 backdrop-blur-md border border-border/50 shadow-lg"
           onClick={toggleMobileSidebar}
         >
           <Menu className="h-5 w-5" />

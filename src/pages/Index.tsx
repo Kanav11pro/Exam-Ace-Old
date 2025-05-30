@@ -85,7 +85,7 @@ const Index = () => {
         
         <motion.main 
           className={`flex-1 pb-6 relative overflow-x-hidden ${
-            showSidebar && !isMobile ? 'md:ml-[72px]' : ''
+            showSidebar && !isMobile ? 'md:pl-[72px]' : ''
           }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
