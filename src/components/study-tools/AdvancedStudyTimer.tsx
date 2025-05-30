@@ -66,7 +66,7 @@ export const AdvancedStudyTimer = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [dailySessions, setDailySessions] = useState<Session[]>([]);
   
-  const { addStudyTime, addPomodoroSession } = useStudyStats();
+  const { addStudyTime, recordPomodoroSession } = useStudyStats();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -133,9 +133,9 @@ export const AdvancedStudyTimer = () => {
         
         // Add to study stats
         if (subject) {
-          addStudyTime(subject, settings.focusMinutes);
+          addStudyTime(subject, 'Pomodoro Session', settings.focusMinutes);
         }
-        addPomodoroSession(settings.focusMinutes, subject || 'General');
+        recordPomodoroSession(subject || 'General', 1, settings.focusMinutes);
         
         // Start break
         setIsBreak(true);
@@ -162,7 +162,7 @@ export const AdvancedStudyTimer = () => {
       setSessionsCompleted(prev => prev + 1);
       
       if (subject) {
-        addStudyTime(subject, Math.floor(totalTime / 60));
+        addStudyTime(subject, mode === 'focus' ? 'Deep Focus' : 'Study Session', Math.floor(totalTime / 60));
       }
     }
   };
