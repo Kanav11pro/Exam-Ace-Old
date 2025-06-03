@@ -5,10 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { useJEEData } from '@/context/jee';
-import AnalyticsDashboard from '@/components/AnalyticsDashboard';
-import StudyStreakTracker from '@/components/StudyStreakTracker';
 import { 
   Calculator, 
   Atom, 
@@ -18,14 +15,11 @@ import {
   BookOpen,
   Star,
   Trophy,
-  Rocket,
-  BarChart3,
-  Settings
+  Rocket
 } from 'lucide-react';
 
 const PrepometerPage = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [showAnalytics, setShowAnalytics] = useState(false);
   const { getProgressBySubject, getTotalProgress } = useJEEData();
 
   const subjects = [
@@ -104,86 +98,55 @@ const PrepometerPage = () => {
       </div>
 
       <div className="container max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 relative z-10">
-        {/* Header with Theme Toggle */}
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-start mb-8"
+          className="text-center mb-12"
         >
-          <div>
-            <motion.div
-              className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full border border-primary/20"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Rocket className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-primary">JEE PREPOMETER</span>
-            </motion.div>
-            
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Track Your JEE Journey
-            </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl leading-relaxed">
-              Monitor your preparation progress across all subjects with detailed chapter-wise tracking.
-            </p>
-          </div>
+          <motion.div
+            className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full border border-primary/20"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Rocket className="h-5 w-5 text-primary" />
+            <span className="text-sm font-medium text-primary">JEE PREPOMETER</span>
+          </motion.div>
+          
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            Track Your JEE Journey
+          </h1>
+          
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
+            Monitor your preparation progress across all subjects with detailed chapter-wise tracking.
+          </p>
 
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAnalytics(!showAnalytics)}
-              className="gap-2"
-            >
-              <BarChart3 className="h-4 w-4" />
-              {showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
-            </Button>
-            <ThemeToggle />
-          </div>
-        </motion.div>
-
-        {/* Analytics Dashboard */}
-        <AnimatePresence>
-          {showAnalytics && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-12"
-            >
-              <AnalyticsDashboard />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Overall Progress and Streak Cards */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12"
-        >
-          <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20 shadow-xl">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Trophy className="h-6 w-6 text-primary" />
-                <span className="text-lg font-semibold">Overall Progress</span>
-              </div>
-              <div className="space-y-3">
-                <Progress value={totalProgress} className="h-3" />
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-primary">{totalProgress.toFixed(1)}%</span>
-                  <Badge variant="secondary" className="px-3 py-1">
-                    <Star className="h-3 w-3 mr-1" />
-                    {totalProgress > 75 ? 'Excellent' : totalProgress > 50 ? 'Good' : 'Keep Going!'}
-                  </Badge>
+          {/* Overall Progress Card */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="max-w-md mx-auto mb-12"
+          >
+            <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20 shadow-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Trophy className="h-6 w-6 text-primary" />
+                  <span className="text-lg font-semibold">Overall Progress</span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <StudyStreakTracker />
+                <div className="space-y-3">
+                  <Progress value={totalProgress} className="h-3" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-2xl font-bold text-primary">{totalProgress.toFixed(1)}%</span>
+                    <Badge variant="secondary" className="px-3 py-1">
+                      <Star className="h-3 w-3 mr-1" />
+                      {totalProgress > 75 ? 'Excellent' : totalProgress > 50 ? 'Good' : 'Keep Going!'}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </motion.div>
 
         {/* Subject Selection */}
@@ -279,39 +242,6 @@ const PrepometerPage = () => {
               </motion.div>
             );
           })}
-        </motion.div>
-
-        {/* Quick Tips Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="max-w-4xl mx-auto"
-        >
-          <Card className="bg-gradient-to-br from-accent/5 to-secondary/5 border-accent/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-accent" />
-                JEE Preparation Tips
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="p-3 bg-background/50 rounded-lg">
-                  <p className="font-medium mb-1">📚 Consistent Study</p>
-                  <p className="text-muted-foreground">Study for at least 6-8 hours daily with proper breaks</p>
-                </div>
-                <div className="p-3 bg-background/50 rounded-lg">
-                  <p className="font-medium mb-1">🎯 Mock Tests</p>
-                  <p className="text-muted-foreground">Take regular mock tests to improve time management</p>
-                </div>
-                <div className="p-3 bg-background/50 rounded-lg">
-                  <p className="font-medium mb-1">🔄 Regular Revision</p>
-                  <p className="text-muted-foreground">Revise completed chapters weekly to retain concepts</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </motion.div>
       </div>
     </div>
