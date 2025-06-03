@@ -12,14 +12,9 @@ import {
   Beaker, 
   Target, 
   TrendingUp, 
-  Clock, 
-  Award, 
   BookOpen,
-  Zap,
-  Brain,
   Star,
   Trophy,
-  Flame,
   Rocket
 } from 'lucide-react';
 
@@ -116,7 +111,6 @@ const PrepometerPage = () => {
           >
             <Rocket className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-primary">JEE PREPOMETER</span>
-            <Flame className="h-4 w-4 text-orange-500" />
           </motion.div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
@@ -124,7 +118,7 @@ const PrepometerPage = () => {
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-            Revolutionize your preparation with real-time progress tracking, intelligent analytics, and personalized insights across all subjects.
+            Monitor your preparation progress across all subjects with detailed chapter-wise tracking.
           </p>
 
           {/* Overall Progress Card */}
@@ -248,62 +242,6 @@ const PrepometerPage = () => {
               </motion.div>
             );
           })}
-        </motion.div>
-
-        {/* Quick Stats */}
-        <AnimatePresence>
-          {selectedSubject && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-            >
-              {[
-                { icon: Clock, label: 'Study Time', value: '12h 45m', color: 'text-blue-500' },
-                { icon: Brain, label: 'Concepts', value: '156/200', color: 'text-purple-500' },
-                { icon: Zap, label: 'Streak', value: '7 days', color: 'text-yellow-500' },
-                { icon: Award, label: 'Rank', value: '#1,234', color: 'text-green-500' }
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="text-center p-4 bg-gradient-to-br from-background to-muted/20">
-                    <stat.icon className={`h-6 w-6 mx-auto mb-2 ${stat.color}`} />
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-lg font-bold">{stat.value}</p>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Call to Action */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="text-center bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8 border border-primary/20"
-        >
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Accelerate Your Preparation?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Join thousands of students who have transformed their JEE preparation with our intelligent tracking system.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg">
-              <Rocket className="h-5 w-5 mr-2" />
-              Start Practice Test
-            </Button>
-            <Button size="lg" variant="outline" className="border-primary/30 hover:bg-primary/5">
-              <Brain className="h-5 w-5 mr-2" />
-              View Study Plan
-            </Button>
-          </div>
         </motion.div>
       </div>
     </div>
