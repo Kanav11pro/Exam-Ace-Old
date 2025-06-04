@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Palette, Droplet, Leaf, Zap, Sunset, Star, TreePine, Cpu } from 'lucide-react';
+import { Moon, Sun, Cpu, Star } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { motion } from 'framer-motion';
 import { 
@@ -17,28 +17,16 @@ export function ThemeToggle() {
   const themeIcons = {
     'light': <Sun className="h-5 w-5 text-amber-500" />,
     'dark': <Moon className="h-5 w-5 text-indigo-300" />,
-    'purple': <Palette className="h-5 w-5 text-purple-400" />,
-    'green': <Leaf className="h-5 w-5 text-green-400" />,
-    'ocean': <Droplet className="h-5 w-5 text-blue-400" />,
-    'neon': <Zap className="h-5 w-5 text-cyan-400" />,
-    'sunset': <Sunset className="h-5 w-5 text-orange-400" />,
-    'midnight': <Star className="h-5 w-5 text-purple-300" />,
-    'forest': <TreePine className="h-5 w-5 text-green-600" />,
-    'cyber': <Cpu className="h-5 w-5 text-pink-400" />
+    'cyber': <Cpu className="h-5 w-5 text-pink-400" />,
+    'midnight': <Star className="h-5 w-5 text-purple-300" />
   };
   
   // Map of theme labels
   const themeLabels = {
     'light': 'Light',
     'dark': 'Dark',
-    'purple': 'Purple',
-    'green': 'Nature',
-    'ocean': 'Ocean',
-    'neon': 'Neon',
-    'sunset': 'Sunset',
-    'midnight': 'Midnight',
-    'forest': 'Forest',
-    'cyber': 'Cyber'
+    'cyber': 'Cyber',
+    'midnight': 'Midnight'
   };
 
   return (
@@ -49,20 +37,6 @@ export function ThemeToggle() {
           size="icon" 
           className="rounded-full relative overflow-hidden hover:bg-accent/50 hover:scale-110 transition-all duration-300"
         >
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 rounded-full"
-            animate={{ 
-              scale: [0.8, 1.4, 1], 
-              opacity: [0, 0.6, 0],
-              rotate: [0, 180, 360]
-            }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity, 
-              repeatDelay: 2 
-            }}
-          />
-          
           <motion.div
             initial={{ rotate: -30, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
@@ -77,8 +51,8 @@ export function ThemeToggle() {
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[10rem] p-3 backdrop-blur-md bg-background/80">
-        <div className="grid grid-cols-2 gap-2">
+      <DropdownMenuContent align="end" className="min-w-[8rem] p-2 backdrop-blur-md bg-background/80">
+        <div className="grid grid-cols-1 gap-1">
           {Object.entries(themeLabels).map(([key, label]) => (
             <DropdownMenuItem
               key={key}
