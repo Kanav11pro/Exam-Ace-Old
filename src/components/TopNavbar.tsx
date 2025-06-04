@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { 
@@ -7,12 +7,32 @@ import {
   Clock, 
   Calendar, 
   GraduationCap,
-  ExternalLink 
+  ExternalLink,
+  Menu,
+  X
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 const TopNavbar = () => {
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   const tabs = [
     {
@@ -47,10 +67,82 @@ const TopNavbar = () => {
     } else {
       window.location.href = tab.href;
     }
+    setIsDrawerOpen(false);
   };
 
+  const MobileMenu = () => (
+    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <DrawerTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-5 w-5" />
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Navigation</DrawerTitle>
+          <DrawerDescription>Choose a tool to navigate to</DrawerDescription>
+        </DrawerHeader>
+        <div className="p-4 space-y-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab)}
+                className={`
+                  w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                  ${tab.isActive 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted hover:bg-accent text-foreground'
+                  }
+                `}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="text-base font-medium">{tab.label}</span>
+                {tab.isExternal && (
+                  <ExternalLink className="h-4 w-4 ml-auto opacity-60" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+
+  const DesktopTabs = () => (
+    <div className="hidden md:flex items-center bg-background/80 backdrop-blur-sm rounded-2xl p-1.5 shadow-inner border">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(tab)}
+            className={`
+              relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300
+              ${tab.isActive 
+                ? 'bg-primary text-primary-foreground shadow-md' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+              }
+            `}
+          >
+            <Icon className={`h-4 w-4 ${tab.isActive ? '' : ''}`} />
+            
+            <span className="whitespace-nowrap">
+              {tab.label}
+            </span>
+            
+            {tab.isExternal && (
+              <ExternalLink className="h-3 w-3 opacity-60" />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b shadow-sm">
       <div className="container max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Site Title */}
@@ -63,38 +155,14 @@ const TopNavbar = () => {
             </h1>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex items-center bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl p-1.5 shadow-inner backdrop-blur-sm">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabClick(tab)}
-                  className={`
-                    relative flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300
-                    ${tab.isActive 
-                      ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-md' 
-                      : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
-                    }
-                  `}
-                >
-                  <Icon className={`h-4 w-4 ${tab.isActive ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-                  
-                  <span className="whitespace-nowrap">
-                    {tab.label}
-                  </span>
-                  
-                  {tab.isExternal && (
-                    <ExternalLink className="h-3 w-3 opacity-60" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {/* Desktop Navigation */}
+          <DesktopTabs />
 
-          {/* Theme Toggle */}
-          <ThemeToggle />
+          {/* Mobile Navigation and Theme Toggle */}
+          <div className="flex items-center gap-2">
+            <MobileMenu />
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </nav>
