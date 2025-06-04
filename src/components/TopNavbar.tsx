@@ -11,7 +11,6 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Drawer,
@@ -21,12 +20,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 
 const TopNavbar = () => {
@@ -158,10 +151,9 @@ const TopNavbar = () => {
           {/* Desktop Navigation */}
           <DesktopTabs />
 
-          {/* Mobile Navigation and Theme Toggle */}
+          {/* Mobile Navigation */}
           <div className="flex items-center gap-2">
             <MobileMenu />
-            <ThemeToggle />
           </div>
         </div>
       </div>

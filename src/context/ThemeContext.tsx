@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type ThemeType = 'light' | 'dark' | 'cyber' | 'midnight';
+type ThemeType = 'dark';
 
 type ThemeContextType = {
   theme: ThemeType;
@@ -12,26 +12,22 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeType>(() => {
-    const savedTheme = localStorage.getItem('jee-theme');
-    return (savedTheme as ThemeType) || 'light';
-  });
+  const [theme] = useState<ThemeType>('dark');
 
   useEffect(() => {
     const root = window.document.documentElement;
     
-    // Remove all theme classes
+    // Remove all theme classes and set dark as default
     root.classList.remove('light', 'dark', 'cyber', 'midnight');
-    root.classList.add(theme);
-    
-    localStorage.setItem('jee-theme', theme);
-  }, [theme]);
+    root.classList.add('dark');
+  }, []);
+
+  const setTheme = () => {
+    // Theme is fixed to dark, so this does nothing
+  };
 
   const toggleTheme = () => {
-    const themes: ThemeType[] = ['light', 'dark', 'cyber', 'midnight'];
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    // Theme is fixed to dark, so this does nothing
   };
 
   return (
