@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    
+    <!-- DotLottie Player Library -->
+<script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.json">
@@ -22,7 +23,54 @@
   </head>
 
   <body>
+
+<!-- Splash Screen -->
+<div id="splash-screen" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease;
+  padding: 20px;
+  box-sizing: border-box;
+">
+  <dotlottie-player 
+    src="https://lottie.host/fda38a62-7807-4a0f-bf55-ee8a4b98cb52/bCG7IET554.lottie"
+    background="transparent"
+    speed="1"
+    style="width: 60vw; max-width: 300px; height: auto;"
+    autoplay>
+  </dotlottie-player>
+</div>
+
+
+
+
+
+
+
+
+
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+
+
+  <script>
+  setTimeout(() => {
+    const splash = document.getElementById("splash-screen");
+    if (splash) {
+      splash.style.opacity = "0";
+      setTimeout(() => splash.remove(), 600); // Clean up after fade
+    }
+  }, 1500); // Show for 1.5 seconds
+</script>
+
 </html>
